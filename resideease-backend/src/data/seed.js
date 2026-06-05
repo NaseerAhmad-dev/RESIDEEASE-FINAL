@@ -88,6 +88,14 @@ const SUPPLIER_BILLS = [
   { billNumber: 'INV-2026-005', supplierName: 'Modern Furniture House',   category: 'furniture',   amount: 22000, billDate: '2026-05-18', description: '4 study tables and 8 chairs for new rooms in block C',               registeredAt: new Date('2026-05-18T16:30:00'), status: 'pending' },
 ];
 
+const ROLES = [
+  { name: 'super_admin', description: 'Super administrator — initial hostel onboarding, user management, full access' },
+  { name: 'admin',       description: 'Full system access — manage users, settings, and all modules' },
+  { name: 'manager',     description: 'Hostel manager — notices, mess, rebates, supplier bills, audit' },
+  { name: 'office',      description: 'Office staff — room management and student records' },
+  { name: 'student',     description: 'Student — limited to own profile and general features' },
+];
+
 async function seed() {
   console.log('Clearing existing data...');
   await prisma.messEnrollment.deleteMany();
@@ -95,17 +103,82 @@ async function seed() {
   await prisma.studentNotification.deleteMany();
   await prisma.student.deleteMany();
   await prisma.user.deleteMany();
+  await prisma.role.deleteMany();
   await prisma.settings.deleteMany();
   await prisma.room.deleteMany();
   await prisma.notice.deleteMany();
   await prisma.maintenanceRequest.deleteMany();
   await prisma.supplierBill.deleteMany();
   await prisma.auditRecord.deleteMany();
+  // Hostel child tables first (FK order), then hostel itself
+  await prisma.hostelAuditLog.deleteMany();
+  await prisma.hostelPayment.deleteMany();
+  await prisma.hostelSubscription.deleteMany();
+  await prisma.hostelOwner.deleteMany();
+  await prisma.hostelLocation.deleteMany();
+  await prisma.hostelSettings.deleteMany();
+  await prisma.hostel.deleteMany();
+
+  console.log('Seeding roles...');
+  for (const r of ROLES) {
+    await prisma.role.create({ data: r });
+  }
+  const superAdminRole = await prisma.role.findUnique({ where: { name: 'super_admin' } });
+  const managerRole    = await prisma.role.findUnique({ where: { name: 'manager' } });
+
+  console.log('Seeding hostel...');
+  const hostel = await prisma.hostel.create({
+    data: {
+      name:       'Maple Residency',
+      slug:       'maple-residency',
+      code:       'MAPLE',
+      hostelType: 'mixed',
+      isActive:   true,
+      location: {
+        create: {
+          addressLine1: '123 College Road',
+          addressLine2: 'University District',
+          city:    'Srinagar',
+          state:   'Jammu & Kashmir',
+          pincode: '190001',
+          country: 'India',
+          latitude:  34.0837,
+          longitude: 74.7973,
+        },
+      },
+      owners: {
+        create: {
+          name:      'Hostel Administration',
+          email:     'admin@resideease.com',
+          phone:     '+91-9876543210',
+          isPrimary: true,
+        },
+      },
+      settings: {
+        create: {
+          totalSeats:       60,
+          totalRooms:       25,
+          hasMess:          true,
+          messType:         'veg',
+          noticePeriodDays: 30,
+          website:          'www.resideease.com',
+          description:      'A premium student hostel facility',
+          timezone:         'Asia/Kolkata',
+        },
+      },
+    },
+  });
+
+  console.log('Seeding super admin...');
+  const superAdminPassword = await bcrypt.hash('superadmin123', 10);
+  await prisma.user.create({
+    data: { username: 'superadmin', email: 'superadmin@resideease.com', password: superAdminPassword, roleId: superAdminRole.id, name: 'Super Admin' },
+  });
 
   console.log('Seeding manager...');
   const managerPassword = await bcrypt.hash('manager123', 10);
   await prisma.user.create({
-    data: { username: 'manager', email: 'manager@resideease.com', password: managerPassword, role: 'manager', name: 'Hostel Manager' },
+    data: { username: 'manager', email: 'manager@resideease.com', password: managerPassword, roleId: managerRole.id, name: 'Mess Manager', hostelId: hostel.id },
   });
 
   console.log('Seeding students...');
@@ -142,8 +215,9 @@ async function seed() {
   }
 
   console.log('\nSeeded successfully.');
-  console.log('Manager login → username: manager  password: manager123');
-  console.log('Student login → rollNumber + phone (e.g. CS2021001 / 9419001234)');
+  console.log('Super Admin login → username: superadmin  password: superadmin123');
+  console.log('Manager login     → username: manager     password: manager123');
+  console.log('Student login     → rollNumber + phone (e.g. CS2021001 / 9419001234)');
   await prisma.$disconnect();
 }
 

@@ -10,7 +10,7 @@ async function seed() {
   await Student.deleteMany({});
 
   const managerPassword = await bcrypt.hash('admin123', 10);
-  await User.create({ email: 'manager@resideease.com', password: managerPassword, role: 'manager', name: 'Hostel Manager' });
+  await User.create({ email: 'manager@resideease.com', password: managerPassword, role: 'manager', name: 'Mess Manager' });
 
   const student = await Student.create({ firstName: 'Rahul', lastName: 'Sharma', /* ...rest */ });
   const studentPassword = await bcrypt.hash('student123', 10);

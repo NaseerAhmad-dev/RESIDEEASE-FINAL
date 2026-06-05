@@ -1,6 +1,8 @@
 const router = require('express').Router();
 
 router.use('/auth',                   require('./auth.routes'));
+router.use('/users',                  require('./user.routes'));
+router.use('/hostels',                require('./hostel.routes'));
 router.use('/students',               require('./student.routes'));
 router.use('/mess',                   require('./mess.routes'));
 router.use('/rebates',                require('./rebate.routes'));

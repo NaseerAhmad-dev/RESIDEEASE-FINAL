@@ -20,7 +20,7 @@ function authenticate(req, res, next) {
 
 function requireRole(...roles) {
   return (req, res, next) => {
-    if (!req.user || !roles.includes(req.user.role)) {
+    if (!req.user || (req.user.role !== 'super_admin' && !roles.includes(req.user.role))) {
       return fail(res, 'Forbidden: insufficient permissions', 403);
     }
     next();

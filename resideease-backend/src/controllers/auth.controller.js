@@ -13,14 +13,19 @@ exports.login = async (req, res) => {
   if (!username || !password) return fail(res, 'Username and password are required');
 
   const user = await prisma.user.findFirst({
-    where: { username, role: { in: ['manager', 'admin'] } },
+    where: {
+      OR: [{ username }, { email: username }],
+      role: { name: { in: ['super_admin', 'admin', 'office', 'manager'] } },
+    },
+    include: { role: true },
   });
   if (!user || !(await bcrypt.compare(password, user.password))) {
     return fail(res, 'Invalid credentials', 401);
   }
 
-  const { password: _, ...safeUser } = user;
-  const token = signToken({ id: user.id, username: user.username, role: user.role, name: user.name });
+  const { password: _, role: roleObj, ...rest } = user;
+  const safeUser = { ...rest, role: roleObj.name };
+  const token = signToken({ id: user.id, username: user.username, role: roleObj.name, name: user.name });
   return ok(res, { token, user: safeUser });
 };
 

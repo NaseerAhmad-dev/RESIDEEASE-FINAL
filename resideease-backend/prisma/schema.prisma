@@ -7,12 +7,139 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Hostel {
+  id         String    @id @default(cuid())
+  name       String
+  slug       String    @unique
+  code       String    @unique
+  hostelType String    @default("mixed")
+  isActive   Boolean   @default(true)
+  isReadOnly Boolean   @default(false)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  deletedAt  DateTime?
+
+  location      HostelLocation?
+  owners        HostelOwner[]
+  settings      HostelSettings?
+  subscriptions HostelSubscription[]
+  payments      HostelPayment[]
+  auditLogs     HostelAuditLog[]
+  users         User[]
+}
+
+model HostelLocation {
+  id           String  @id @default(cuid())
+  hostelId     String  @unique
+  hostel       Hostel  @relation(fields: [hostelId], references: [id], onDelete: Cascade)
+  addressLine1 String?
+  addressLine2 String?
+  city         String?
+  state        String?
+  pincode      String?
+  country      String  @default("India")
+  latitude     Float?
+  longitude    Float?
+}
+
+model HostelOwner {
+  id        String   @id @default(cuid())
+  hostelId  String
+  hostel    Hostel   @relation(fields: [hostelId], references: [id], onDelete: Cascade)
+  name      String
+  email     String?
+  phone     String?
+  altPhone  String?
+  isPrimary Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model HostelSettings {
+  id               String   @id @default(cuid())
+  hostelId         String   @unique
+  hostel           Hostel   @relation(fields: [hostelId], references: [id], onDelete: Cascade)
+  totalSeats       Int?
+  totalRooms       Int?
+  hasMess          Boolean  @default(false)
+  messType         String?
+  noticePeriodDays Int      @default(30)
+  logoUrl          String?
+  website          String?
+  description      String?
+  timezone         String   @default("Asia/Kolkata")
+  featureOverrides Json?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+}
+
+model HostelSubscription {
+  id           String    @id @default(cuid())
+  hostelId     String
+  hostel       Hostel    @relation(fields: [hostelId], references: [id], onDelete: Restrict)
+  planId       String?
+  planName     String
+  status       String    @default("active")
+  billingCycle String?
+  seatLimit    Int?
+  staffLimit   Int?
+  startsAt     DateTime
+  endsAt       DateTime?
+  trialEndsAt  DateTime?
+  graceEndsAt  DateTime?
+  isCurrent    Boolean   @default(false)
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  payments HostelPayment[]
+}
+
+model HostelPayment {
+  id             String              @id @default(cuid())
+  hostelId       String
+  hostel         Hostel              @relation(fields: [hostelId], references: [id], onDelete: Restrict)
+  subscriptionId String?
+  subscription   HostelSubscription? @relation(fields: [subscriptionId], references: [id], onDelete: SetNull)
+  amount         Float
+  currency       String              @default("INR")
+  status         String              @default("pending")
+  paymentMethod  String?
+  paidAt         DateTime?
+  invoiceUrl     String?
+  createdAt      DateTime            @default(now())
+  updatedAt      DateTime            @updatedAt
+}
+
+model HostelAuditLog {
+  id        String   @id @default(cuid())
+  hostelId  String
+  hostel    Hostel   @relation(fields: [hostelId], references: [id], onDelete: Cascade)
+  actorId   String?
+  actorRole String?
+  action    String
+  payload   Json?
+  ipAddress String?
+  createdAt DateTime @default(now())
+}
+
+model Role {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  users       User[]
+}
+
 model User {
   id        String   @id @default(cuid())
   username  String?  @unique
   email     String?  @unique
   password  String
-  role      String
+  roleId    String
+  role      Role     @relation(fields: [roleId], references: [id])
+  hostelId  String?
+  hostel    Hostel?  @relation(fields: [hostelId], references: [id])
   name      String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

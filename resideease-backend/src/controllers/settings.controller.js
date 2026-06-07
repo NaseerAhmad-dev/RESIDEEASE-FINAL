@@ -1,14 +1,48 @@
 const { prisma } = require('../config/db');
 const { ok, fail } = require('../utils/helpers');
 
+async function getHostelForUser(userId) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { hostelId: true },
+  });
+  if (!user?.hostelId) return null;
+  return prisma.hostel.findUnique({
+    where: { id: user.hostelId },
+    include: {
+      location: true,
+      settings: true,
+      owners: { where: { isPrimary: true }, take: 1 },
+    },
+  });
+}
+
+function mergeHostelData(settingsHostel, hostel) {
+  if (!hostel) return settingsHostel;
+  const owner = hostel.owners?.[0];
+  const loc   = hostel.location;
+  const hs    = hostel.settings;
+  const addressParts = [loc?.addressLine1, loc?.addressLine2, loc?.city, loc?.state, loc?.pincode]
+    .filter(Boolean);
+  return {
+    ...settingsHostel,
+    name:        hostel.name                || settingsHostel.name,
+    address:     addressParts.join(', ')    || settingsHostel.address,
+    phone:       owner?.phone               || settingsHostel.phone,
+    email:       owner?.email               || settingsHostel.email,
+    website:     hs?.website                || settingsHostel.website,
+    description: hs?.description            || settingsHostel.description,
+  };
+}
+
 const DEFAULT_SETTINGS = {
   hostel: {
-    name: 'ResideEase Hostel',
-    address: '123 College Road, University District',
-    phone: '+91-9876543210',
-    email: 'admin@resideease.com',
-    website: 'www.resideease.com',
-    description: 'A premium student hostel facility',
+    name: '',
+    address: '',
+    phone: '',
+    email: '',
+    website: '',
+    description: '',
   },
   rooms: [
     { id: 'single', label: 'Single Room',     price: 8500, enabled: true },
@@ -36,7 +70,12 @@ async function getOrCreate() {
 }
 
 exports.getSettings = async (req, res) => {
-  return ok(res, await getOrCreate());
+  const [settings, hostel] = await Promise.all([
+    getOrCreate(),
+    getHostelForUser(req.user.id),
+  ]);
+  const result = { ...settings, hostel: mergeHostelData(settings.hostel, hostel) };
+  return ok(res, result);
 };
 
 exports.updateSettings = async (req, res) => {
@@ -49,12 +88,56 @@ exports.updateSettings = async (req, res) => {
 };
 
 exports.updateHostelSettings = async (req, res) => {
-  const settings = await getOrCreate();
-  const updated = await prisma.settings.update({
+  const { name, address, phone, email, website, description } = req.body;
+  const [settings, hostel] = await Promise.all([
+    getOrCreate(),
+    getHostelForUser(req.user.id),
+  ]);
+
+  const updatedSettings = await prisma.settings.update({
     where: { id: settings.id },
     data: { hostel: { ...settings.hostel, ...req.body } },
   });
-  return ok(res, updated.hostel, 'Hostel settings updated');
+
+  if (hostel) {
+    const writes = [];
+
+    if (name !== undefined) {
+      writes.push(prisma.hostel.update({ where: { id: hostel.id }, data: { name } }));
+    }
+
+    if (website !== undefined || description !== undefined) {
+      const hsData = {};
+      if (website     !== undefined) hsData.website     = website;
+      if (description !== undefined) hsData.description = description;
+      writes.push(
+        hostel.settings
+          ? prisma.hostelSettings.update({ where: { hostelId: hostel.id }, data: hsData })
+          : prisma.hostelSettings.create({ data: { hostelId: hostel.id, ...hsData } })
+      );
+    }
+
+    if (phone !== undefined || email !== undefined) {
+      const primaryOwner = hostel.owners?.[0];
+      const ownerData = {};
+      if (phone !== undefined) ownerData.phone = phone;
+      if (email !== undefined) ownerData.email = email;
+      if (primaryOwner) {
+        writes.push(prisma.hostelOwner.update({ where: { id: primaryOwner.id }, data: ownerData }));
+      }
+    }
+
+    if (address !== undefined && hostel.location) {
+      writes.push(prisma.hostelLocation.update({
+        where: { hostelId: hostel.id },
+        data: { addressLine1: address },
+      }));
+    }
+
+    if (writes.length) await Promise.all(writes);
+  }
+
+  return ok(res, { ...updatedSettings.hostel, ...req.body }, 'Hostel settings updated');
 };
 
 exports.updateRoomSettings = async (req, res) => {

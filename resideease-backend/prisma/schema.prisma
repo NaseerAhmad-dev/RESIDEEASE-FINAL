@@ -189,6 +189,22 @@ model Guest {
   updatedAt     DateTime @updatedAt
 }
 
+model Employee {
+  id         String   @id @default(cuid())
+  name       String
+  email      String?  @unique
+  phone      String?
+  jobTitle   String
+  department String?
+  salary     Float?
+  joinDate   String
+  status     String   @default("active")
+  address    String?
+  notes      String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
 model Otp {
   id        String   @id @default(cuid())
   phone     String   @unique
@@ -337,4 +353,14 @@ model AuditRecord {
   updatedAt         DateTime @updatedAt
 
   @@unique([month, year])
+}
+
+model AdminNotification {
+  id        String   @id @default(cuid())
+  type      String   @default("info")
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

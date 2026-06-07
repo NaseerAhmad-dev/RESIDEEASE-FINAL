@@ -1,12 +1,19 @@
 const router = require('express').Router();
-const ctrl = require('../controllers/hostel.controller');
+const ctrl    = require('../controllers/hostel.controller');
+const subCtrl = require('../controllers/subscription.controller');
 const { authenticate, requireRole } = require('../middleware/auth.middleware');
 
-router.get('/',                authenticate, requireRole('super_admin'), ctrl.listHostels);
-router.get('/:id',             authenticate, requireRole('super_admin'), ctrl.getHostel);
-router.post('/',               authenticate, requireRole('super_admin'), ctrl.createHostel);
-router.put('/:id',             authenticate, requireRole('super_admin'), ctrl.updateHostel);
-router.delete('/:id',          authenticate, requireRole('super_admin'), ctrl.deleteHostel);
-router.post('/:id/owners',     authenticate, requireRole('super_admin'), ctrl.addOwner);
+const sa = [authenticate, requireRole('super_admin')];
+
+router.get('/',                ...sa, ctrl.listHostels);
+router.get('/:id',             ...sa, ctrl.getHostel);
+router.post('/',               ...sa, ctrl.createHostel);
+router.put('/:id',             ...sa, ctrl.updateHostel);
+router.delete('/:id',          ...sa, ctrl.deleteHostel);
+router.post('/:id/owners',     ...sa, ctrl.addOwner);
+
+router.put('/:id/subscription',  ...sa, subCtrl.upsertSubscription);
+router.get('/:id/payments',      ...sa, subCtrl.listPayments);
+router.post('/:id/payments',     ...sa, subCtrl.recordPayment);
 
 module.exports = router;

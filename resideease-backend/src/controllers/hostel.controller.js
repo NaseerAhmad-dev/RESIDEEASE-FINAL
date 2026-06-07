@@ -17,12 +17,22 @@ const LIST_INCLUDE = {
   owners:   { where: { isPrimary: true }, take: 1 },
 };
 
-// Full detail — all owners + current subscription
+// Full detail — all owners + current subscription + staff users
 const DETAIL_INCLUDE = {
   location:      true,
   settings:      true,
   owners:        true,
   subscriptions: { where: { isCurrent: true }, take: 1 },
+  users: {
+    where:  { role: { name: { in: ['admin', 'manager', 'office'] } } },
+    select: {
+      id:       true,
+      name:     true,
+      email:    true,
+      username: true,
+      role:     { select: { name: true } },
+    },
+  },
 };
 
 // ── List ───────────────────────────────────────────────────────────────────────

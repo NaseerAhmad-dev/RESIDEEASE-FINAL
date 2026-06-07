@@ -111,6 +111,7 @@ async function seed() {
   await prisma.supplierBill.deleteMany();
   await prisma.auditRecord.deleteMany();
   // Hostel child tables first (FK order), then hostel itself
+  await prisma.adminNotification.deleteMany();
   await prisma.hostelAuditLog.deleteMany();
   await prisma.hostelPayment.deleteMany();
   await prisma.hostelSubscription.deleteMany();
@@ -187,7 +188,7 @@ async function seed() {
   console.log('Seeding settings...');
   await prisma.settings.create({
     data: {
-      hostel: { name: 'ResideEase Hostel', address: '123 College Road, University District', phone: '+91-9876543210', email: 'admin@resideease.com', website: 'www.resideease.com', description: 'A premium student hostel facility' },
+      hostel: { name: 'SA Hostel Zakura', address: '123 College Road, University District', phone: '+91-9876543210', email: 'admin@resideease.com', website: 'www.resideease.com', description: 'A premium student hostel facility' },
       rooms:  [{ id: 'single', label: 'Single Room', price: 8500, enabled: true }, { id: 'double', label: 'Double Sharing', price: 5500, enabled: true }, { id: 'triple', label: 'Triple Sharing', price: 3800, enabled: true }],
       meals:  [{ id: 'full-board', label: 'Full Board', price: 3200, enabled: true }, { id: 'half-board', label: 'Half Board', price: 2100, enabled: true }, { id: 'breakfast-only', label: 'Breakfast Only', price: 900, enabled: true }, { id: 'no-mess', label: 'No Mess Plan', price: 0, enabled: true }],
       dietaryOptions: ['Vegetarian', 'Vegan', 'Jain', 'Halal', 'Kosher', 'Gluten-Free', 'Dairy-Free', 'High Protein', 'Low Carb', 'No Nuts'],
@@ -213,6 +214,17 @@ async function seed() {
   for (const b of SUPPLIER_BILLS) {
     await prisma.supplierBill.create({ data: b });
   }
+
+  console.log('Seeding admin notifications...');
+  await prisma.adminNotification.createMany({
+    data: [
+      { type: 'info',    title: 'New student registered',    message: 'Aanya Sharma completed onboarding for Room 204.',            isRead: false },
+      { type: 'success', title: 'Payment received',          message: '₹12,500 received from Rohan Mehta (Roll: CSE-221).',         isRead: false },
+      { type: 'warning', title: 'Maintenance request',       message: 'Room 112 reported a plumbing issue. Assign a technician.',    isRead: false },
+      { type: 'info',    title: 'Mess enrollment updated',   message: '14 students switched to vegetarian plan for next month.',     isRead: true  },
+      { type: 'success', title: 'Room checkout',             message: 'Priya Nair (Room 301) has checked out successfully.',         isRead: true  },
+    ],
+  });
 
   console.log('\nSeeded successfully.');
   console.log('Super Admin login → username: superadmin  password: superadmin123');

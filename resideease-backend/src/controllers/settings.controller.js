@@ -2,13 +2,20 @@ const { prisma } = require('../config/db');
 const { ok, fail } = require('../utils/helpers');
 
 async function getHostelForUser(userId) {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { hostelId: true },
-  });
-  if (!user?.hostelId) return null;
+  // Check User table first, then fall back to Employee table
+  let hostelId = null;
+
+  const user = await prisma.user.findUnique({ where: { id: userId }, select: { hostelId: true } });
+  if (user?.hostelId) {
+    hostelId = user.hostelId;
+  } else {
+    const employee = await prisma.employee.findUnique({ where: { id: userId }, select: { hostelId: true } });
+    if (employee?.hostelId) hostelId = employee.hostelId;
+  }
+
+  if (!hostelId) return null;
   return prisma.hostel.findUnique({
-    where: { id: user.hostelId },
+    where: { id: hostelId },
     include: {
       location: true,
       settings: true,

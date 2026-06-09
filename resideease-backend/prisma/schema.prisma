@@ -26,6 +26,7 @@ model Hostel {
   payments      HostelPayment[]
   auditLogs     HostelAuditLog[]
   users         User[]
+  employees     Employee[]
 }
 
 model HostelLocation {
@@ -201,6 +202,10 @@ model Employee {
   status     String   @default("active")
   address    String?
   notes      String?
+  role       String   @default("staff")
+  password   String?
+  hostelId   String?
+  hostel     Hostel?  @relation(fields: [hostelId], references: [id])
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }

@@ -50,4 +50,27 @@ exports.studentLogin = async (req, res) => {
   });
 };
 
+exports.employeeLogin = async (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password) return fail(res, 'Email and password are required');
+
+  const employee = await prisma.employee.findUnique({
+    where: { email },
+    select: {
+      id: true, name: true, email: true, role: true,
+      hostelId: true, status: true, password: true,
+    },
+  });
+  if (!employee || !employee.password) return fail(res, 'Invalid credentials', 401);
+  if (employee.status !== 'active') return fail(res, 'Account is inactive', 403);
+
+  if (!(await bcrypt.compare(password, employee.password))) {
+    return fail(res, 'Invalid credentials', 401);
+  }
+
+  const { password: _, ...safeEmployee } = employee;
+  const token = signToken({ id: employee.id, role: employee.role, name: employee.name, hostelId: employee.hostelId });
+  return ok(res, { token, user: safeEmployee });
+};
+
 exports.getMe = (req, res) => ok(res, req.user);

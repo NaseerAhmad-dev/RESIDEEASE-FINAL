@@ -8,11 +8,11 @@ router.post('/enrollments', authenticate, ctrl.createEnrollment);
 router.get('/enrollments/today', authenticate, ctrl.getTodayEnrollments);
 router.get('/enrollments/pending', authenticate, ctrl.getPendingEnrollments);
 router.get('/enrollments/coupon/:couponNumber', authenticate, ctrl.getByCoupon);
-router.put('/enrollments/:id/serve', authenticate, requireRole('manager', 'admin'), ctrl.serveEnrollment);
+router.put('/enrollments/:id/serve', authenticate, requireRole('manager', 'admin', 'mess_manager'), ctrl.serveEnrollment);
 
 // Notifications
 router.get('/notifications', authenticate, ctrl.getNotifications);
-router.post('/notifications', authenticate, requireRole('manager', 'admin'), ctrl.createNotification);
+router.post('/notifications', authenticate, requireRole('manager', 'admin', 'mess_manager'), ctrl.createNotification);
 router.put('/notifications/:id/read', authenticate, ctrl.markRead);
 
 // Stats

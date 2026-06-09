@@ -1,5 +1,13 @@
+const bcrypt = require('bcryptjs');
 const { prisma } = require('../config/db');
 const { ok, fail } = require('../utils/helpers');
+
+const SAFE_SELECT = {
+  id: true, name: true, email: true, phone: true, jobTitle: true,
+  department: true, salary: true, joinDate: true, status: true,
+  address: true, notes: true, role: true, hostelId: true,
+  createdAt: true, updatedAt: true,
+};
 
 exports.getAll = async (req, res) => {
   const { status, department, search } = req.query;
@@ -16,13 +24,17 @@ exports.getAll = async (req, res) => {
   }
   const employees = await prisma.employee.findMany({
     where,
+    select: SAFE_SELECT,
     orderBy: { createdAt: 'desc' },
   });
   return ok(res, employees);
 };
 
 exports.getById = async (req, res) => {
-  const employee = await prisma.employee.findUnique({ where: { id: req.params.id } });
+  const employee = await prisma.employee.findUnique({
+    where: { id: req.params.id },
+    select: SAFE_SELECT,
+  });
   if (!employee) return fail(res, 'Employee not found', 404);
   return ok(res, employee);
 };
@@ -38,6 +50,10 @@ exports.create = async (req, res) => {
     if (duplicate) return fail(res, 'An employee with this email already exists', 409);
   }
 
+  const hashedPassword = req.body.password
+    ? await bcrypt.hash(req.body.password, 10)
+    : null;
+
   const employee = await prisma.employee.create({
     data: {
       name,
@@ -50,7 +66,11 @@ exports.create = async (req, res) => {
       status:     req.body.status     || 'active',
       address:    req.body.address    ?? null,
       notes:      req.body.notes      ?? null,
+      role:       req.body.role       || 'staff',
+      password:   hashedPassword,
+      hostelId:   req.body.hostelId   ?? req.user.hostelId ?? null,
     },
+    select: SAFE_SELECT,
   });
   return ok(res, employee, 'Employee created successfully', 201);
 };
@@ -59,22 +79,36 @@ exports.update = async (req, res) => {
   const existing = await prisma.employee.findUnique({ where: { id: req.params.id } });
   if (!existing) return fail(res, 'Employee not found', 404);
 
-  const { name, email, phone, jobTitle, department, salary, joinDate, status, address, notes } = req.body;
+  const { name, email, phone, jobTitle, department, salary, joinDate, status, address, notes, role, hostelId } = req.body;
+
+  // Resolve hostelId: explicit body value → existing value → admin's hostelId (auto-heal null)
+  const resolvedHostelId = hostelId !== undefined
+    ? (hostelId || null)
+    : (existing.hostelId ?? req.user.hostelId ?? null);
+
+  const data = {
+    ...(name       !== undefined && { name }),
+    ...(email      !== undefined && { email: email || null }),
+    ...(phone      !== undefined && { phone: phone || null }),
+    ...(jobTitle   !== undefined && { jobTitle }),
+    ...(department !== undefined && { department: department || null }),
+    ...(salary     !== undefined && { salary: salary != null ? Number(salary) : null }),
+    ...(joinDate   !== undefined && { joinDate }),
+    ...(status     !== undefined && { status }),
+    ...(address    !== undefined && { address: address || null }),
+    ...(notes      !== undefined && { notes: notes || null }),
+    ...(role       !== undefined && { role }),
+    hostelId: resolvedHostelId,
+  };
+
+  if (req.body.password) {
+    data.password = await bcrypt.hash(req.body.password, 10);
+  }
 
   const employee = await prisma.employee.update({
     where: { id: req.params.id },
-    data: {
-      ...(name       !== undefined && { name }),
-      ...(email      !== undefined && { email: email || null }),
-      ...(phone      !== undefined && { phone: phone || null }),
-      ...(jobTitle   !== undefined && { jobTitle }),
-      ...(department !== undefined && { department: department || null }),
-      ...(salary     !== undefined && { salary: salary != null ? Number(salary) : null }),
-      ...(joinDate   !== undefined && { joinDate }),
-      ...(status     !== undefined && { status }),
-      ...(address    !== undefined && { address: address || null }),
-      ...(notes      !== undefined && { notes: notes || null }),
-    },
+    data,
+    select: SAFE_SELECT,
   });
   return ok(res, employee, 'Employee updated');
 };

@@ -1,0 +1,11 @@
+<app-shell
+  [navItems]="navItems"
+  [bottomNav]="bottomNav"
+  [notifications]="notifications"
+  [unreadCount]="unreadCount"
+  searchPlaceholder="Search students, rooms..."
+  settingsRoute="/admin/settings"
+  noticesRoute="/admin/notices"
+  (markReadEvent)="onMarkRead($event)"
+  (markAllReadEvent)="onMarkAllRead()">
+</app-shell>

@@ -1,0 +1,167 @@
+<div class="users-page">
+
+  <!-- Page header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Staff Users</h1>
+      <p class="page-subtitle">Create and manage admin, manager, and office staff accounts.</p>
+    </div>
+    <button class="btn-primary" type="button" (click)="openCreate()">
+      <svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+      New User
+    </button>
+  </div>
+
+  <!-- Users table -->
+  <div class="table-card">
+
+    @if (loading) {
+      <div class="empty-state">
+        <div class="spinner"></div>
+        <p>Loading users…</p>
+      </div>
+    } @else if (users.length === 0) {
+      <div class="empty-state">
+        <svg width="48" height="48" viewBox="0 0 20 20" fill="none" opacity=".25"><circle cx="7" cy="6" r="3" stroke="currentColor" stroke-width="1.2"/><path d="M1 17c0-3.314 2.686-5 6-5s6 1.686 6 5" stroke="currentColor" stroke-width="1.2"/></svg>
+        <p>No staff users yet.</p>
+        <button class="btn-primary" type="button" (click)="openCreate()">Create First User</button>
+      </div>
+    } @else {
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>User</th>
+            <th>Username</th>
+            <th>Email</th>
+            <th>Role</th>
+            <th>Created</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of users; track user.id) {
+            <tr>
+              <td>
+                <div class="user-cell">
+                  <div class="user-avatar">{{ initials(user) }}</div>
+                  <span class="user-fullname">{{ displayName(user) }}</span>
+                </div>
+              </td>
+              <td class="mono">{{ user.username }}</td>
+              <td class="muted">{{ user.email ?? '—' }}</td>
+              <td>
+                <span class="role-badge role-badge--{{ user.role }}">{{ roleLabel(user.role) }}</span>
+              </td>
+              <td class="muted">{{ formatDate(user.createdAt) }}</td>
+              <td>
+                <div class="row-actions">
+                  <button class="btn-icon" type="button" title="Edit" (click)="openEdit(user)">
+                    <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M14 3l3 3-9 9H5v-3L14 3z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/></svg>
+                  </button>
+                  <button class="btn-icon btn-icon--danger" type="button" title="Delete" (click)="confirmDelete(user)">
+                    <svg width="15" height="15" viewBox="0 0 20 20" fill="none"><path d="M4 6h12M8 6V4h4v2M7 6v10h6V6H7z" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+
+  </div>
+
+</div>
+
+<!-- ── Side panel ─────────────────────── -->
+@if (panelOpen()) {
+  <div class="panel-overlay" (click)="closePanel()" (keydown.escape)="closePanel()"></div>
+  <aside class="panel" role="dialog" [attr.aria-label]="panelMode() === 'create' ? 'Create user' : 'Edit user'">
+
+    <div class="panel-head">
+      <h2 class="panel-title">{{ panelMode() === 'create' ? 'New Staff User' : 'Edit User' }}</h2>
+      <button class="panel-close" type="button" (click)="closePanel()" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <form class="panel-body" [formGroup]="userForm" (ngSubmit)="save()" novalidate>
+
+      <div class="field-group">
+        <label for="p-name">Full Name</label>
+        <input id="p-name" type="text" formControlName="name" placeholder="e.g. Rajan Sharma" autocomplete="off"/>
+      </div>
+
+      <div class="field-group">
+        <label for="p-username">Username <span class="required">*</span></label>
+        <input id="p-username" type="text" formControlName="username" placeholder="e.g. rajan.sharma" autocomplete="off"/>
+      </div>
+
+      <div class="field-group">
+        <label for="p-email">Email</label>
+        <input id="p-email" type="email" formControlName="email" placeholder="e.g. rajan@hostel.com" autocomplete="off"/>
+      </div>
+
+      <div class="field-group">
+        <label for="p-password">
+          Password
+          @if (panelMode() === 'create') { <span class="required">*</span> }
+          @if (panelMode() === 'edit') { <span class="hint">(leave blank to keep current)</span> }
+        </label>
+        <input id="p-password" type="password" formControlName="password" placeholder="Enter password" autocomplete="new-password"/>
+      </div>
+
+      <div class="field-group">
+        <label>Role <span class="required">*</span></label>
+        <div class="role-options">
+          @for (r of roles; track r.value) {
+            <label class="role-option" [class.role-option--selected]="userForm.get('role')?.value === r.value">
+              <input type="radio" formControlName="role" [value]="r.value"/>
+              <div class="role-option-body">
+                <span class="role-option-name">{{ r.label }}</span>
+                <span class="role-option-desc">{{ r.desc }}</span>
+              </div>
+            </label>
+          }
+        </div>
+      </div>
+
+      @if (errorMsg) {
+        <div class="error-msg">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v4M10 13v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          {{ errorMsg }}
+        </div>
+      }
+
+      <div class="panel-footer">
+        <button class="btn-ghost" type="button" (click)="closePanel()">Cancel</button>
+        <button class="btn-submit" type="submit" [disabled]="saving || userForm.invalid">
+          {{ saving ? 'Saving…' : (panelMode() === 'create' ? 'Create User' : 'Save Changes') }}
+        </button>
+      </div>
+
+    </form>
+  </aside>
+}
+
+<!-- ── Delete confirm dialog ──────────── -->
+@if (deleteTargetId) {
+  <div class="panel-overlay" (click)="cancelDelete()" (keydown.escape)="cancelDelete()"></div>
+  <div class="confirm-dialog" role="alertdialog" aria-modal="true">
+    <div class="confirm-icon">
+      <svg width="28" height="28" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" fill="#fef2f2"/><path d="M10 6v4M10 13v1" stroke="#dc2626" stroke-width="1.8" stroke-linecap="round"/></svg>
+    </div>
+    <h3 class="confirm-title">Delete user?</h3>
+    <p class="confirm-desc">
+      <strong>{{ deleteTargetName }}</strong> will be permanently removed. This cannot be undone.
+    </p>
+    <div class="confirm-actions">
+      <button class="btn-ghost" type="button" (click)="cancelDelete()">Cancel</button>
+      <button class="btn-danger" type="button" [disabled]="deleting" (click)="deleteUser()">
+        {{ deleting ? 'Deleting…' : 'Delete' }}
+      </button>
+    </div>
+  </div>
+}

@@ -1,0 +1,210 @@
+<div class="requests-page">
+
+  <!-- ── Header ── -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Maintenance Requests</h1>
+      <p class="page-subtitle">Service tickets raised by students</p>
+    </div>
+  </div>
+
+  <!-- ── Stats ── -->
+  <div class="stats-row">
+
+    <div class="stat-card">
+      <div class="stat-icon si-brand">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+        </svg>
+      </div>
+      <div class="stat-body">
+        <div class="stat-value">{{ totalCount }}</div>
+        <div class="stat-label">Total Tickets</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon si-red">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <div class="stat-body">
+        <div class="stat-value">{{ openCount }}</div>
+        <div class="stat-label">Open</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon si-amber">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </div>
+      <div class="stat-body">
+        <div class="stat-value">{{ inProgressCount }}</div>
+        <div class="stat-label">In Progress</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon si-green">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+      </div>
+      <div class="stat-body">
+        <div class="stat-value">{{ resolvedCount }}</div>
+        <div class="stat-label">Resolved / Closed</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Filter bar ── -->
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <svg class="search-icon" width="15" height="15" viewBox="0 0 24 24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text" class="search-input" placeholder="Search by student, room, ticket…"
+             [(ngModel)]="searchQuery" (input)="applyFilters()">
+    </div>
+
+    <select class="filter-select" [(ngModel)]="filterStatus" (change)="applyFilters()">
+      <option value="">All Statuses</option>
+      <option value="open">Open</option>
+      <option value="in-progress">In Progress</option>
+      <option value="resolved">Resolved</option>
+      <option value="closed">Closed</option>
+    </select>
+
+    <select class="filter-select" [(ngModel)]="filterCategory" (change)="applyFilters()">
+      <option value="">All Categories</option>
+      <option value="plumbing">Plumbing</option>
+      <option value="electrical">Electrical</option>
+      <option value="carpentry">Carpentry</option>
+      <option value="cleaning">Cleaning</option>
+      <option value="appliance">Appliance</option>
+      <option value="other">Other</option>
+    </select>
+
+    <select class="filter-select" [(ngModel)]="filterPriority" (change)="applyFilters()">
+      <option value="">All Priorities</option>
+      <option value="urgent">Urgent</option>
+      <option value="high">High</option>
+      <option value="medium">Medium</option>
+      <option value="low">Low</option>
+    </select>
+
+    @if (hasActiveFilters) {
+      <button class="btn-clear" type="button" (click)="clearFilters()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+        Clear
+      </button>
+    }
+
+    @if (hasActiveFilters) {
+      <span class="results-count">
+        {{ filteredRequests.length }} of {{ allRequests.length }} tickets
+      </span>
+    }
+  </div>
+
+  <!-- ── Table ── -->
+  <div class="table-card">
+    <table class="req-table">
+      <thead>
+        <tr>
+          <th>Ticket</th>
+          <th>Student</th>
+          <th>Room</th>
+          <th>Category</th>
+          <th>Issue</th>
+          <th class="sortable" (click)="setSort('priority')">
+            Priority <span class="sort-icon">{{ getSortIcon('priority') }}</span>
+          </th>
+          <th class="sortable" (click)="setSort('status')">
+            Status <span class="sort-icon">{{ getSortIcon('status') }}</span>
+          </th>
+          <th class="sortable" (click)="setSort('raisedAt')">
+            Raised <span class="sort-icon">{{ getSortIcon('raisedAt') }}</span>
+          </th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (r of filteredRequests; track r.id) {
+          <tr [class.row-resolved]="r.status === 'resolved' || r.status === 'closed'">
+
+            <td><code class="ticket-code">{{ r.ticketNumber }}</code></td>
+
+            <td>
+              <div class="student-cell">
+                <div class="avatar-sm" [style.background-color]="getAvatarColor(r.studentName)">
+                  {{ initials(r.studentName) }}
+                </div>
+                <div>
+                  <div class="student-name">{{ r.studentName }}</div>
+                  <div class="student-roll">{{ r.rollNumber }}</div>
+                </div>
+              </div>
+            </td>
+
+            <td><span class="room-pill">{{ r.roomNumber }}</span></td>
+
+            <td><span class="category-tag category-tag--{{ r.category }}">{{ categoryLabel(r.category) }}</span></td>
+
+            <td class="issue-col">
+              <p class="issue-title">{{ r.title }}</p>
+              <p class="issue-desc">{{ r.description }}</p>
+            </td>
+
+            <td><span class="priority-chip priority-chip--{{ r.priority }}">{{ r.priority | titlecase }}</span></td>
+
+            <td><span class="status-chip status-chip--{{ r.status }}">{{ r.status | titlecase }}</span></td>
+
+            <td class="date-col">{{ r.raisedAt | date:'d MMM yyyy' }}</td>
+
+            <td>
+              <select class="action-select" [value]="r.status"
+                      (change)="updateStatus(r.id, $any($event.target).value)"
+                      [disabled]="r.status === 'closed'">
+                <option value="open">Open</option>
+                <option value="in-progress">In Progress</option>
+                <option value="resolved">Resolved</option>
+                <option value="closed">Closed</option>
+              </select>
+            </td>
+
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <!-- Empty state -->
+    @if (filteredRequests.length === 0) {
+      <div class="empty-state">
+        <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+             stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+        </svg>
+        <p>No maintenance tickets match your filters.</p>
+        <button class="btn-clear-empty" type="button" (click)="clearFilters()">Clear filters</button>
+      </div>
+    }
+  </div>
+
+</div>

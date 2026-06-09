@@ -1,0 +1,244 @@
+<div class="notices-page">
+
+  <!-- ── Header ── -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Notice Board</h1>
+      <p class="page-subtitle">Post and manage hostel notices for all residents</p>
+    </div>
+    <button class="btn-post" type="button" (click)="toggleForm()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      {{ showForm ? 'Cancel' : 'Post Notice' }}
+    </button>
+  </div>
+
+  <!-- ── Post form (collapsible) ── -->
+  @if (showForm) {
+    <div class="form-panel">
+      <div class="form-panel-header">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+        </svg>
+        New Notice
+      </div>
+      <div class="form-body">
+        <div class="form-row-2">
+          <div class="form-field">
+            <label>Title *</label>
+            <input type="text" class="form-input" placeholder="Notice title…" [(ngModel)]="form.title">
+          </div>
+          <div class="form-field">
+            <label>Posted By</label>
+            <input type="text" class="form-input" [(ngModel)]="form.postedBy">
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Content *</label>
+          <textarea class="form-textarea" rows="4" placeholder="Write the full notice here…"
+                    [(ngModel)]="form.content"></textarea>
+        </div>
+        <div class="form-row-3">
+          <div class="form-field">
+            <app-dropdown
+              label="Category"
+              [options]="categoryOptions"
+              [(ngModel)]="form.category"
+              [showFilter]="false"
+              optionLabel="label"
+              optionValue="value"
+            ></app-dropdown>
+          </div>
+          <div class="form-field">
+            <app-dropdown
+              label="Priority"
+              [options]="priorityOptions"
+              [(ngModel)]="form.priority"
+              [showFilter]="false"
+              optionLabel="label"
+              optionValue="value"
+            ></app-dropdown>
+          </div>
+          <div class="form-field">
+            <label>Expires On (optional)</label>
+            <input type="date" class="form-input" [(ngModel)]="form.expiresAt">
+          </div>
+        </div>
+        <div class="form-footer">
+          <label class="pin-toggle">
+            <input type="checkbox" [(ngModel)]="form.isPinned">
+            <span>Pin this notice</span>
+          </label>
+          <div class="form-actions">
+            <button class="btn-cancel" type="button" (click)="toggleForm()">Cancel</button>
+            <button class="btn-submit" type="button" (click)="submitNotice()"
+                    [disabled]="!form.title.trim() || !form.content.trim()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                   fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+              </svg>
+              Post Notice
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- ── Stats ── -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <span class="stat-value">{{ totalNotices }}</span>
+      <span class="stat-label">Total</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value stat-pinned">{{ pinnedCount }}</span>
+      <span class="stat-label">Pinned</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value stat-urgent">{{ urgentCount }}</span>
+      <span class="stat-label">Urgent</span>
+    </div>
+    <div class="stat-card">
+      <span class="stat-value stat-expired">{{ expiredCount }}</span>
+      <span class="stat-label">Expired</span>
+    </div>
+  </div>
+
+  <!-- ── Filter bar ── -->
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text" class="search-input" placeholder="Search notices…"
+             [(ngModel)]="searchQuery" (input)="applyFilters()">
+    </div>
+
+    <app-dropdown
+      class="filter-dropdown"
+      [options]="filterCategoryOptions"
+      [(ngModel)]="filterCategory"
+      (ngModelChange)="applyFilters()"
+      placeholder="All Categories"
+      [showFilter]="false"
+      optionLabel="label"
+      optionValue="value"
+    ></app-dropdown>
+
+    <app-dropdown
+      class="filter-dropdown"
+      [options]="filterPriorityOptions"
+      [(ngModel)]="filterPriority"
+      (ngModelChange)="applyFilters()"
+      placeholder="All Priorities"
+      [showFilter]="false"
+      optionLabel="label"
+      optionValue="value"
+    ></app-dropdown>
+
+    <button class="btn-pinned" type="button"
+            [class.active]="showPinnedOnly" (click)="togglePinnedOnly()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/>
+      </svg>
+      Pinned
+    </button>
+
+    @if (hasActiveFilters) {
+      <button class="btn-clear" type="button" (click)="clearFilters()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+        Clear
+      </button>
+    }
+  </div>
+
+  <!-- ── Notice grid ── -->
+  @if (filteredNotices.length > 0) {
+    <div class="notices-grid">
+      @for (n of filteredNotices; track n.id) {
+        <div class="notice-card"
+             [class]="'card-' + n.priority"
+             [class.is-expired]="isExpired(n)">
+
+          <!-- Top row: category + priority + pin btn -->
+          <div class="card-top">
+            <div class="card-badges">
+              <span class="cat-badge" [class]="'cat-' + n.category">{{ getCategoryLabel(n.category) }}</span>
+              <span class="pri-badge" [class]="'pri-' + n.priority">{{ n.priority | titlecase }}</span>
+              @if (isExpired(n)) {
+                <span class="expired-chip">Expired</span>
+              }
+            </div>
+            <div class="card-actions">
+              <button class="btn-pin" type="button" [class.is-pinned]="n.isPinned"
+                      (click)="togglePin(n.id)" [title]="n.isPinned ? 'Unpin' : 'Pin'">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="12" y1="17" x2="12" y2="22"/>
+                  <path d="M5 17h14v-1.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V6h1a2 2 0 0 0 0-4H8a2 2 0 0 0 0 4h1v4.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V17z"/>
+                </svg>
+              </button>
+              <button class="btn-delete" type="button" (click)="deleteNotice(n.id)" title="Delete">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"/>
+                  <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+                  <path d="M10 11v6"/><path d="M14 11v6"/>
+                  <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Title -->
+          <h3 class="card-title">{{ n.title }}</h3>
+
+          <!-- Content -->
+          <p class="card-content">{{ n.content }}</p>
+
+          <!-- Footer -->
+          <div class="card-footer">
+            <div class="card-meta">
+              <span class="meta-by">{{ n.postedBy }}</span>
+              <span class="meta-dot">·</span>
+              <span class="meta-date">{{ n.createdAt | date:'d MMM yyyy' }}</span>
+            </div>
+            @if (n.expiresAt && !isExpired(n)) {
+              <span class="expiry-chip">
+                Expires {{ n.expiresAt | date:'d MMM' }}
+              </span>
+            }
+          </div>
+
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ── Empty state ── -->
+  @if (filteredNotices.length === 0) {
+    <div class="empty-state">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+        <polyline points="14 2 14 8 20 8"/>
+        <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+        <polyline points="10 9 9 9 8 9"/>
+      </svg>
+      <h3>No notices found</h3>
+      <p>Try adjusting your filters or post a new notice.</p>
+      <button class="btn-clear-empty" type="button" (click)="clearFilters()">Clear filters</button>
+    </div>
+  }
+
+</div>

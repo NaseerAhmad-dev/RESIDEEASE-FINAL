@@ -1,0 +1,30 @@
+<nav class="progress-nav" aria-label="Onboarding progress">
+  <div class="steps-row">
+    @for (step of steps; track step.route; let i = $index, last = $last) {
+      <div class="step-wrapper">
+        <div
+          class="step-node"
+          [class.completed]="isCompleted(i)"
+          [class.active]="isActive(i)"
+          [class.pending]="isPending(i)"
+          [attr.aria-current]="isActive(i) ? 'step' : null"
+          [attr.aria-label]="step.label + (isCompleted(i) ? ' - completed' : isActive(i) ? ' - current' : '')">
+          @if (isCompleted(i)) {
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <path d="M2.5 7l3 3 6-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          } @else {
+            <span>{{ i + 1 }}</span>
+          }
+        </div>
+        <span class="step-label" [class.active]="isActive(i)" [class.completed]="isCompleted(i)">
+          {{ step.label }}
+        </span>
+      </div>
+
+      @if (!last) {
+        <div class="connector" [class.filled]="isCompleted(i)" aria-hidden="true"></div>
+      }
+    }
+  </div>
+</nav>

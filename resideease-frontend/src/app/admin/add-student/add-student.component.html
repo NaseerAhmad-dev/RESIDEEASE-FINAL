@@ -1,0 +1,338 @@
+<div class="add-page">
+
+  <!-- Page header -->
+  <div class="add-header">
+    <a routerLink="/admin/students" class="back-link" aria-label="Back to students">
+      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <path d="M12 4l-6 6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Students
+    </a>
+    <div class="add-title-row">
+      <h1 class="page-title">Add new student</h1>
+      <p class="page-sub">Fill in the details to onboard a new resident</p>
+    </div>
+  </div>
+
+  <!-- Step progress -->
+  <div class="step-progress" role="list" aria-label="Onboarding steps">
+    @for (step of steps; track step.label; let i = $index, last = $last) {
+      <div class="step-item" role="listitem">
+        <div class="step-node"
+             [class.step-done]="i < currentStep"
+             [class.step-active]="i === currentStep"
+             [class.step-pending]="i > currentStep"
+             [attr.aria-current]="i === currentStep ? 'step' : null">
+          @if (i < currentStep) {
+            <svg width="12" height="12" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+              <path d="M2 7l3.5 3.5 6.5-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          } @else {
+            {{ i + 1 }}
+          }
+        </div>
+        <span class="step-label"
+              [class.step-label--active]="i === currentStep"
+              [class.step-label--done]="i < currentStep">{{ step.label }}</span>
+      </div>
+      @if (!last) {
+        <div class="step-connector" [class.step-connector--done]="i < currentStep"></div>
+      }
+    }
+  </div>
+
+  <!-- Form card -->
+  @if (!submitted) {
+    <div class="form-card" role="main">
+      <form [formGroup]="detailsForm" novalidate aria-label="Student details form">
+
+      <!-- Step 0: Student info -->
+      @if (currentStep === 0) {
+        <div class="step-body" role="region" aria-label="Student information">
+          <div class="step-head">
+            <h2 class="step-title">Student details</h2>
+            <p class="step-sub">Basic information about the new resident</p>
+          </div>
+
+          <!-- Avatar -->
+          <div class="avatar-row">
+            <div class="avatar-circle">
+              @if (previewUrl) {
+                <img [src]="previewUrl" alt="Student photo preview" style="width:100%;height:100%;object-fit:cover;border-radius:50%"/>
+              } @else {
+                <svg width="22" height="22" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M10 10a3.5 3.5 0 100-7 3.5 3.5 0 000 7zm-6 7a6 6 0 0112 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+              }
+            </div>
+            <div>
+              <div class="avatar-label">Photo <span class="opt">(optional)</span></div>
+              <label class="upload-btn" for="photo">
+                <svg width="13" height="13" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                  <path d="M10 4v10M5 8l5-4 5 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Upload photo
+              </label>
+              <input id="photo" type="file" accept="image/*" class="hidden" (change)="onFileChange($event)" aria-label="Upload student photo"/>
+            </div>
+          </div>
+
+            <div class="form-row">
+              <div class="field">
+                <label for="fn">First name</label>
+                <input id="fn" type="text" formControlName="firstName" placeholder="Arjun" autocomplete="given-name"/>
+                @if (getError('firstName')) { <span class="err" role="alert">{{ getError('firstName') }}</span> }
+              </div>
+              <div class="field">
+                <label for="ln">Last name</label>
+                <input id="ln" type="text" formControlName="lastName" placeholder="Sharma" autocomplete="family-name"/>
+                @if (getError('lastName')) { <span class="err" role="alert">{{ getError('lastName') }}</span> }
+              </div>
+            </div>
+            <div class="field">
+              <label for="em">Email address</label>
+              <input id="em" type="email" formControlName="email" placeholder="arjun@university.edu" autocomplete="email"/>
+              @if (getError('email')) { <span class="err" role="alert">{{ getError('email') }}</span> }
+            </div>
+            <div class="form-row">
+              <div class="field">
+                <label for="ph">Phone number</label>
+                <input id="ph" type="tel" formControlName="phone" placeholder="+91 98765 43210" autocomplete="tel"/>
+                @if (getError('phone')) { <span class="err" role="alert">{{ getError('phone') }}</span> }
+              </div>
+              <div class="field">
+                <label for="roll">Roll / Student ID</label>
+                <input id="roll" type="text" formControlName="rollNumber" placeholder="22CS001"/>
+                @if (getError('rollNumber')) { <span class="err" role="alert">{{ getError('rollNumber') }}</span> }
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="field">
+                <label for="gen">Gender</label>
+                <select id="gen" formControlName="gender">
+                  <option value="" disabled hidden>Select</option>
+                  <option value="male">Male</option>
+                  <option value="female">Female</option>
+                  <option value="other">Other</option>
+                  <option value="prefer-not">Prefer not to say</option>
+                </select>
+                @if (getError('gender')) { <span class="err" role="alert">{{ getError('gender') }}</span> }
+              </div>
+              <div class="field">
+                <label for="dept">Department <span class="opt">(optional)</span></label>
+                <input id="dept" type="text" formControlName="department" placeholder="Computer Science"/>
+              </div>
+            </div>
+            <div class="field">
+              <label for="cin">Check-in date</label>
+              <input id="cin" type="date" formControlName="checkInDate"/>
+              @if (getError('checkInDate')) { <span class="err" role="alert">{{ getError('checkInDate') }}</span> }
+            </div>
+        </div>
+      }
+
+      <!-- Step 1: Room & stay -->
+      @if (currentStep === 1) {
+        <div class="step-body" role="region" aria-label="Room and residence details">
+          <div class="step-head">
+            <h2 class="step-title">Room & residence</h2>
+            <p class="step-sub">Assign room and capture semester/residence expiry</p>
+          </div>
+
+          <div class="room-grid" role="radiogroup" aria-label="Room type">
+            @for (room of roomOptions; track room.id) {
+              <button class="room-card" type="button"
+                      [class.room-card--selected]="selectedRoom === room.id"
+                      (click)="selectRoom(room.id)"
+                      role="radio" [attr.aria-checked]="selectedRoom === room.id">
+                @if (room['badge']) {
+                  <span class="room-badge">{{ room['badge'] }}</span>
+                }
+                <div class="room-icon" aria-hidden="true">{{ room.icon }}</div>
+                <div class="room-name">{{ room.label }}</div>
+                <div class="room-desc">{{ room.description }}</div>
+                <div class="room-price">₹{{ room.price | number }}<span>/mo</span></div>
+                <div class="room-amenities">
+                  @for (a of room.amenities; track a) {
+                    <span class="amenity">{{ a }}</span>
+                  }
+                </div>
+              </button>
+            }
+          </div>
+
+          <div class="form-row form-row--compact">
+            <div class="field">
+              <label for="roomNo">Room number</label>
+              <input id="roomNo" type="text" formControlName="roomNumber" placeholder="e.g. A-102"/>
+            </div>
+            <div class="field">
+              <label for="semester">Current semester</label>
+              <input id="semester" type="text" formControlName="currentSemester" placeholder="5th semester"/>
+            </div>
+          </div>
+          <div class="field">
+            <label for="expiry">Residence expiry</label>
+            <input id="expiry" type="date" formControlName="residenceExpiry"/>
+          </div>
+
+          <div class="price-bar" aria-live="polite">
+            <span>Monthly rent for {{ roomLabel }}</span>
+            <span class="price-val">₹{{ roomPrice | number }}</span>
+          </div>
+        </div>
+      }
+
+      <!-- Step 2: Fee payment -->
+      @if (currentStep === 2) {
+        <div class="step-body" role="region" aria-label="Fee payment details">
+          <div class="step-head">
+            <h2 class="step-title">Fee payment</h2>
+            <p class="step-sub">Capture residency, maintenance, security deposit, and mess fees</p>
+          </div>
+
+          <div class="field">
+            <label>Residency payment account</label>
+            <div class="radio-row" role="group" aria-label="Residency payment account">
+              <label class="radio-option">
+                <input type="radio" formControlName="residencyAccount" value="university"/>
+                <span>University account</span>
+              </label>
+              <label class="radio-option">
+                <input type="radio" formControlName="residencyAccount" value="residency"/>
+                <span>Residency account</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-row form-row--compact">
+            <div class="field">
+              <label for="maintenance">Maintenance charges</label>
+              <input id="maintenance" type="number" formControlName="maintenanceCharge" min="0"/>
+            </div>
+            <div class="field">
+              <label for="security">Security deposit</label>
+              <input id="security" type="number" formControlName="securityDeposit" min="0"/>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="messfee">Mess fee</label>
+            <input id="messfee" type="number" formControlName="messFee" min="0"/>
+          </div>
+
+          <div class="price-bar" aria-live="polite">
+            <span>Total payable</span>
+            <span class="price-val">₹{{ paymentTotal | number }}</span>
+          </div>
+        </div>
+      }
+
+      <!-- Step 3: Confirm -->
+      @if (currentStep === 3) {
+        <div class="step-body" role="region" aria-label="Confirmation summary">
+          <div class="step-head centered">
+            <div class="confirm-icon" aria-hidden="true">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none">
+                <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </div>
+            <h2 class="step-title">Review &amp; confirm</h2>
+            <p class="step-sub">Double check before creating the student profile</p>
+          </div>
+
+          <div class="confirm-sections">
+            <div class="confirm-block">
+              <div class="confirm-block-title">
+                <span class="cb-dot cb-dot--brand"></span> Personal info
+                <button class="edit-btn" (click)="currentStep = 0" aria-label="Edit personal info">Edit</button>
+              </div>
+              <div class="confirm-rows">
+                <div class="confirm-row"><span>Name</span><span>{{ detailsForm.value.firstName }} {{ detailsForm.value.lastName }}</span></div>
+                <div class="confirm-row"><span>Email</span><span>{{ detailsForm.value.email || '—' }}</span></div>
+                <div class="confirm-row"><span>Roll No.</span><span>{{ detailsForm.value.rollNumber || '—' }}</span></div>
+                <div class="confirm-row"><span>Semester</span><span>{{ detailsForm.value.currentSemester || '—' }}</span></div>
+              </div>
+            </div>
+
+            <div class="confirm-block">
+              <div class="confirm-block-title">
+                <span class="cb-dot cb-dot--green"></span> Room & stay
+                <button class="edit-btn" (click)="currentStep = 1" aria-label="Edit room">Edit</button>
+              </div>
+              <div class="confirm-rows">
+                <div class="confirm-row"><span>Room type</span><span>{{ roomLabel }}</span></div>
+                <div class="confirm-row"><span>Room number</span><span>{{ detailsForm.value.roomNumber || '—' }}</span></div>
+                <div class="confirm-row"><span>Check-in</span><span>{{ detailsForm.value.checkInDate | date:'mediumDate' }}</span></div>
+                <div class="confirm-row"><span>Expiry</span><span>{{ detailsForm.value.residenceExpiry | date:'mediumDate' }}</span></div>
+                <div class="confirm-row"><span>Monthly rent</span><span class="val-brand">₹{{ roomPrice | number }}</span></div>
+              </div>
+            </div>
+
+            <div class="confirm-block">
+              <div class="confirm-block-title">
+                <span class="cb-dot cb-dot--amber"></span> Payment summary
+                <button class="edit-btn" (click)="currentStep = 2" aria-label="Edit payment">Edit</button>
+              </div>
+              <div class="confirm-rows">
+                <div class="confirm-row"><span>Payment account</span><span>{{ detailsForm.value.residencyAccount === 'university' ? 'University account' : 'Residency account' }}</span></div>
+                <div class="confirm-row"><span>Maintenance</span><span class="val-brand">₹{{ detailsForm.value.maintenanceCharge | number }}</span></div>
+                <div class="confirm-row"><span>Security deposit</span><span class="val-brand">₹{{ detailsForm.value.securityDeposit | number }}</span></div>
+                <div class="confirm-row"><span>Mess fee</span><span class="val-brand">₹{{ detailsForm.value.messFee | number }}</span></div>
+                <div class="confirm-row total-row"><span>Total payable</span><span class="val-brand">₹{{ paymentTotal | number }}</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="total-row" aria-label="Total payable amount">
+            <span>Total payable</span>
+            <span class="total-val">₹{{ (roomPrice + paymentTotal) | number }}</span>
+          </div>
+        </div>
+      }
+      </form>
+
+      <!-- Nav buttons -->
+      <div class="nav-btns">
+        @if (currentStep > 0) {
+          <button class="btn-back" type="button" (click)="back()">← Back</button>
+        } @else {
+          <a routerLink="/admin/students" class="btn-back">Cancel</a>
+        }
+        @if (currentStep < steps.length - 1) {
+          <button class="btn-next" type="button" (click)="next()">Continue →</button>
+        } @else {
+          <button class="btn-submit" type="button" (click)="submit()">
+            Create student profile
+          </button>
+        }
+      </div>
+    </div>
+
+  } @else {
+
+    <!-- Success -->
+    <div class="success-card" role="status" aria-live="polite">
+      <div class="success-burst" aria-hidden="true">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none">
+          <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h2 class="success-title">Student added successfully!</h2>
+      <p class="success-sub">
+        {{ detailsForm.value.firstName }} {{ detailsForm.value.lastName }} has been onboarded.
+        Room {{ roomLabel }} is confirmed.
+      </p>
+      <div class="success-pills">
+        <span class="spill spill--brand">{{ roomLabel }}</span>
+        <span class="spill spill--green">₹{{ paymentTotal | number }}</span>
+        <span class="spill spill--gray">₹{{ (roomPrice + paymentTotal) | number }}</span>
+      </div>
+      <div class="success-actions">
+        <button class="btn-back" (click)="goToStudents()">View all students</button>
+        <button class="btn-next" (click)="submitted = false; currentStep = 0; detailsForm.reset()">Add another</button>
+      </div>
+    </div>
+  }
+
+</div>

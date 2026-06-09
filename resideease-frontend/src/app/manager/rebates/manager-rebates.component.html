@@ -1,0 +1,210 @@
+<div class="rebates-page">
+
+  <!-- ── Header ── -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Rebate Requests</h1>
+      <p class="page-subtitle">Review and action student mess rebate applications</p>
+    </div>
+  </div>
+
+  <!-- ── Stats ── -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-icon stat-icon--neutral">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+          <path d="M4 10a6 6 0 106-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M4 6v4h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="stat-body">
+        <span class="stat-value">{{ total }}</span>
+        <span class="stat-label">Total Requests</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon stat-icon--amber">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M10 6v4M10 13v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="stat-body">
+        <span class="stat-value stat-amber">{{ pendingCount }}</span>
+        <span class="stat-label">Pending</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon stat-icon--green">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M6.5 10l2.5 2.5 4.5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div class="stat-body">
+        <span class="stat-value stat-green">{{ approvedCount }}</span>
+        <span class="stat-label">Approved</span>
+      </div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-icon stat-icon--red">
+        <svg width="18" height="18" viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M7.5 7.5l5 5M12.5 7.5l-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <div class="stat-body">
+        <span class="stat-value stat-red">{{ rejectedCount }}</span>
+        <span class="stat-label">Rejected</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Toolbar ── -->
+  <div class="toolbar">
+    <div class="filter-tabs">
+      <button class="tab-btn" [class.active]="activeFilter === ''" (click)="setFilter('')">
+        All
+        <span class="tab-count">{{ total }}</span>
+      </button>
+      <button class="tab-btn" [class.active]="activeFilter === 'pending'" (click)="setFilter('pending')">
+        Pending
+        @if (pendingCount > 0) {
+          <span class="tab-count tab-amber">{{ pendingCount }}</span>
+        }
+      </button>
+      <button class="tab-btn" [class.active]="activeFilter === 'approved'" (click)="setFilter('approved')">
+        Approved
+      </button>
+      <button class="tab-btn" [class.active]="activeFilter === 'rejected'" (click)="setFilter('rejected')">
+        Rejected
+      </button>
+      <button class="tab-btn" [class.active]="activeFilter === 'cancelled'" (click)="setFilter('cancelled')">
+        Cancelled
+      </button>
+    </div>
+    <div class="search-wrap">
+      <svg class="search-icon" width="15" height="15" viewBox="0 0 20 20" fill="none">
+        <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M16 16l-3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <input class="search-input" type="search" placeholder="Search by name or roll number…"
+             [(ngModel)]="searchQuery" (input)="applyFilters()">
+    </div>
+  </div>
+
+  <!-- ── Table ── -->
+  @if (filteredRequests.length > 0) {
+    <div class="table-card">
+      <div class="table-scroll">
+        <table class="rebate-table">
+          <thead>
+            <tr>
+              <th>Student</th>
+              <th>Days</th>
+              <th>Requested</th>
+              <th>Status</th>
+              <th>Reviewed By</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (r of filteredRequests; track r.id) {
+              <tr [class.row-pending]="r.status === 'pending'">
+                <td>
+                  <div class="student-cell">
+                    <div class="avatar">{{ r.studentName.charAt(0) }}</div>
+                    <div class="student-info">
+                      <span class="student-name">{{ r.studentName }}</span>
+                      <span class="student-roll">{{ r.rollNumber }}</span>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <span class="days-badge" [class]="'days-' + r.days">{{ r.days }}d</span>
+                </td>
+                <td class="date-cell">
+                  <span class="date-main">{{ r.requestedAt | date:'d MMM yyyy' }}</span>
+                  <span class="date-time">{{ r.requestedAt | date:'h:mm a' }}</span>
+                </td>
+                <td>
+                  <span class="status-badge" [class]="'status-' + r.status">
+                    {{ r.status | titlecase }}
+                  </span>
+                </td>
+                <td class="reviewed-cell">
+                  @if (r.reviewedBy) {
+                    <span class="reviewed-by">{{ r.reviewedBy }}</span>
+                    <span class="reviewed-date">{{ r.reviewedAt | date:'d MMM' }}</span>
+                  } @else {
+                    <span class="cell-muted">—</span>
+                  }
+                </td>
+                <td>
+                  @if (r.status === 'pending') {
+                    <div class="action-btns">
+                      <button class="btn-approve" type="button" (click)="approve(r.id)">
+                        <svg width="12" height="12" viewBox="0 0 20 20" fill="none">
+                          <path d="M4 10l4 4 8-8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Approve
+                      </button>
+                      <button class="btn-reject" type="button" (click)="reject(r.id)">
+                        <svg width="12" height="12" viewBox="0 0 20 20" fill="none">
+                          <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                        </svg>
+                        Reject
+                      </button>
+                    </div>
+                  } @else {
+                    <span class="cell-muted">—</span>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+
+  <!-- ── Empty state ── -->
+  @if (filteredRequests.length === 0) {
+    <div class="empty-state">
+      <svg width="48" height="48" viewBox="0 0 20 20" fill="none">
+        <path d="M4 10a6 6 0 106-6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+        <path d="M4 6v4h4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <h3>No requests found</h3>
+      @if (activeFilter || searchQuery) {
+        <p>Try a different filter or search term.</p>
+      }
+      @if (!activeFilter && !searchQuery) {
+        <p>No rebate requests have been submitted yet.</p>
+      }
+      @if (activeFilter || searchQuery) {
+        <button class="btn-clear-empty" type="button" (click)="clearFilters()">Clear filters</button>
+      }
+    </div>
+  }
+
+</div>
+
+<!-- ── Toast ── -->
+@if (toastMsg) {
+  <div class="toast" [class.toast-success]="toastType === 'success'" [class.toast-error]="toastType === 'error'">
+    @if (toastType === 'success') {
+      <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
+        <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M6.5 10l2.5 2.5 4.5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    }
+    @if (toastType === 'error') {
+      <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
+        <circle cx="10" cy="10" r="7" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M7 7l6 6M13 7l-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    }
+    {{ toastMsg }}
+  </div>
+}

@@ -1,0 +1,248 @@
+<div class="employees-page">
+
+  <!-- Header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Employees</h1>
+      <p class="page-subtitle">Manage hostel staff and employees</p>
+    </div>
+    <button class="btn-add" type="button" (click)="openCreate()">
+      <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
+        <path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+      Add Employee
+    </button>
+  </div>
+
+  <!-- Filter bar -->
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <svg class="search-icon" width="14" height="14" viewBox="0 0 20 20" fill="none">
+        <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M16 16l-3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <input #searchInput pInputText type="search" class="search-input"
+             placeholder="Search by name, title, department…"
+             [(ngModel)]="searchValue" (input)="onSearch($event)"/>
+    </div>
+    <app-dropdown placeholder="All statuses"
+                  [options]="filterStatusOptions"
+                  [ngModel]="selectedStatus"
+                  (ngModelChange)="onStatusFilter($event)">
+    </app-dropdown>
+    @if (searchValue || selectedStatus) {
+      <button class="btn-clear" type="button" (click)="clearFilters()">Clear</button>
+    }
+  </div>
+
+  <!-- Table -->
+  <p-table #dt [value]="employees" [loading]="loading" [paginator]="true" [rows]="10"
+           [globalFilterFields]="['name','jobTitle','department','email','phone']"
+           [rowsPerPageOptions]="[10,25,50]" styleClass="employees-table"
+           [showCurrentPageReport]="true"
+           currentPageReportTemplate="{first}–{last} of {totalRecords} employees">
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="name">Name <p-sortIcon field="name"/></th>
+        <th pSortableColumn="jobTitle">Job Title <p-sortIcon field="jobTitle"/></th>
+        <th pSortableColumn="department">Department <p-sortIcon field="department"/></th>
+        <th pSortableColumn="joinDate">Join Date <p-sortIcon field="joinDate"/></th>
+        <th pSortableColumn="salary">Salary <p-sortIcon field="salary"/></th>
+        <th pSortableColumn="status">Status <p-sortIcon field="status"/></th>
+        <th class="actions-th">Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-emp>
+      <tr>
+        <td>
+          <div class="emp-cell">
+            <div class="emp-avatar">{{ initials(emp.name) }}</div>
+            <div>
+              <div class="emp-name">{{ emp.name }}</div>
+              @if (emp.email) { <div class="emp-sub">{{ emp.email }}</div> }
+              @if (emp.phone && !emp.email) { <div class="emp-sub">{{ emp.phone }}</div> }
+            </div>
+          </div>
+        </td>
+        <td class="text-sm">{{ emp.jobTitle }}</td>
+        <td class="text-sm text-muted">{{ emp.department || '—' }}</td>
+        <td class="text-sm text-muted">{{ emp.joinDate }}</td>
+        <td class="text-sm">{{ emp.salary != null ? ('₹' + (emp.salary | number)) : '—' }}</td>
+        <td>
+          <p-tag [severity]="statusSeverity(emp.status)" [value]="statusLabel(emp.status)"/>
+        </td>
+        <td class="actions-cell">
+          <button class="action-btn edit-btn" type="button" title="Edit" (click)="openEdit(emp)">
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+              <path d="M14 2l4 4-10 10H4v-4L14 2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <button class="action-btn delete-btn" type="button" title="Delete" (click)="confirmDelete(emp)">
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+              <path d="M4 6h12M8 6V4h4v2M6 6l1 11h6l1-11" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="7">
+          <div class="empty-state">
+            <svg class="empty-icon" width="40" height="40" viewBox="0 0 24 24" fill="none">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+              <circle cx="9" cy="7" r="4" stroke="currentColor" stroke-width="1.4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+            </svg>
+            <h3>No employees found</h3>
+            <p>Add your first employee to get started.</p>
+            <button class="btn-add" type="button" (click)="openCreate()">Add Employee</button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+</div>
+
+<!-- ══ Add / Edit Panel ══ -->
+@if (panelOpen()) {
+  <div class="overlay" (click)="closePanel()"></div>
+  <div class="panel" role="dialog" aria-modal="true">
+
+    <div class="panel-head">
+      <div>
+        <h2 class="panel-title">{{ panelMode() === 'create' ? 'Add Employee' : 'Edit Employee' }}</h2>
+        <p class="panel-subtitle">{{ panelMode() === 'create' ? 'Fill in the details below' : 'Update employee information' }}</p>
+      </div>
+      <button class="panel-close" type="button" (click)="closePanel()" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+          <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="panel-body" [formGroup]="form">
+
+      @if (errorMsg) {
+        <div class="error-msg">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M10 6v5M10 14v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          {{ errorMsg }}
+        </div>
+      }
+
+      <div class="section-divider"><span>Basic Info</span></div>
+
+      <div class="field-group">
+        <label>Full Name <span class="req">*</span></label>
+        <input type="text" formControlName="name" placeholder="e.g. Rafiq Ahmed" autocomplete="off"/>
+      </div>
+
+      <div class="field-row">
+        <div class="field-group">
+          <label>Job Title <span class="req">*</span></label>
+          <input type="text" formControlName="jobTitle" placeholder="e.g. Cook, Guard, Cleaner"/>
+        </div>
+        <app-dropdown label="Department"
+                      formControlName="department"
+                      placeholder="Select…"
+                      [options]="departmentOptions">
+        </app-dropdown>
+      </div>
+
+      <div class="field-row">
+        <div class="field-group">
+          <label>Join Date <span class="req">*</span></label>
+          <input type="date" formControlName="joinDate"/>
+        </div>
+        <div class="field-group">
+          <label>Monthly Salary (₹)</label>
+          <input type="number" formControlName="salary" placeholder="0" min="0"/>
+        </div>
+      </div>
+
+      <app-dropdown label="Status"
+                    formControlName="status"
+                    [options]="statusOptions">
+      </app-dropdown>
+
+      <div class="section-divider"><span>Login Access</span></div>
+
+      <app-dropdown label="Role"
+                    formControlName="role"
+                    [options]="roleOptions">
+      </app-dropdown>
+
+      <div class="field-group">
+        <label>{{ panelMode() === 'create' ? 'Password' : 'New Password' }}</label>
+        <input type="password" formControlName="password" autocomplete="new-password"
+               [placeholder]="panelMode() === 'create' ? 'Set a login password' : 'Leave blank to keep existing'"/>
+        @if (panelMode() === 'create') {
+          <span class="field-hint">Required only if this employee needs to log in.</span>
+        }
+      </div>
+
+      <div class="section-divider"><span>Contact</span></div>
+
+      <div class="field-row">
+        <div class="field-group">
+          <label>Email</label>
+          <input type="email" formControlName="email" placeholder="employee@example.com"/>
+        </div>
+        <div class="field-group">
+          <label>Phone</label>
+          <input type="tel" formControlName="phone" placeholder="+91 98765 43210"/>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>Address</label>
+        <input type="text" formControlName="address" placeholder="Street, City"/>
+      </div>
+
+      <div class="field-group">
+        <label>Notes</label>
+        <textarea formControlName="notes" placeholder="Any additional notes…" rows="3"></textarea>
+      </div>
+
+      <div class="panel-footer">
+        <button class="btn-ghost" type="button" (click)="closePanel()">Cancel</button>
+        <button class="btn-submit" type="button"
+                [disabled]="form.invalid || saving"
+                (click)="save()">
+          {{ saving ? 'Saving…' : (panelMode() === 'create' ? 'Add Employee' : 'Save Changes') }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+}
+
+<!-- ══ Delete Confirm ══ -->
+@if (showDeleteConfirm) {
+  <div class="overlay"></div>
+  <div class="confirm-dialog">
+    <div class="confirm-icon">
+      <svg width="36" height="36" viewBox="0 0 20 20" fill="none">
+        <circle cx="10" cy="10" r="8" stroke="#ef4444" stroke-width="1.4"/>
+        <path d="M10 6v5M10 14v.5" stroke="#ef4444" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <h3 class="confirm-title">Delete Employee?</h3>
+    <p class="confirm-desc">
+      <strong>{{ deleteTargetName }}</strong> will be permanently removed. This cannot be undone.
+    </p>
+    <div class="confirm-actions">
+      <button class="btn-ghost" type="button" (click)="cancelDelete()">Cancel</button>
+      <button class="btn-danger" type="button" [disabled]="deleting" (click)="doDelete()">
+        {{ deleting ? 'Deleting…' : 'Delete' }}
+      </button>
+    </div>
+  </div>
+}

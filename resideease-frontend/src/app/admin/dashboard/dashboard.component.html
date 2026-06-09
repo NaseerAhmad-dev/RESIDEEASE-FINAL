@@ -1,0 +1,271 @@
+<div class="page" role="main">
+
+  <!-- Loading state -->
+  @if (isLoading) {
+    <div class="dashboard-loading" aria-live="polite" aria-label="Loading dashboard">
+      <div class="loading-spinner"></div>
+      <span>Loading dashboard…</span>
+    </div>
+  }
+
+  <!-- Error state -->
+  @if (!isLoading && hasError) {
+    <div class="dashboard-error" role="alert">
+      <svg width="24" height="24" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M10 6v4M10 13v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <span>Failed to load dashboard data.</span>
+      <button class="btn-retry" (click)="reload()" type="button">Retry</button>
+    </div>
+  }
+
+  @if (!isLoading && !hasError) {
+
+    <!-- Page header -->
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Overview</h1>
+        <p class="page-sub">{{ today | date:'EEEE, MMMM d, y' }}</p>
+      </div>
+      <div class="header-actions">
+        <a routerLink="/admin/students/add" class="btn-primary-sm">
+          <svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Add student
+        </a>
+      </div>
+    </div>
+
+    <!-- KPI row -->
+    <div class="kpi-grid" role="list" aria-label="Key performance indicators">
+      @for (k of kpis; track k.label) {
+        <div class="kpi-card kpi-card--{{ k.color }}" role="listitem">
+          <div class="kpi-label">{{ k.label }}</div>
+          <div class="kpi-value">{{ k.value }}</div>
+          <div class="kpi-sub">{{ k.sub }}</div>
+        </div>
+      }
+    </div>
+
+    <!-- Quick stats row -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-icon stat-icon--brand">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M9 10a3 3 0 100-6 3 3 0 000 6zm-6 8a6 6 0 0112 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <div class="stat-value">{{ quickStats.totalResidents }}</div>
+          <div class="stat-label">Total residents</div>
+        </div>
+        @if (quickStats.newThisMonth > 0) {
+          <div class="stat-trend up">+{{ quickStats.newThisMonth }} <span>this month</span></div>
+        }
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon stat-icon--green">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><rect x="2" y="5" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.5"/><path d="M2 9h16" stroke="currentColor" stroke-width="1.5"/></svg>
+        </div>
+        <div>
+          <div class="stat-value">{{ fmtMoney(quickStats.totalRevenue) }}</div>
+          <div class="stat-label">Total collected</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon stat-icon--amber">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M6 2v4a2 2 0 002 2h4a2 2 0 002-2V2M10 8v10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <div class="stat-value">{{ quickStats.messAttendancePct }}%</div>
+          <div class="stat-label">Mess attendance</div>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon stat-icon--danger">
+          <svg width="18" height="18" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v4l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <div class="stat-value">{{ quickStats.openMaintenance }}</div>
+          <div class="stat-label">Open maintenance</div>
+        </div>
+        @if (quickStats.urgentMaintenance > 0) {
+          <div class="stat-trend neutral">{{ quickStats.urgentMaintenance }} urgent</div>
+        }
+      </div>
+    </div>
+
+    <!-- Check-in / Check-out row -->
+    <div class="two-col">
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <rect x="3" y="4" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M7 2v4M13 2v4M3 9h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            Today's check-outs
+          </div>
+          <span class="badge badge--brand">{{ checkOuts.length }} today</span>
+        </div>
+        <div class="reservation-list">
+          @for (c of checkOuts; track c.id) {
+            <div class="res-row">
+              <div class="res-avatar">{{ c.avatar }}</div>
+              <div class="res-info">
+                <div class="res-name">{{ c.name }}</div>
+                <div class="res-meta">Room {{ c.room }}</div>
+              </div>
+              <div class="res-actions">
+                <button class="icon-action" aria-label="View details">
+                  <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M1 10s3.6-7 9-7 9 7 9 7-3.6 7-9 7-9-7-9-7z" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg>
+                </button>
+              </div>
+            </div>
+          } @empty {
+            <div class="list-empty">No check-outs scheduled for today</div>
+          }
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <rect x="3" y="4" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M7 2v4M13 2v4M3 9h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+            Today's check-ins
+          </div>
+          <span class="badge badge--green">{{ checkIns.length }} today</span>
+        </div>
+        <div class="reservation-list">
+          @for (c of checkIns; track c.id) {
+            <div class="res-row">
+              <div class="res-avatar res-avatar--green">{{ c.avatar }}</div>
+              <div class="res-info">
+                <div class="res-name">{{ c.name }}</div>
+                <div class="res-meta">Room {{ c.room }}</div>
+              </div>
+              <div class="res-actions">
+                <button class="icon-action" aria-label="View details">
+                  <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M1 10s3.6-7 9-7 9 7 9 7-3.6 7-9 7-9-7-9-7z" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg>
+                </button>
+              </div>
+            </div>
+          } @empty {
+            <div class="list-empty">No check-ins scheduled for today</div>
+          }
+          @if (upcomingThisWeek > 0) {
+            <div class="upcoming-badge">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <rect x="3" y="4" width="14" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M7 2v4M13 2v4M3 9h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              {{ upcomingThisWeek }} upcoming reservations this week
+            </div>
+          }
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Lower row: room occupancy + mess + recent students -->
+    <div class="three-col">
+
+      <!-- Room occupancy -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Room occupancy</div>
+          <span class="stat-tag">{{ overallOccupancyPct }}% overall</span>
+        </div>
+        <div class="occ-list">
+          @for (r of roomOccupancy; track r.type) {
+            <div class="occ-row">
+              <div class="occ-top">
+                <span class="occ-type">{{ r.label }}</span>
+                <span class="occ-pct" [class.full]="r.pct === 100">{{ r.occupied }}/{{ r.totalCapacity }}</span>
+              </div>
+              <div class="occ-track" [attr.aria-label]="r.label + ' ' + r.pct + '% occupied'">
+                <div class="occ-fill"
+                     [style.width.%]="r.pct"
+                     [class.fill--brand]="r.pct < 95"
+                     [class.fill--full]="r.pct === 100"
+                     [class.fill--warn]="r.pct < 80"></div>
+              </div>
+              <div class="occ-label-row">
+                <span class="occ-pct-label">{{ r.pct }}% occupied</span>
+                @if (r.totalCapacity - r.occupied > 0) {
+                  <span class="occ-vacant">{{ r.totalCapacity - r.occupied }} vacant</span>
+                }
+              </div>
+            </div>
+          } @empty {
+            <div class="list-empty">No rooms configured yet</div>
+          }
+        </div>
+      </div>
+
+      <!-- Mess today -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Mess today</div>
+          <span class="badge badge--amber">{{ today | date:'MMM d' }}</span>
+        </div>
+        <div class="mess-list">
+          @for (m of messStats; track m.meal) {
+            <div class="mess-row" [class.mess-row--pending]="m.count === 0">
+              <div class="mess-meal">{{ m.meal }}</div>
+              <div class="mess-time">{{ m.time }}</div>
+              @if (m.count > 0) {
+                <div class="mess-count">{{ m.count }} <span>/ {{ m.total }}</span></div>
+                <div class="mess-track">
+                  <div class="mess-fill" [style.width.%]="m.pct"></div>
+                </div>
+                <div class="mess-pct">{{ m.pct }}% attendance</div>
+              } @else {
+                <div class="mess-pending">Not served yet</div>
+              }
+            </div>
+          }
+        </div>
+      </div>
+
+      <!-- Recent students -->
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Recent students</div>
+          <a routerLink="/admin/students" class="panel-link">View all</a>
+        </div>
+        <div class="student-list">
+          @for (s of recentStudents; track s.id) {
+            <div class="student-row">
+              <div class="student-avatar">{{ s.avatar }}</div>
+              <div class="student-info">
+                <div class="student-name">{{ s.name }}</div>
+                <div class="student-meta">{{ s.room }} · {{ s.plan }}</div>
+              </div>
+              <span class="status-dot status-dot--{{ s.status }}"
+                    [attr.aria-label]="'Status: ' + s.status"></span>
+            </div>
+          } @empty {
+            <div class="list-empty">No students yet</div>
+          }
+        </div>
+        <a routerLink="/admin/students/add" class="add-student-btn">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+          Add new student
+        </a>
+      </div>
+
+    </div>
+
+  }
+
+</div>

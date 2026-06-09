@@ -1,0 +1,150 @@
+.login-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  background: var(--bg-page);
+  font-family: var(--font-sans);
+}
+
+.login-card {
+  width: min(480px, 100%);
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-light);
+  padding: 36px 32px;
+}
+
+/* ─── Brand ──────────────────────────── */
+.login-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 28px;
+}
+
+.brand-logo {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.brand-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+/* ─── Head ───────────────────────────── */
+.login-head {
+  margin-bottom: 28px;
+}
+
+.login-eyebrow {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--brand);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  margin-bottom: 10px;
+}
+
+h1 {
+  margin: 0 0 6px;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+p {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--text-secondary);
+  line-height: 1.6;
+}
+
+/* ─── Fields ─────────────────────────── */
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+input {
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  font-size: 14px;
+  color: var(--text-primary);
+  background: var(--bg-input);
+  font-family: var(--font-sans);
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &::placeholder { color: var(--text-muted); }
+
+  &:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(10, 180, 168, 0.14);
+    background: var(--bg-card);
+  }
+}
+
+/* ─── Error ──────────────────────────── */
+.error-message {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin-bottom: 16px;
+  padding: 10px 14px;
+  background: var(--c-danger-bg);
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-md);
+  color: var(--c-danger);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* ─── Button ─────────────────────────── */
+.btn-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 13px 18px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--brand);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  box-shadow: var(--shadow-brand);
+
+  &:hover { background: var(--brand-dark); transform: translateY(-1px); }
+  &:active { transform: translateY(0); }
+}
+
+/* ─── Note ───────────────────────────── */
+.login-note {
+  margin-top: 20px;
+  font-size: 12.5px;
+  color: var(--text-muted);
+  line-height: 1.6;
+  text-align: center;
+}

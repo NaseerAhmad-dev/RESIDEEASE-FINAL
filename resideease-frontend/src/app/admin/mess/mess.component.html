@@ -1,0 +1,282 @@
+<div class="mess-page">
+
+  <!-- ── Header ── -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Mess Management</h1>
+      <p class="page-subtitle">Track meal subscriptions and manage announcements</p>
+    </div>
+  </div>
+
+  <!-- ── Stats row ── -->
+  <div class="stats-row">
+
+    <div class="stat-card">
+      <div class="stat-icon si-brand">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+      <div class="stat-body">
+        <div class="stat-value">{{ totalSubscribers }}</div>
+        <div class="stat-label">Subscribers</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon si-green">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="1" x2="12" y2="23"/>
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+      </div>
+      <div class="stat-body">
+        <div class="stat-value">₹{{ monthlyRevenue | number }}</div>
+        <div class="stat-label">Monthly Revenue</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon si-red">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <div class="stat-body">
+        <div class="stat-value">{{ overdueCount }}</div>
+        <div class="stat-label">Overdue Accounts</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon si-amber">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
+          <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+          <line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>
+        </svg>
+      </div>
+      <div class="stat-body">
+        <div class="stat-value">{{ newThisMonth }}</div>
+        <div class="stat-label">New (30 days)</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Tabs ── -->
+  <p-tabView styleClass="mess-tabs">
+
+    <!-- ══ Tab 1: Subscribers ══ -->
+    <p-tabPanel header="Subscribers">
+
+      <!-- Filter bar -->
+      <div class="filter-bar">
+        <div class="search-wrap">
+          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+               fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+          </svg>
+          <input type="text" class="search-input" placeholder="Search by name or roll number…"
+                 [(ngModel)]="searchQuery" (input)="applyFilters()">
+        </div>
+
+        <select class="filter-select" [(ngModel)]="filterPayment" (change)="applyFilters()">
+          <option value="">All Payment Status</option>
+          <option value="paid">Paid</option>
+          <option value="partial">Partial</option>
+          <option value="overdue">Overdue</option>
+        </select>
+
+        @if (hasActiveFilters) {
+          <button class="btn-clear" type="button" (click)="clearFilters()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+            Clear
+          </button>
+        }
+
+        @if (hasActiveFilters) {
+          <span class="results-count">
+            {{ filteredSubscribers.length }} of {{ totalSubscribers }} students
+          </span>
+        }
+      </div>
+
+      <!-- Table -->
+      <div class="table-wrap">
+        @if (filteredSubscribers.length > 0) {
+          <table class="sub-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Roll No.</th>
+                <th>Room</th>
+                <th>Mess Fee</th>
+                <th>Payment</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (s of filteredSubscribers; track s.rollNumber) {
+                <tr>
+                  <td>
+                    <div class="student-cell">
+                      <div class="avatar-sm" [style.background-color]="getAvatarColor(s.firstName)">
+                        {{ s.firstName.charAt(0) }}{{ s.lastName.charAt(0) }}
+                      </div>
+                      <div>
+                        <div class="student-name">{{ s.firstName }} {{ s.lastName }}</div>
+                        <div class="student-dept">{{ s.department || '—' }}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td class="mono">{{ s.rollNumber }}</td>
+                  <td>
+                    <span class="room-pill">{{ s.roomNumber || '—' }}</span>
+                  </td>
+                  <td class="fee-cell">₹{{ s.messFee | number }}<span class="per-mo">/mo</span></td>
+                  <td>
+                    <p-tag [value]="s.paymentStatus | titlecase"
+                           [severity]="getPaymentSeverity(s.paymentStatus)"></p-tag>
+                  </td>
+                  <td>
+                    <span class="status-dot" [class]="'dot-' + s.status"></span>
+                    <span class="status-label">{{ s.status | titlecase }}</span>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+
+        <!-- Empty -->
+        @if (filteredSubscribers.length === 0) {
+          <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8h1a4 4 0 0 1 0 8h-1"/>
+              <path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+              <line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>
+            </svg>
+            <p>No subscribers match your filters.</p>
+            <button class="btn-clear-empty" type="button" (click)="clearFilters()">Clear filters</button>
+          </div>
+        }
+      </div>
+
+    </p-tabPanel>
+
+    <!-- ══ Tab 2: Announcements ══ -->
+    <p-tabPanel header="Announcements">
+
+      <div class="announcements-layout">
+
+        <!-- Post form -->
+        <div class="post-card">
+          <div class="post-card-header">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+              <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            </svg>
+            Post Announcement
+          </div>
+          <div class="post-form">
+            <div class="form-field">
+              <label>Title</label>
+              <input type="text" class="form-input" placeholder="e.g. Mess Closed on Sunday"
+                     [(ngModel)]="announcementTitle">
+            </div>
+            <div class="form-field">
+              <label>Message</label>
+              <textarea class="form-textarea" rows="4" placeholder="Write the announcement details…"
+                        [(ngModel)]="announcementMessage"></textarea>
+            </div>
+            <div class="form-row">
+              <div class="form-field" style="flex:1">
+                <label>Priority</label>
+                <select class="form-select" [(ngModel)]="announcementPriority">
+                  <option value="low">Low</option>
+                  <option value="medium">Medium</option>
+                  <option value="high">High</option>
+                </select>
+              </div>
+              <button class="btn-post" type="button" (click)="postAnnouncement()"
+                      [disabled]="!announcementTitle.trim() || !announcementMessage.trim()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/>
+                </svg>
+                Post
+              </button>
+            </div>
+            @if (postSuccess) {
+              <div class="post-success">
+                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                     fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="20 6 9 17 4 12"/>
+                </svg>
+                Announcement posted successfully.
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Notification list -->
+        <div class="notif-list">
+          <div class="notif-list-header">
+            Recent Announcements
+            @if (unreadCount > 0) {
+              <span class="unread-count">
+                {{ unreadCount }} unread
+              </span>
+            }
+          </div>
+
+          @if (notifications.length === 0) {
+            <div class="notif-empty">
+              No announcements yet.
+            </div>
+          }
+
+          @for (n of notifications; track n.id) {
+            <div class="notif-item" [class.is-unread]="!n.isRead">
+              <div class="notif-top">
+                <span class="notif-type-badge" [class]="getNotifTypeClass(n.type)">
+                  {{ getNotifTypeLabel(n.type) }}
+                </span>
+                <span class="notif-priority" [class]="getPriorityClass(n.priority)">
+                  {{ n.priority | titlecase }}
+                </span>
+                <span class="notif-time">{{ timeAgo(n.createdAt) }}</span>
+                @if (!n.isRead) {
+                  <button class="btn-mark-read" type="button"
+                          (click)="markRead(n.id)" title="Mark as read">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+                         fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                  </button>
+                }
+              </div>
+              <div class="notif-title">{{ n.title }}</div>
+              <div class="notif-msg">{{ n.message }}</div>
+            </div>
+          }
+        </div>
+
+      </div>
+    </p-tabPanel>
+
+  </p-tabView>
+</div>

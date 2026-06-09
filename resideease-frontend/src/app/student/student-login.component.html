@@ -1,0 +1,78 @@
+<div class="login-page">
+  <div class="login-card">
+
+    <!-- Brand mark -->
+    <div class="login-brand">
+      <div class="brand-logo" aria-label="ResideEase logo">
+        <svg width="26" height="26" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect width="28" height="28" rx="8" fill="#0ab4a8"/>
+          <path d="M14 5L5 11v12h6v-7h6v7h6V11L14 5z" fill="white"/>
+        </svg>
+      </div>
+      <span class="brand-name">ResideEase</span>
+    </div>
+
+    <div class="login-head">
+      <span class="login-eyebrow">Student Login</span>
+      <h1>Access your dashboard</h1>
+      <p>Enter your roll number and phone number to view your details.</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="login()" novalidate>
+      <div class="field-group">
+        <label for="rollNumber">Roll number</label>
+        <input id="rollNumber" type="text" formControlName="rollNumber" placeholder="e.g. CS2021001" autocomplete="username" />
+      </div>
+
+      <div class="field-group">
+        <label for="phone">Phone number</label>
+        <input id="phone" type="tel" formControlName="phone" placeholder="e.g. 9876543210" autocomplete="tel" />
+      </div>
+
+      @if (errorMessage) {
+        <div class="error-message">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M10 6v4M10 13v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          {{ errorMessage }}
+        </div>
+      }
+
+      <button class="btn-login" type="submit" [disabled]="loading">
+        @if (!loading) {
+          <svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M3 10h14M10 4l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        }
+        {{ loading ? 'Signing in…' : 'Login' }}
+      </button>
+    </form>
+
+    <p class="login-note">If your account does not exist yet, please ask your administrator to add your student profile.</p>
+
+    <!-- Demo credentials banner -->
+    <div class="demo-banner">
+      <div class="demo-banner-head">
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M10 9v5M10 6v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <span>Demo account</span>
+      </div>
+      <div class="demo-fields">
+        <div class="demo-field">
+          <span class="demo-field-label">Roll number</span>
+          <span class="demo-field-value">CS2021001</span>
+        </div>
+        <div class="demo-divider"></div>
+        <div class="demo-field">
+          <span class="demo-field-label">Phone</span>
+          <span class="demo-field-value">9419001234</span>
+        </div>
+      </div>
+      <button type="button" class="btn-demo" (click)="fillDemo()">Use demo credentials</button>
+    </div>
+
+  </div>
+</div>

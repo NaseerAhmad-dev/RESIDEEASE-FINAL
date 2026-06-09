@@ -1,0 +1,31 @@
+<div class="re-field">
+  @if (label) {
+    <label class="re-field__label">{{ label }}</label>
+  }
+
+  <div
+    class="re-dd-wrap"
+    [class.re-dd-wrap--invalid]="hasError"
+    [class.re-dd-wrap--disabled]="isDisabled"
+  >
+    <p-dropdown
+        styleClass="re-dropdown"
+        panelStyleClass="re-dropdown-panel"
+        [options]="options"
+        [placeholder]="placeholder"
+        [disabled]="isDisabled"
+        [filter]="showFilter"
+        [filterPlaceholder]="filterPlaceholder"
+        [optionLabel]="optionLabel"
+        [optionValue]="optionValue"
+        [(ngModel)]="value"
+        (onChange)="onSelectionChange($event.value)"
+        (onBlur)="onDropdownBlur()"
+        appendTo="body"
+      ></p-dropdown>
+    </div>
+
+    @if (hasError) {
+      <span class="re-field__error">{{ errorMessage }}</span>
+    }
+</div>

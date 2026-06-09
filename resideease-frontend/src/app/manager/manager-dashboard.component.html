@@ -1,0 +1,175 @@
+<div class="manager-page">
+  <div class="manager-head">
+    <div>
+      <p class="manager-eyebrow">Manager console</p>
+      <h1>Welcome back, {{ managerName }}</h1>
+      <p class="manager-sub">Your manager dashboard for {{ hostelName }} — monitor residents, requests, and facility status.</p>
+    </div>
+  </div>
+
+  <div class="manager-stats">
+    @for (stat of stats; track stat.title) {
+      <div class="stat-card" [ngClass]="'stat-card--' + stat.accent">
+        <div class="stat-label">{{ stat.title }}</div>
+        <div class="stat-value">{{ stat.value }}</div>
+        <div class="stat-subtitle">{{ stat.subtitle }}</div>
+      </div>
+    }
+  </div>
+
+  <div class="manager-grid">
+    <section class="panel panel--wide">
+      <div class="panel-head">
+        <div>
+          <p class="panel-eyebrow">Daily overview</p>
+          <h2>How things are looking today</h2>
+        </div>
+        <span class="badge badge--brand">Live updates</span>
+      </div>
+      <div class="overview-cards">
+        <article class="overview-card">
+          <p class="overview-card-label">Open maintenance tickets</p>
+          <h3>{{ dashboardStats ? dashboardStats.quickStats.openMaintenance : '—' }}</h3>
+          <p class="overview-card-note">{{ maintenanceNote || 'No open tickets' }}</p>
+        </article>
+        <article class="overview-card">
+          <p class="overview-card-label">Resident check-ins today</p>
+          <h3>{{ dashboardStats ? dashboardStats.todayCheckIns.length : '—' }}</h3>
+          <p class="overview-card-note">Today's scheduled arrivals</p>
+        </article>
+        <article class="overview-card">
+          <p class="overview-card-label">Upcoming check-ins</p>
+          <h3>{{ dashboardStats ? dashboardStats.upcomingThisWeek : '—' }}</h3>
+          <p class="overview-card-note">Arrivals in the next 7 days</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Mess Management Section -->
+    <section class="panel panel--wide">
+      <div class="panel-head">
+        <div>
+          <p class="panel-eyebrow">Mess management</p>
+          <h2>Today's meal service overview</h2>
+        </div>
+        <span class="badge badge--green">Live updates</span>
+      </div>
+      <div class="mess-stats-grid">
+        <div class="mess-stat-card mess-stat-card--brand">
+          <div class="mess-stat-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <path d="M3 7h18l-1 10H4L3 7z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M8 7V3a1 1 0 011-1h6a1 1 0 011 1v4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="mess-stat-content">
+            <div class="mess-stat-value">{{ messStats.totalSubscribed }}</div>
+            <div class="mess-stat-label">Students subscribed</div>
+            <div class="mess-stat-sub">For today's meals</div>
+          </div>
+        </div>
+        <div class="mess-stat-card mess-stat-card--green">
+          <div class="mess-stat-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+              <path d="M8 12l2 2 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="mess-stat-content">
+            <div class="mess-stat-value">{{ messStats.totalServed }}</div>
+            <div class="mess-stat-label">Meals served</div>
+            <div class="mess-stat-sub">Students who ate</div>
+          </div>
+        </div>
+        <div class="mess-stat-card mess-stat-card--amber">
+          <div class="mess-stat-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+              <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+              <path d="M12 8v4M12 16v.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="mess-stat-content">
+            <div class="mess-stat-value">{{ messStats.pendingStudents }}</div>
+            <div class="mess-stat-label">Pending students</div>
+            <div class="mess-stat-sub">Awaiting service</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="panel">
+      <div class="panel-head">
+        <div>
+          <p class="panel-eyebrow">Quick actions</p>
+          <h2>Manager tasks</h2>
+        </div>
+      </div>
+      <div class="action-grid">
+
+        <button type="button" class="action-card action-card--brand">
+          <div class="action-icon-wrap">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <rect x="2" y="3" width="16" height="14" rx="2" stroke="currentColor" stroke-width="1.5"/>
+              <path d="M6 8h8M6 12h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="action-body">
+            <p class="action-title">Review room requests</p>
+            <p class="action-sub">Approve or decline room change requests</p>
+          </div>
+          <svg class="action-arrow" width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M4 10h12M10 4l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+        <button type="button" class="action-card action-card--blue">
+          <div class="action-icon-wrap">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M9 10a3 3 0 100-6 3 3 0 000 6zm-6 8a6 6 0 0112 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <path d="M14 7a3 3 0 010 6M17 17a6 6 0 00-3-5.2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="action-body">
+            <p class="action-title">Check occupancy</p>
+            <p class="action-sub">View active residents and room status</p>
+          </div>
+          <svg class="action-arrow" width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M4 10h12M10 4l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+        <button type="button" class="action-card action-card--amber">
+          <div class="action-icon-wrap">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M14.5 3.5l2 2-9 9-3 1 1-3 9-9z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M12.5 5.5l2 2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+            </svg>
+          </div>
+          <div class="action-body">
+            <p class="action-title">Approve maintenance</p>
+            <p class="action-sub">Authorize pending maintenance tickets</p>
+          </div>
+          <svg class="action-arrow" width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M4 10h12M10 4l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+        <button type="button" class="action-card action-card--green">
+          <div class="action-icon-wrap">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M10 2a6 6 0 00-6 6v3l-2 2v1h16v-1l-2-2V8a6 6 0 00-6-6zm0 16a2 2 0 01-2-2h4a2 2 0 01-2 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            </svg>
+          </div>
+          <div class="action-body">
+            <p class="action-title">Send notice</p>
+            <p class="action-sub">Publish a new announcement to residents</p>
+          </div>
+          <svg class="action-arrow" width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M4 10h12M10 4l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+      </div>
+    </section>
+  </div>
+</div>

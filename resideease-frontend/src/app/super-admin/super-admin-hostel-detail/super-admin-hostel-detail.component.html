@@ -1,0 +1,478 @@
+<!-- Loading -->
+@if (loading) {
+  <div class="detail-loading">
+    <div class="spinner"></div>
+    <p>Loading hostel…</p>
+  </div>
+}
+
+<!-- Error -->
+@if (!loading && error) {
+  <div class="detail-error">
+    <p>{{ error }}</p>
+    <button class="btn-ghost" (click)="goBack()">← Back to Hostels</button>
+  </div>
+}
+
+<!-- Detail -->
+@if (!loading && hostel) {
+<div class="detail-page">
+
+  <!-- ── Page header ── -->
+  <div class="page-header">
+    <button class="btn-back" type="button" (click)="goBack()">
+      <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+        <path d="M12 4l-6 6 6 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Manage Hostels
+    </button>
+    <div class="header-actions">
+      <button class="btn-outline" type="button">
+        <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="8" r="3" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M4 18c0-3.3 2.7-5 6-5s6 1.7 6 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Login as admin
+      </button>
+      <button class="btn-outline" type="button" (click)="goBack()">
+        <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
+          <path d="M14 2l4 4-10 10H4v-4L14 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+        Edit hostel
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Identity card ── -->
+  <div class="identity-card">
+    <div class="identity-left">
+      <div class="hostel-avatar">{{ initials(hostel.name) }}</div>
+      <div class="hostel-meta">
+        <div class="hostel-name-row">
+          <h1 class="hostel-name">{{ hostel.name }}</h1>
+          <span class="badge badge--active" [class.badge--inactive]="!hostel.isActive">
+            <span class="badge-dot"></span>
+            {{ hostel.isActive ? 'Active' : 'Inactive' }}
+          </span>
+          @if (currentSubscription) {
+            <span class="badge badge--plan">{{ currentSubscription.planName }}</span>
+          }
+        </div>
+        <p class="hostel-sub">
+          @if (hostel.location?.city) { {{ hostel.location!.city }}{{ hostel.location?.state ? ', ' + hostel.location!.state : '' }} · }
+          Onboarded {{ formatDate(hostel.createdAt) }}
+          · {{ formatType(hostel.hostelType) }}
+        </p>
+      </div>
+    </div>
+    <div class="identity-right">
+      <span class="toggle-label">Hostel active</span>
+      <button class="toggle" [class.toggle--on]="hostel.isActive"
+              [disabled]="toggling"
+              (click)="toggleActive(!hostel.isActive)"
+              type="button" [attr.aria-label]="hostel.isActive ? 'Deactivate' : 'Activate'">
+        <span class="toggle-thumb"></span>
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Stats row ── -->
+  <div class="stats-row">
+    <div class="stat-card">
+      <div class="stat-label">Total seats</div>
+      <div class="stat-value">{{ totalSeats || '—' }}</div>
+      <div class="stat-hint">Registered capacity</div>
+    </div>
+
+    <div class="stat-card stat-card--wide">
+      <div class="stat-label">Occupied</div>
+      <div class="stat-value">{{ hostel.settings?.totalRooms ?? '—' }}</div>
+      <div class="occupancy-bar">
+        <div class="occupancy-fill" [style.width]="'0%'"></div>
+      </div>
+      <div class="stat-hint">rooms registered</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-label">Mess</div>
+      <div class="stat-value">{{ hostel.settings?.hasMess ? 'Yes' : 'No' }}</div>
+      <div class="stat-hint">{{ hostel.settings?.messType ?? '—' }}</div>
+    </div>
+  </div>
+
+  <!-- ── Two-column section ── -->
+  <div class="two-col">
+
+    <!-- Owner details -->
+    <div class="info-card">
+      <div class="info-card-head">
+        <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
+          <circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M4 17c0-3.3 2.7-5 6-5s6 1.7 6 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Owner Details
+      </div>
+      @if (primaryOwner) {
+        <div class="info-row">
+          <span class="info-icon">
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.4"/><path d="M4 17c0-3 2.5-5 6-5s6 2 6 5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+          </span>
+          <span class="info-key">Name</span>
+          <span class="info-val">{{ primaryOwner.name }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-icon">
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><rect x="2" y="4" width="16" height="13" rx="2" stroke="currentColor" stroke-width="1.4"/><path d="M2 7l8 5 8-5" stroke="currentColor" stroke-width="1.4"/></svg>
+          </span>
+          <span class="info-key">Email</span>
+          <span class="info-val link">{{ primaryOwner.email ?? '—' }}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-icon">
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M6 2h3l1.5 4-2 1.5c1 2 2.5 3.5 4.5 4.5L14.5 10 18 11.5V14a2 2 0 01-2 2C7 16 4 9 4 4a2 2 0 012-2z" stroke="currentColor" stroke-width="1.4"/></svg>
+          </span>
+          <span class="info-key">Phone</span>
+          <span class="info-val">{{ primaryOwner.phone ?? '—' }}</span>
+        </div>
+        @if (hostel.location?.city) {
+          <div class="info-row">
+            <span class="info-icon">
+              <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 2a6 6 0 016 6c0 4-6 10-6 10S4 12 4 8a6 6 0 016-6z" stroke="currentColor" stroke-width="1.4"/><circle cx="10" cy="8" r="2" stroke="currentColor" stroke-width="1.4"/></svg>
+            </span>
+            <span class="info-key">City</span>
+            <span class="info-val">{{ hostel.location!.city }}{{ hostel.location?.state ? ', ' + hostel.location!.state : '' }}</span>
+          </div>
+        }
+      } @else {
+        <p class="info-empty">No owner information recorded.</p>
+      }
+    </div>
+
+    <!-- Staff accounts -->
+    <div class="info-card">
+      <div class="info-card-head">
+        <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
+          <circle cx="7" cy="7" r="3" stroke="currentColor" stroke-width="1.5"/>
+          <circle cx="14" cy="7" r="2" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M1 17c0-3 2.5-4 6-4s6 1 6 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          <path d="M14 13c2 0 4 .8 4 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Staff Accounts
+      </div>
+
+      @for (staff of [
+        { label: 'Hostel Admin',  role: 'admin'   },
+        { label: 'Mess Manager',  role: 'manager' },
+        { label: 'Office Staff',  role: 'office'  }
+      ]; track staff.role) {
+        <div class="staff-row">
+          <span class="staff-label">{{ staff.label }}</span>
+          @if (staffByRole(staff.role); as u) {
+            <span class="staff-email">{{ u.email ?? u.username }}</span>
+          } @else {
+            <span class="staff-unassigned">Not assigned</span>
+          }
+        </div>
+      }
+
+      <div class="reset-btn-wrap">
+        <button class="btn-reset" type="button">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none">
+            <circle cx="10" cy="10" r="3" stroke="currentColor" stroke-width="1.4"/>
+            <path d="M10 2v3M10 15v3M2 10h3M15 10h3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+          </svg>
+          Reset admin password
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── Subscription ── -->
+  <div class="info-card">
+    <div class="info-card-head">
+      <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
+        <rect x="2" y="4" width="16" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M2 8h16" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M6 13h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Subscription
+      <button class="card-action-btn" type="button" (click)="openSubPanel()">
+        @if (currentSubscription) {
+          <svg width="13" height="13" viewBox="0 0 20 20" fill="none">
+            <path d="M14 2l4 4-10 10H4v-4L14 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+          </svg>
+          Edit
+        } @else {
+          <svg width="13" height="13" viewBox="0 0 20 20" fill="none">
+            <path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+          </svg>
+          Add Subscription
+        }
+      </button>
+    </div>
+
+    @if (currentSubscription) {
+      <div class="sub-grid">
+        <div class="sub-item">
+          <span class="sub-key">Plan</span>
+          <span class="sub-val">{{ currentSubscription.planName }}</span>
+        </div>
+        <div class="sub-item">
+          <span class="sub-key">Status</span>
+          <span class="badge badge--active" [class.badge--inactive]="currentSubscription.status !== 'active'">
+            {{ currentSubscription.status | titlecase }}
+          </span>
+        </div>
+        <div class="sub-item">
+          <span class="sub-key">Billing</span>
+          <span class="sub-val">{{ currentSubscription.billingCycle ?? '—' }}</span>
+        </div>
+        <div class="sub-item">
+          <span class="sub-key">Seat limit</span>
+          <span class="sub-val">{{ currentSubscription.seatLimit ?? 'Unlimited' }}</span>
+        </div>
+        <div class="sub-item">
+          <span class="sub-key">Starts</span>
+          <span class="sub-val">{{ formatDate(currentSubscription.startsAt) }}</span>
+        </div>
+        <div class="sub-item">
+          <span class="sub-key">Ends</span>
+          <span class="sub-val">{{ currentSubscription.endsAt ? formatDate(currentSubscription.endsAt) : 'Ongoing' }}</span>
+        </div>
+      </div>
+    } @else {
+      <div class="empty-inline">
+        <svg width="28" height="28" viewBox="0 0 20 20" fill="none" opacity=".3">
+          <rect x="2" y="4" width="16" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M2 8h16" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        <p>No subscription assigned yet.</p>
+        <button class="btn-add-inline" type="button" (click)="openSubPanel()">
+          Assign Subscription
+        </button>
+      </div>
+    }
+  </div>
+
+  <!-- ── Payment history ── -->
+  <div class="info-card">
+    <div class="info-card-head">
+      <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
+        <path d="M3 10h14M3 6h14M3 14h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      Payment History
+      <button class="card-action-btn card-action-btn--primary" type="button" (click)="openPaymentPanel()">
+        <svg width="13" height="13" viewBox="0 0 20 20" fill="none">
+          <path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        Record Payment
+      </button>
+    </div>
+
+    @if (paymentsLoading) {
+      <div class="payments-loading">
+        <div class="spinner spinner--sm"></div>
+        <span>Loading payments…</span>
+      </div>
+    } @else if (payments.length === 0) {
+      <div class="empty-inline">
+        <svg width="28" height="28" viewBox="0 0 20 20" fill="none" opacity=".3">
+          <path d="M3 10h14M3 6h14M3 14h8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        <p>No payments recorded yet.</p>
+      </div>
+    } @else {
+      <div class="payment-list">
+        @for (p of payments; track p.id) {
+          <div class="payment-row">
+            <div class="payment-amount">{{ formatAmount(p.amount, p.currency) }}</div>
+            <div class="payment-meta">
+              @if (p.paymentMethod) {
+                <span class="pay-badge pay-badge--method">{{ p.paymentMethod }}</span>
+              }
+              <span class="pay-badge"
+                    [class.pay-badge--paid]="p.status === 'paid'"
+                    [class.pay-badge--pending]="p.status === 'pending'"
+                    [class.pay-badge--failed]="p.status === 'failed'">
+                {{ p.status | titlecase }}
+              </span>
+            </div>
+            <div class="payment-date">
+              {{ p.paidAt ? formatDate(p.paidAt) : formatDate(p.createdAt) }}
+            </div>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+  <!-- ── Location ── -->
+  @if (hostel.location) {
+    <div class="info-card">
+      <div class="info-card-head">
+        <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
+          <path d="M10 2a6 6 0 016 6c0 4-6 10-6 10S4 12 4 8a6 6 0 016-6z" stroke="currentColor" stroke-width="1.5"/>
+          <circle cx="10" cy="8" r="2" stroke="currentColor" stroke-width="1.5"/>
+        </svg>
+        Location
+      </div>
+      <div class="sub-grid">
+        @if (hostel.location.addressLine1) {
+          <div class="sub-item sub-item--full">
+            <span class="sub-key">Address</span>
+            <span class="sub-val">{{ hostel.location.addressLine1 }}</span>
+          </div>
+        }
+        @if (hostel.location.city) {
+          <div class="sub-item"><span class="sub-key">City</span><span class="sub-val">{{ hostel.location.city }}</span></div>
+        }
+        @if (hostel.location.state) {
+          <div class="sub-item"><span class="sub-key">State</span><span class="sub-val">{{ hostel.location.state }}</span></div>
+        }
+        @if (hostel.location.pincode) {
+          <div class="sub-item"><span class="sub-key">Pincode</span><span class="sub-val">{{ hostel.location.pincode }}</span></div>
+        }
+        @if (hostel.location.latitude) {
+          <div class="sub-item">
+            <span class="sub-key">Coordinates</span>
+            <span class="sub-val mono">{{ hostel.location.latitude | number:'1.4-4' }}, {{ hostel.location.longitude | number:'1.4-4' }}</span>
+          </div>
+        }
+      </div>
+    </div>
+  }
+
+</div>
+}
+
+<!-- ══════════════════════ SUBSCRIPTION PANEL ══════════════════════ -->
+@if (subPanelOpen()) {
+  <div class="overlay" (click)="closeSubPanel()"></div>
+  <div class="panel" role="dialog" aria-modal="true">
+    <div class="panel-head">
+      <div>
+        <h2 class="panel-title">{{ currentSubscription ? 'Edit Subscription' : 'Add Subscription' }}</h2>
+        <p class="panel-subtitle">{{ hostel?.name }}</p>
+      </div>
+      <button class="panel-close" type="button" (click)="closeSubPanel()" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+          <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="panel-body" [formGroup]="subscriptionForm">
+      @if (subError) {
+        <div class="error-msg">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v5M10 14v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          {{ subError }}
+        </div>
+      }
+
+      <div class="field-group">
+        <label>Plan Name <span class="req">*</span></label>
+        <input type="text" formControlName="planName" placeholder="e.g. Basic, Pro, Enterprise" autocomplete="off"/>
+      </div>
+
+      <div class="field-row">
+        <app-dropdown label="Status"
+                      formControlName="status"
+                      [options]="statusOptions">
+        </app-dropdown>
+        <app-dropdown label="Billing Cycle"
+                      formControlName="billingCycle"
+                      placeholder="— None —"
+                      [options]="billingOptions">
+        </app-dropdown>
+      </div>
+
+      <div class="field-group">
+        <label>Seat Limit</label>
+        <input type="number" formControlName="seatLimit" placeholder="Leave blank for unlimited" min="1"/>
+      </div>
+
+      <div class="field-row">
+        <div class="field-group">
+          <label>Start Date</label>
+          <input type="date" formControlName="startsAt"/>
+        </div>
+        <div class="field-group">
+          <label>End Date</label>
+          <input type="date" formControlName="endsAt"/>
+        </div>
+      </div>
+
+      <div class="panel-footer">
+        <button class="btn-ghost" type="button" (click)="closeSubPanel()">Cancel</button>
+        <button class="btn-submit" type="button"
+                [disabled]="subscriptionForm.invalid || savingSub"
+                (click)="saveSubscription()">
+          {{ savingSub ? 'Saving…' : 'Save Subscription' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- ══════════════════════ PAYMENT PANEL ══════════════════════ -->
+@if (payPanelOpen()) {
+  <div class="overlay" (click)="closePaymentPanel()"></div>
+  <div class="panel" role="dialog" aria-modal="true">
+    <div class="panel-head">
+      <div>
+        <h2 class="panel-title">Record Payment</h2>
+        <p class="panel-subtitle">{{ hostel?.name }}</p>
+      </div>
+      <button class="panel-close" type="button" (click)="closePaymentPanel()" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none">
+          <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <div class="panel-body" [formGroup]="paymentForm">
+      @if (payError) {
+        <div class="error-msg">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v5M10 14v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          {{ payError }}
+        </div>
+      }
+
+      <div class="field-row">
+        <div class="field-group" style="flex: 2">
+          <label>Amount <span class="req">*</span></label>
+          <input type="number" formControlName="amount" placeholder="0" min="0" step="0.01"/>
+        </div>
+        <div class="field-group">
+          <label>Currency</label>
+          <input type="text" formControlName="currency" placeholder="INR" maxlength="3"/>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>Payment Method</label>
+        <input type="text" formControlName="paymentMethod" placeholder="e.g. Bank Transfer, UPI, Cash"/>
+      </div>
+
+      <div class="field-row">
+        <app-dropdown label="Status"
+                      formControlName="status"
+                      [options]="payStatusOptions">
+        </app-dropdown>
+        <div class="field-group">
+          <label>Payment Date</label>
+          <input type="date" formControlName="paidAt"/>
+        </div>
+      </div>
+
+      <div class="panel-footer">
+        <button class="btn-ghost" type="button" (click)="closePaymentPanel()">Cancel</button>
+        <button class="btn-submit" type="button"
+                [disabled]="paymentForm.invalid || savingPay"
+                (click)="savePayment()">
+          {{ savingPay ? 'Saving…' : 'Record Payment' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

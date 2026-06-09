@@ -1,0 +1,244 @@
+<!-- Not Found -->
+@if (notFound) {
+  <div class="not-found">
+    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24"
+         fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
+      <line x1="12" y1="16" x2="12.01" y2="16"/>
+    </svg>
+    <h3>Student not found</h3>
+    <p>The student record you're looking for doesn't exist.</p>
+    <button class="btn-back" (click)="goBack()">Back to Students</button>
+  </div>
+}
+
+@if (student) {
+
+  <!-- Top bar -->
+  <div class="view-topbar">
+    <button class="btn-back" (click)="goBack()">
+      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+      </svg>
+      Back to Students
+    </button>
+    <a [routerLink]="['/admin/students/edit', student.id]" class="btn-edit">
+      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+      </svg>
+      Edit Student
+    </a>
+  </div>
+
+  <!-- Hero card -->
+  <div class="hero-card">
+    <div class="hero-avatar" [style.background-color]="getAvatarColor(student.firstName)">
+      {{ student.firstName.charAt(0) }}{{ student.lastName.charAt(0) }}
+    </div>
+    <div class="hero-meta">
+      <div class="hero-name-row">
+        <h2 class="hero-name">{{ student.firstName }} {{ student.lastName }}</h2>
+        <p-tag [value]="getStatusLabel(student.status)"
+               [severity]="getStatusSeverity(student.status)"></p-tag>
+      </div>
+      <p class="hero-roll">{{ student.rollNumber }}</p>
+      <div class="hero-chips">
+        <span class="chip">{{ student.department || '—' }}</span>
+        <span class="chip">{{ student.currentSemester }}</span>
+        <span class="chip">{{ student.selectedRoom }}</span>
+      </div>
+    </div>
+    <div class="hero-joined">
+      <span class="joined-label">Joined</span>
+      <span class="joined-date">{{ student.createdAt | date:'d MMM yyyy' }}</span>
+    </div>
+  </div>
+
+  <!-- Tabbed content -->
+  <p-tabView styleClass="student-tabs">
+
+    <!-- ── Tab 1: Personal Information ── -->
+    <p-tabPanel header="Personal Information">
+      <div class="tab-card">
+        <dl class="info-rows">
+          <div class="info-row">
+            <dt>Full Name</dt>
+            <dd>{{ student.firstName }} {{ student.lastName }}</dd>
+          </div>
+          <div class="info-row">
+            <dt>Email</dt>
+            <dd><a [href]="'mailto:' + student.email" class="link">{{ student.email }}</a></dd>
+          </div>
+          <div class="info-row">
+            <dt>Phone</dt>
+            <dd>{{ student.phone }}</dd>
+          </div>
+          <div class="info-row">
+            <dt>Gender</dt>
+            <dd>{{ student.gender | titlecase }}</dd>
+          </div>
+          <div class="info-row">
+            <dt>Residency Account</dt>
+            <dd>{{ student.residencyAccount | titlecase }}</dd>
+          </div>
+          <div class="info-row">
+            <dt>Student Status</dt>
+            <dd>
+              <p-tag [value]="getStatusLabel(student.status)"
+                     [severity]="getStatusSeverity(student.status)"></p-tag>
+            </dd>
+          </div>
+          <div class="info-row">
+            <dt>Enrolled On</dt>
+            <dd>{{ student.createdAt | date:'d MMMM yyyy' }}</dd>
+          </div>
+        </dl>
+      </div>
+    </p-tabPanel>
+
+    <!-- ── Tab 2: Academic Details ── -->
+    <p-tabPanel header="Academic Details">
+      <div class="tab-card">
+        <dl class="info-rows">
+          <div class="info-row">
+            <dt>Roll Number</dt>
+            <dd class="mono">{{ student.rollNumber }}</dd>
+          </div>
+          <div class="info-row">
+            <dt>Department</dt>
+            <dd>{{ student.department || '—' }}</dd>
+          </div>
+          <div class="info-row">
+            <dt>Current Semester</dt>
+            <dd>{{ student.currentSemester }}</dd>
+          </div>
+        </dl>
+      </div>
+    </p-tabPanel>
+
+    <!-- ── Tab 3: Room & Stay ── -->
+    <p-tabPanel header="Room &amp; Stay">
+      <div class="tab-card">
+        <dl class="info-rows">
+          <div class="info-row">
+            <dt>Room Type</dt>
+            <dd><span class="room-chip">{{ student.selectedRoom }}</span></dd>
+          </div>
+          <div class="info-row">
+            <dt>Room Number</dt>
+            <dd>{{ student.roomNumber || '—' }}</dd>
+          </div>
+          <div class="info-row">
+            <dt>Check-in Date</dt>
+            <dd>{{ student.checkInDate | date:'d MMMM yyyy' }}</dd>
+          </div>
+          <div class="info-row">
+            <dt>Residence Expiry</dt>
+            <dd [class.text-danger]="student.status === 'expired'">
+              {{ student.residenceExpiry | date:'d MMMM yyyy' }}
+              @if (student.status === 'expired') {
+                <span class="expired-badge">Expired</span>
+              }
+            </dd>
+          </div>
+          <div class="info-row">
+            <dt>Monthly Rent</dt>
+            <dd class="amount">₹{{ student.roomPrice | number }}<span class="per-mo">/mo</span></dd>
+          </div>
+        </dl>
+      </div>
+    </p-tabPanel>
+
+    <!-- ── Tab 4: Fee Summary ── -->
+    <p-tabPanel header="Fee Summary">
+      <div class="fee-grid">
+
+        <!-- Residency box -->
+        <div class="fee-box">
+          <div class="fee-box-header">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+              <polyline points="9 22 9 12 15 12 15 22"/>
+            </svg>
+            Residency
+          </div>
+          <dl class="info-rows">
+            <div class="info-row">
+              <dt>Monthly Rent</dt>
+              <dd>₹{{ student.roomPrice | number }}</dd>
+            </div>
+            <div class="info-row">
+              <dt>Security Deposit</dt>
+              <dd>₹{{ student.securityDeposit | number }}</dd>
+            </div>
+            <div class="info-row">
+              <dt>Welfare &amp; Maintenance</dt>
+              <dd>₹{{ student.maintenanceCharge | number }}</dd>
+            </div>
+            <div class="info-row subtotal-row">
+              <dt>Residency Total</dt>
+              <dd>₹{{ (student.roomPrice + student.securityDeposit + student.maintenanceCharge) | number }}</dd>
+            </div>
+          </dl>
+        </div>
+
+        <!-- Mess Fee box -->
+        <div class="fee-box">
+          <div class="fee-box-header">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/>
+              <line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/>
+              <line x1="14" y1="1" x2="14" y2="4"/>
+            </svg>
+            Mess Fee
+          </div>
+          <dl class="info-rows">
+            <div class="info-row">
+              <dt>Monthly Mess Fee</dt>
+              <dd>₹{{ student.messFee | number }}</dd>
+            </div>
+            <div class="info-row">
+              <dt>Amount Paid</dt>
+              <dd class="text-success">₹{{ student.paidAmount | number }}</dd>
+            </div>
+            <div class="info-row">
+              <dt>Amount Pending</dt>
+              <dd [class.text-danger]="(student.totalPayment - student.paidAmount) > 0"
+                  [class.text-success]="(student.totalPayment - student.paidAmount) === 0">
+                ₹{{ (student.totalPayment - student.paidAmount) | number }}
+              </dd>
+            </div>
+            <div class="info-row">
+              <dt>Last Payment</dt>
+              <dd>{{ student.lastPaymentDate ? (student.lastPaymentDate | date:'d MMM yyyy') : '—' }}</dd>
+            </div>
+            <div class="info-row subtotal-row">
+              <dt>Payment Status</dt>
+              <dd>
+                <span class="pay-badge"
+                      [class.pay-paid]="student.paymentStatus === 'paid'"
+                      [class.pay-partial]="student.paymentStatus === 'partial'"
+                      [class.pay-overdue]="student.paymentStatus === 'overdue'">
+                  {{ student.paymentStatus | titlecase }}
+                </span>
+              </dd>
+            </div>
+          </dl>
+        </div>
+
+      </div>
+
+      <!-- Grand total bar -->
+      <div class="grand-total">
+        <span class="gt-label">Total Charges</span>
+        <span class="gt-amount">₹{{ student.totalPayment | number }}</span>
+      </div>
+    </p-tabPanel>
+
+  </p-tabView>
+
+}

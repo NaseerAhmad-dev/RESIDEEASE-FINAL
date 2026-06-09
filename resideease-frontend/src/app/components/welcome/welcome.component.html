@@ -1,0 +1,47 @@
+<div class="onboarding-shell">
+  <app-progress-bar [steps]="steps" [currentStep]="0" />
+
+  <main class="onboarding-card welcome-card" role="main">
+
+    <div class="brand-mark" aria-hidden="true">
+      <span class="brand-icon">🏠</span>
+    </div>
+
+    <h1 class="hero-heading">
+      Welcome to <em>ResideEase</em>
+    </h1>
+    <p class="hero-sub">
+      Your all-in-one hostel &amp; mess management platform.
+      Set up your profile in just a few steps and get started.
+    </p>
+
+    <div class="info-banner" role="note" aria-label="Estimated setup time">
+      <span class="info-icon">⏱</span>
+      <div>
+        <div class="info-title">Takes only 3 minutes</div>
+        <div class="info-body">You can update preferences anytime from your profile settings</div>
+      </div>
+    </div>
+
+    <div class="features-grid" aria-label="Platform features">
+      @for (f of features; track f.label) {
+        <div class="feature-tile">
+          <span class="feature-icon" aria-hidden="true">{{ f.icon }}</span>
+          <div>
+            <div class="feature-name">{{ f.label }}</div>
+            <div class="feature-desc">{{ f.desc }}</div>
+          </div>
+        </div>
+      }
+    </div>
+
+    <button class="btn-full" (click)="begin()" aria-label="Start onboarding">
+      Get Started →
+    </button>
+
+    <p class="footer-note">
+      By continuing you agree to our <a href="#" class="link">Terms of Service</a> and <a href="#" class="link">Privacy Policy</a>
+    </p>
+
+  </main>
+</div>

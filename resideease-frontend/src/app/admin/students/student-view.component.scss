@@ -1,0 +1,341 @@
+:host { display: block; }
+
+/* ── Top bar ── */
+.view-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 2rem;
+}
+
+%btn-base {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  height: 3.6rem;
+  padding: 0 1.4rem;
+  border-radius: var(--radius-sm);
+  font-family: var(--font-sans);
+  font-size: 1.3rem;
+  font-weight: 500;
+  cursor: pointer;
+  text-decoration: none;
+  border: none;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.btn-back {
+  @extend %btn-base;
+  background: var(--bg-card);
+  border: 0.1rem solid var(--border-medium);
+  color: var(--text-secondary);
+  svg { stroke: currentColor; flex-shrink: 0; }
+  &:hover { background: var(--bg-hover); color: var(--brand); border-color: var(--brand); }
+}
+
+.btn-edit {
+  @extend %btn-base;
+  background: var(--brand);
+  color: #fff;
+  font-weight: 600;
+  svg { stroke: currentColor; flex-shrink: 0; }
+  &:hover { background: var(--brand-dark); }
+}
+
+/* ── Hero card ── */
+.hero-card {
+  display: flex;
+  align-items: center;
+  gap: 2.4rem;
+  background: var(--bg-card);
+  border: 0.1rem solid var(--border-light);
+  border-radius: var(--radius-lg);
+  padding: 2.4rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-sm);
+  flex-wrap: wrap;
+}
+
+.hero-avatar {
+  width: 8rem;
+  height: 8rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 2.4rem;
+  font-weight: 700;
+  flex-shrink: 0;
+  letter-spacing: 0.05em;
+  box-shadow: 0 0.4rem 1.2rem rgba(0,0,0,0.15);
+}
+
+.hero-meta { flex: 1; min-width: 20rem; }
+
+.hero-name-row {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.4rem;
+}
+.hero-name {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+.hero-roll {
+  font-size: 1.3rem;
+  color: var(--text-secondary);
+  font-family: monospace;
+  margin-bottom: 1rem;
+}
+.hero-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+.chip {
+  display: inline-block;
+  background: var(--bg-page);
+  border: 0.1rem solid var(--border-light);
+  border-radius: var(--radius-full);
+  padding: 0.3rem 1rem;
+  font-size: 1.1rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.hero-joined {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.3rem;
+}
+.joined-label {
+  font-size: 1.1rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-weight: 600;
+}
+.joined-date {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* ── Tab card content ── */
+.tab-card {
+  background: var(--bg-card);
+  border: 0.1rem solid var(--border-light);
+  border-radius: 0 var(--radius-md) var(--radius-md) var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+/* ── Info rows (shared across tabs) ── */
+.info-rows { margin: 0; padding: 0; }
+
+.info-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.3rem 2rem;
+  gap: 1rem;
+  border-bottom: 0.1rem solid var(--border-light);
+
+  &:last-child { border-bottom: none; }
+
+  dt {
+    font-size: 1.3rem;
+    color: var(--text-muted);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+  dd {
+    font-size: 1.35rem;
+    color: var(--text-primary);
+    font-weight: 500;
+    text-align: right;
+    word-break: break-word;
+  }
+}
+
+.total-row {
+  background: var(--brand-light);
+  dt { color: var(--brand-dark); font-weight: 700; font-size: 1.35rem; }
+}
+
+/* ── Helpers ── */
+.room-chip {
+  display: inline-block;
+  background: var(--brand-light);
+  color: var(--brand-dark);
+  border-radius: var(--radius-sm);
+  padding: 0.2rem 0.8rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.amount { font-weight: 700; }
+.total-amount { font-size: 1.5rem; color: var(--brand-dark); font-weight: 700; }
+.per-mo { font-size: 1.1rem; color: var(--text-muted); font-weight: 400; }
+.mono { font-family: monospace; }
+.link { color: var(--brand); text-decoration: none; &:hover { text-decoration: underline; } }
+.text-danger { color: var(--c-danger) !important; font-weight: 600; }
+.expired-badge {
+  display: inline-block;
+  background: var(--c-danger-bg);
+  color: var(--c-danger);
+  border-radius: var(--radius-full);
+  padding: 0.1rem 0.7rem;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-left: 0.6rem;
+}
+
+/* ── Fee grid (two boxes side by side) ── */
+.fee-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.6rem;
+  margin-bottom: 1.2rem;
+  @media (max-width: 640px) { grid-template-columns: 1fr; }
+}
+
+.fee-box {
+  background: var(--bg-card);
+  border: 0.1rem solid var(--border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+}
+
+.fee-box-header {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 1.2rem 1.8rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--text-secondary);
+  background: var(--bg-page);
+  border-bottom: 0.1rem solid var(--border-light);
+  svg { stroke: var(--brand); flex-shrink: 0; }
+}
+
+.subtotal-row {
+  background: var(--brand-light);
+  dt { color: var(--brand-dark); font-weight: 700; }
+  dd { color: var(--brand-dark); font-weight: 700; }
+}
+
+/* Payment status badge */
+.pay-badge {
+  display: inline-block;
+  padding: 0.25rem 0.9rem;
+  border-radius: var(--radius-full);
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+.pay-paid    { background: var(--c-success-bg); color: var(--c-success); }
+.pay-partial { background: var(--c-warning-bg); color: var(--c-warning); }
+.pay-overdue { background: var(--c-danger-bg);  color: var(--c-danger);  }
+
+/* Grand total bar */
+.grand-total {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--bg-card);
+  border: 0.1rem solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 1.4rem 2rem;
+  box-shadow: var(--shadow-sm);
+}
+.gt-label {
+  font-size: 1.4rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+.gt-amount {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--brand-dark);
+}
+
+.text-success { color: var(--c-success) !important; font-weight: 600; }
+
+/* ── Not found ── */
+.not-found {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.2rem;
+  padding: 8rem 2rem;
+  text-align: center;
+  color: var(--text-muted);
+  svg { stroke: var(--text-muted); }
+  h3 { font-size: 1.8rem; font-weight: 600; color: var(--text-primary); }
+  p  { font-size: 1.3rem; }
+}
+
+/* ── PrimeNG TabView overrides ── */
+:host ::ng-deep {
+  .student-tabs.p-tabview .p-tabview-nav {
+    background: transparent;
+    border: none;
+    border-bottom: 0.2rem solid var(--border-light);
+    gap: 0.2rem;
+    padding: 0;
+    margin-bottom: 0;
+  }
+
+  .student-tabs.p-tabview .p-tabview-nav li .p-tabview-nav-link {
+    background: transparent;
+    border: none;
+    border-bottom: 0.2rem solid transparent;
+    margin-bottom: -0.2rem;
+    padding: 1.1rem 1.8rem;
+    font-family: var(--font-sans);
+    font-size: 1.3rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+    transition: color 0.15s, background 0.15s, border-color 0.15s;
+    outline: none;
+    box-shadow: none !important;
+
+    &:hover { color: var(--brand); background: var(--brand-light); }
+  }
+
+  .student-tabs.p-tabview .p-tabview-nav li.p-highlight .p-tabview-nav-link {
+    color: var(--brand) !important;
+    border-bottom-color: var(--brand) !important;
+    font-weight: 700;
+    background: transparent;
+  }
+
+  .student-tabs.p-tabview .p-tabview-panels {
+    background: transparent;
+    padding: 1.6rem 0 0;
+    border: none;
+  }
+
+  .p-tag {
+    font-family: var(--font-sans);
+    font-size: 1.1rem;
+    font-weight: 600;
+    padding: 0.3rem 0.9rem;
+    border-radius: var(--radius-full);
+  }
+  .p-tag.p-tag-success   { background: var(--c-success-bg); color: var(--c-success); }
+  .p-tag.p-tag-warning   { background: var(--c-warning-bg); color: var(--c-warning); }
+  .p-tag.p-tag-danger    { background: var(--c-danger-bg);  color: var(--c-danger);  }
+  .p-tag.p-tag-secondary { background: #f3f4f6; color: #374151; }
+}

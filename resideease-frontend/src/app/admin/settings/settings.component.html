@@ -1,0 +1,580 @@
+<div class="settings-container">
+
+  <!-- Header -->
+  <div class="settings-header">
+    <div>
+      <h1 class="settings-title">Settings</h1>
+      <p class="settings-subtitle">Configure your hostel, pricing, policies, and system preferences</p>
+    </div>
+    <div class="header-actions">
+      @if (hasChanges) {
+        <button class="discard-btn" (click)="discardChanges()" type="button">
+          Discard
+        </button>
+      }
+      <button
+        class="save-btn"
+        type="button"
+        (click)="saveSettings()"
+        [disabled]="!hasChanges || saveStatus === 'saving'"
+        [class.save-btn--enabled]="hasChanges && saveStatus !== 'saving'">
+        @if (saveStatus !== 'saving') {
+          <svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M17 13v3a1 1 0 01-1 1H4a1 1 0 01-1-1v-3M10 3v10M6 9l4 4 4-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        }
+        @if (saveStatus === 'saving') {
+          <span class="spinner" aria-hidden="true"></span>
+        }
+        {{ saveStatus === 'saving' ? 'Saving…' : 'Save Changes' }}
+      </button>
+    </div>
+  </div>
+
+  <!-- Save feedback banner -->
+  @if (saveStatus === 'success') {
+    <output class="save-banner save-banner--success">
+      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M6.5 10l2.5 2.5 4.5-4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      Settings saved successfully.
+    </output>
+  }
+  @if (saveStatus === 'error') {
+    <div class="save-banner save-banner--error" role="alert">
+      <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M10 6v4M10 14h.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+      </svg>
+      Failed to save. Please try again.
+    </div>
+  }
+
+  <!-- Main card -->
+  <div class="settings-content">
+
+    <!-- Tabs -->
+    <div class="settings-tabs" role="tablist">
+      <button class="tab-btn" role="tab" [class.active]="activeTab === 'hostel'" (click)="activeTab = 'hostel'" [attr.aria-selected]="activeTab === 'hostel'">
+        <svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 2L2 8v10h5v-6h6v6h5V8L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+        Hostel
+      </button>
+      <button class="tab-btn" role="tab" [class.active]="activeTab === 'rooms'" (click)="activeTab = 'rooms'" [attr.aria-selected]="activeTab === 'rooms'">
+        <svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="2" y="9" width="16" height="9" rx="1" stroke="currentColor" stroke-width="1.5"/><path d="M5 9V6a5 5 0 0110 0v3" stroke="currentColor" stroke-width="1.5"/><path d="M10 13v2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Rooms
+      </button>
+      <button class="tab-btn" role="tab" [class.active]="activeTab === 'mess'" (click)="activeTab = 'mess'" [attr.aria-selected]="activeTab === 'mess'">
+        <svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M6 2v4a2 2 0 002 2h4a2 2 0 002-2V2M10 8v10M6 2v4M14 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Mess
+      </button>
+      <button class="tab-btn" role="tab" [class.active]="activeTab === 'policies'" (click)="activeTab = 'policies'" [attr.aria-selected]="activeTab === 'policies'">
+        <svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true"><rect x="4" y="2" width="12" height="16" rx="1.5" stroke="currentColor" stroke-width="1.5"/><path d="M7 7h6M7 10h6M7 13h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        Policies
+      </button>
+      <button class="tab-btn" role="tab" [class.active]="activeTab === 'system'" (click)="activeTab = 'system'" [attr.aria-selected]="activeTab === 'system'">
+        <svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 13a3 3 0 100-6 3 3 0 000 6z" stroke="currentColor" stroke-width="1.5"/><path d="M17.7 10.9l-1.4-.8a6 6 0 000-2.2l1.4-.8a1 1 0 00.4-1.3l-1-1.7a1 1 0 00-1.3-.4l-1.4.8a6 6 0 00-1.9-1.1V1.7A1 1 0 0011.5 1h-3a1 1 0 00-1 1v1.4A6 6 0 005.6 4.5l-1.4-.8a1 1 0 00-1.3.4l-1 1.7a1 1 0 00.4 1.3l1.4.8a6 6 0 000 2.2l-1.4.8a1 1 0 00-.4 1.3l1 1.7a1 1 0 001.3.4l1.4-.8a6 6 0 001.9 1.1v1.4a1 1 0 001 1h3a1 1 0 001-1v-1.4a6 6 0 001.9-1.1l1.4.8a1 1 0 001.3-.4l1-1.7a1 1 0 00-.4-1.3z" stroke="currentColor" stroke-width="1.3"/></svg>
+        System
+      </button>
+    </div>
+
+    <div class="tab-content">
+
+      <!-- ═══════════════════════════════════
+           TAB 1 — HOSTEL INFO
+      ═══════════════════════════════════ -->
+      @if (activeTab === 'hostel') {
+        <div>
+
+          <div class="settings-section">
+            <h3 class="section-title">Hostel Information</h3>
+            <form class="settings-form">
+              <div class="form-group">
+                <label class="form-label" for="hostelName">Hostel Name</label>
+                <input id="hostelName" type="text" class="form-input" [(ngModel)]="settings.hostel.name" name="hostelName" (ngModelChange)="markAsChanged()" placeholder="Enter hostel name">
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="hostelAddress">Address</label>
+                <textarea id="hostelAddress" class="form-textarea" [(ngModel)]="settings.hostel.address" name="hostelAddress" (ngModelChange)="markAsChanged()" placeholder="Full address with pin code" rows="3"></textarea>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="hostelPhone">Phone</label>
+                  <input id="hostelPhone" type="tel" class="form-input" [(ngModel)]="settings.hostel.phone" name="hostelPhone" (ngModelChange)="markAsChanged()" placeholder="+91 XXXXX XXXXX">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="hostelEmail">Email</label>
+                  <input id="hostelEmail" type="email" class="form-input" [(ngModel)]="settings.hostel.email" name="hostelEmail" (ngModelChange)="markAsChanged()" placeholder="admin@hostel.com">
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="hostelWebsite">Website</label>
+                  <input id="hostelWebsite" type="url" class="form-input" [(ngModel)]="settings.hostel.website" name="hostelWebsite" (ngModelChange)="markAsChanged()" placeholder="https://yourhostel.com">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="hostelAffiliation">University / College Affiliation</label>
+                  <input id="hostelAffiliation" type="text" class="form-input" [(ngModel)]="settings.hostel.affiliation" name="hostelAffiliation" (ngModelChange)="markAsChanged()" placeholder="e.g. Savitribai Phule Pune University">
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="hostelDescription">Description</label>
+                <textarea id="hostelDescription" class="form-textarea" [(ngModel)]="settings.hostel.description" name="hostelDescription" (ngModelChange)="markAsChanged()" placeholder="Brief description of your hostel" rows="3"></textarea>
+              </div>
+            </form>
+          </div>
+
+          <hr class="section-divider">
+
+          <div class="settings-section">
+            <h3 class="section-title">Capacity &amp; Details</h3>
+            <form class="settings-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="totalRooms">Total Rooms</label>
+                  <input id="totalRooms" type="number" class="form-input" [(ngModel)]="settings.hostel.totalRooms" name="totalRooms" (ngModelChange)="markAsChanged()" min="1" placeholder="120">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="establishedYear">Established Year</label>
+                  <input id="establishedYear" type="number" class="form-input" [(ngModel)]="settings.hostel.establishedYear" name="establishedYear" (ngModelChange)="markAsChanged()" min="1900" max="2100" placeholder="2018">
+                </div>
+              </div>
+            </form>
+          </div>
+
+          <hr class="section-divider">
+
+          <div class="settings-section">
+            <h3 class="section-title">Warden Information</h3>
+            <form class="settings-form">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label" for="wardenName">Warden Name</label>
+                  <input id="wardenName" type="text" class="form-input" [(ngModel)]="settings.hostel.wardenName" name="wardenName" (ngModelChange)="markAsChanged()" placeholder="Full name">
+                </div>
+                <div class="form-group">
+                  <label class="form-label" for="wardenPhone">Warden Phone</label>
+                  <input id="wardenPhone" type="tel" class="form-input" [(ngModel)]="settings.hostel.wardenPhone" name="wardenPhone" (ngModelChange)="markAsChanged()" placeholder="+91 XXXXX XXXXX">
+                </div>
+              </div>
+            </form>
+          </div>
+
+        </div>
+      }
+
+      <!-- ═══════════════════════════════════
+           TAB 2 — ROOMS
+      ═══════════════════════════════════ -->
+      @if (activeTab === 'rooms') {
+        <div>
+
+          <div class="settings-section">
+            <h3 class="section-title">Room Pricing &amp; Deposits</h3>
+            <p class="section-desc">Configure monthly rent and one-time security deposit per room type.</p>
+            <div class="pricing-grid">
+              @for (room of settings.rooms; track room.id) {
+                <div class="pricing-card" [class.pricing-card--disabled]="!room.enabled">
+                  <div class="pricing-header">
+                    <h4 class="pricing-title">{{ room.label }}</h4>
+                    <label class="toggle">
+                      <input type="checkbox" [(ngModel)]="room.enabled" (ngModelChange)="markAsChanged()" [id]="'room-toggle-' + room.id">
+                      <span class="toggle-slider"></span>
+                      <span class="sr-only">Enable {{ room.label }}</span>
+                    </label>
+                  </div>
+
+                  <div class="pricing-field-label">Monthly Rent</div>
+                  <div class="pricing-input">
+                    <span class="currency" aria-hidden="true">₹</span>
+                    <input type="number" class="price-input" [(ngModel)]="room.price" (ngModelChange)="markAsChanged()" [disabled]="!room.enabled" min="0" [attr.aria-label]="room.label + ' monthly rent'">
+                    <span class="period">/month</span>
+                  </div>
+
+                  <div class="pricing-subrow">
+                    <div class="pricing-field-label">Security Deposit</div>
+                    <div class="pricing-input">
+                      <span class="currency" aria-hidden="true">₹</span>
+                      <input type="number" class="price-input" [(ngModel)]="room.securityDeposit" (ngModelChange)="markAsChanged()" [disabled]="!room.enabled" min="0" [attr.aria-label]="room.label + ' security deposit'">
+                      <span class="period">one-time</span>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <hr class="section-divider">
+
+          <div class="settings-section">
+            <h3 class="section-title">Monthly Maintenance Charge</h3>
+            <p class="section-desc">Flat maintenance fee applied to all students each month.</p>
+            <div class="setting-item" style="max-width: 480px;">
+              <div class="setting-info">
+                <h4 class="setting-title">Maintenance Charge</h4>
+                <p class="setting-desc">Added to monthly invoice automatically</p>
+              </div>
+              <div class="guest-fee-input">
+                <span class="currency-sym" aria-hidden="true">₹</span>
+                <input type="number" class="guest-fee-field" id="maintenanceCharge" [(ngModel)]="settings.system.maintenanceCharge" (ngModelChange)="markAsChanged()" min="0" step="50" placeholder="500" aria-label="Monthly maintenance charge in rupees">
+              </div>
+            </div>
+          </div>
+
+        </div>
+      }
+
+      <!-- ═══════════════════════════════════
+           TAB 3 — MESS
+      ═══════════════════════════════════ -->
+      @if (activeTab === 'mess') {
+        <div>
+
+          <div class="settings-section">
+            <h3 class="section-title">Mess Plans</h3>
+            <p class="section-desc">Enable meal plans and set monthly pricing for each.</p>
+            <div class="pricing-grid">
+              @for (meal of settings.meals; track meal.id) {
+                <div class="pricing-card" [class.pricing-card--disabled]="!meal.enabled">
+                  <div class="pricing-header">
+                    <h4 class="pricing-title">{{ meal.label }}</h4>
+                    <label class="toggle">
+                      <input type="checkbox" [(ngModel)]="meal.enabled" (ngModelChange)="markAsChanged()" [id]="'meal-toggle-' + meal.id">
+                      <span class="toggle-slider"></span>
+                      <span class="sr-only">Enable {{ meal.label }}</span>
+                    </label>
+                  </div>
+                  <div class="pricing-input">
+                    <span class="currency" aria-hidden="true">₹</span>
+                    <input type="number" class="price-input" [(ngModel)]="meal.price" (ngModelChange)="markAsChanged()" [disabled]="!meal.enabled" min="0" [attr.aria-label]="meal.label + ' monthly price'">
+                    <span class="period">/month</span>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+
+          <hr class="section-divider">
+
+          <div class="settings-section">
+            <h3 class="section-title">Dietary Options</h3>
+            <p class="section-desc">Define dietary preferences students can select during enrollment.</p>
+            <div class="dietary-options">
+              @for (option of settings.dietaryOptions; track option; let i = $index) {
+                <div class="dietary-item">
+                  <label class="sr-only" [for]="'dietary-' + i">Dietary option {{ i + 1 }}</label>
+                  <input [id]="'dietary-' + i" type="text" class="form-input dietary-input" [(ngModel)]="settings.dietaryOptions[i]" (ngModelChange)="markAsChanged()" placeholder="e.g. Vegetarian">
+                  <button class="remove-btn" (click)="removeDietaryOption(i)" title="Remove dietary option" type="button" [attr.aria-label]="'Remove dietary option ' + (i + 1)">×</button>
+                </div>
+              }
+              <button class="add-btn" (click)="addDietaryOption()" type="button">+ Add Option</button>
+            </div>
+          </div>
+
+        </div>
+      }
+
+      <!-- ═══════════════════════════════════
+           TAB 4 — POLICIES
+      ═══════════════════════════════════ -->
+      @if (activeTab === 'policies') {
+        <div>
+
+          <div class="settings-section">
+            <h3 class="section-title">Check-in &amp; Check-out</h3>
+            <p class="section-desc">Standard timings applied to all student arrivals and departures.</p>
+            <div class="policies-grid">
+              <div class="policy-card">
+                <div class="policy-card-title">Check-in Time</div>
+                <label class="form-label" for="checkInTime">Time</label>
+                <input id="checkInTime" type="time" class="form-input time-input" [(ngModel)]="settings.policies.checkInTime" (ngModelChange)="markAsChanged()">
+                <p class="form-hint">Students arriving before this time must wait in the lobby.</p>
+              </div>
+              <div class="policy-card">
+                <div class="policy-card-title">Check-out Time</div>
+                <label class="form-label" for="checkOutTime">Time</label>
+                <input id="checkOutTime" type="time" class="form-input time-input" [(ngModel)]="settings.policies.checkOutTime" (ngModelChange)="markAsChanged()">
+                <p class="form-hint">Room must be vacated by this time on the last day.</p>
+              </div>
+            </div>
+          </div>
+
+          <hr class="section-divider">
+
+          <div class="settings-section">
+            <h3 class="section-title">Visiting Hours</h3>
+            <p class="section-desc">Time window during which outside visitors are allowed on premises.</p>
+            <div class="policies-grid">
+              <div class="policy-card">
+                <div class="policy-card-title">Visiting Opens</div>
+                <label class="form-label" for="visitingFrom">From</label>
+                <input id="visitingFrom" type="time" class="form-input time-input" [(ngModel)]="settings.policies.visitingHoursFrom" (ngModelChange)="markAsChanged()">
+              </div>
+              <div class="policy-card">
+                <div class="policy-card-title">Visiting Closes</div>
+                <label class="form-label" for="visitingTo">Until</label>
+                <input id="visitingTo" type="time" class="form-input time-input" [(ngModel)]="settings.policies.visitingHoursTo" (ngModelChange)="markAsChanged()">
+              </div>
+            </div>
+          </div>
+
+          <hr class="section-divider">
+
+          <div class="settings-section">
+            <h3 class="section-title">Fees &amp; Rules</h3>
+            <div class="system-settings">
+
+              <div class="setting-item">
+                <div class="setting-info">
+                  <h4 class="setting-title">Late Payment Fee</h4>
+                  <p class="setting-desc">Percentage charged on outstanding dues after the grace period</p>
+                </div>
+                <div class="inline-number-input">
+                  <input type="number" class="guest-fee-field" id="lateFeePercent" [(ngModel)]="settings.policies.lateFeePercent" (ngModelChange)="markAsChanged()" min="0" max="100" step="0.5" aria-label="Late payment fee percentage">
+                  <span class="input-suffix" aria-hidden="true">%</span>
+                </div>
+              </div>
+
+              <div class="setting-item">
+                <div class="setting-info">
+                  <h4 class="setting-title">Grace Period</h4>
+                  <p class="setting-desc">Days after due date before late fees are applied</p>
+                </div>
+                <div class="inline-number-input">
+                  <input type="number" class="guest-fee-field" id="gracePeriod" [(ngModel)]="settings.policies.gracePeriodDays" (ngModelChange)="markAsChanged()" min="0" max="30" aria-label="Grace period in days">
+                  <span class="input-suffix" aria-hidden="true">days</span>
+                </div>
+              </div>
+
+              <div class="setting-item">
+                <div class="setting-info">
+                  <h4 class="setting-title">Notice Before Check-out</h4>
+                  <p class="setting-desc">Minimum advance notice required from a student before vacating</p>
+                </div>
+                <div class="inline-number-input">
+                  <input type="number" class="guest-fee-field" id="noticePeriod" [(ngModel)]="settings.policies.noticeBeforeCheckout" (ngModelChange)="markAsChanged()" min="0" aria-label="Notice period before checkout in days">
+                  <span class="input-suffix" aria-hidden="true">days</span>
+                </div>
+              </div>
+
+              <div class="setting-item">
+                <div class="setting-info">
+                  <h4 class="setting-title">Guest Maximum Stay</h4>
+                  <p class="setting-desc">Maximum consecutive nights a registered guest can stay</p>
+                </div>
+                <div class="inline-number-input">
+                  <input type="number" class="guest-fee-field" id="guestMaxNights" [(ngModel)]="settings.policies.guestMaxNights" (ngModelChange)="markAsChanged()" min="1" max="30" aria-label="Guest maximum stay in nights">
+                  <span class="input-suffix" aria-hidden="true">nights</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      }
+
+      <!-- ═══════════════════════════════════
+           TAB 5 — SYSTEM
+      ═══════════════════════════════════ -->
+      @if (activeTab === 'system') {
+        <div>
+
+          <!-- Booking & Access -->
+          <div class="settings-section">
+            <h3 class="section-title">Booking &amp; Access</h3>
+            <div class="system-settings">
+
+              <div class="setting-item">
+                <div class="setting-info">
+                  <h4 class="setting-title">Online Booking</h4>
+                  <p class="setting-desc">Allow students to apply for rooms through the portal</p>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="allowOnlineBooking" [(ngModel)]="settings.system.allowOnlineBooking" (ngModelChange)="markAsChanged()">
+                  <span class="toggle-slider"></span>
+                  <span class="sr-only">Enable online booking</span>
+                </label>
+              </div>
+
+              <div class="setting-item">
+                <div class="setting-info">
+                  <h4 class="setting-title">Require Admin Approval</h4>
+                  <p class="setting-desc">New bookings need warden approval before confirmation</p>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="requireApproval" [(ngModel)]="settings.system.requireApproval" (ngModelChange)="markAsChanged()">
+                  <span class="toggle-slider"></span>
+                  <span class="sr-only">Require admin approval for bookings</span>
+                </label>
+              </div>
+
+              <div class="setting-item">
+                <div class="setting-info">
+                  <h4 class="setting-title">Guest Registration Fee</h4>
+                  <p class="setting-desc">Fee charged to walk-in guests upon registration</p>
+                </div>
+                <div class="guest-fee-input">
+                  <span class="currency-sym" aria-hidden="true">₹</span>
+                  <input type="number" class="guest-fee-field" id="guestFee" [(ngModel)]="settings.guestFee" (ngModelChange)="markAsChanged()" min="0" step="50" placeholder="200" aria-label="Guest registration fee in rupees">
+                </div>
+              </div>
+
+              <div class="setting-item">
+                <div class="setting-info">
+                  <h4 class="setting-title">Maintenance Mode</h4>
+                  <p class="setting-desc">Temporarily disable student portal access for maintenance</p>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="maintenanceMode" [(ngModel)]="settings.system.maintenanceMode" (ngModelChange)="markAsChanged()">
+                  <span class="toggle-slider toggle-slider--danger"></span>
+                  <span class="sr-only">Enable maintenance mode</span>
+                </label>
+              </div>
+
+            </div>
+          </div>
+
+          <hr class="section-divider">
+
+          <!-- Notifications -->
+          <div class="settings-section">
+            <h3 class="section-title">Notifications</h3>
+            <div class="system-settings">
+
+              <div class="setting-item">
+                <div class="setting-info">
+                  <h4 class="setting-title">Email Notifications</h4>
+                  <p class="setting-desc">Send emails for booking confirmations, payment reminders, and notices</p>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="emailNotifications" [(ngModel)]="settings.system.notificationsEnabled" (ngModelChange)="markAsChanged()">
+                  <span class="toggle-slider"></span>
+                  <span class="sr-only">Enable email notifications</span>
+                </label>
+              </div>
+
+              <div class="setting-item">
+                <div class="setting-info">
+                  <h4 class="setting-title">SMS Notifications</h4>
+                  <p class="setting-desc">Send SMS alerts for payment dues and critical updates</p>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="smsNotifications" [(ngModel)]="settings.system.smsNotifications" (ngModelChange)="markAsChanged()">
+                  <span class="toggle-slider"></span>
+                  <span class="sr-only">Enable SMS notifications</span>
+                </label>
+              </div>
+
+              <div class="setting-item">
+                <div class="setting-info">
+                  <h4 class="setting-title">Payment Due Reminder</h4>
+                  <p class="setting-desc">Automatically remind students before their due date</p>
+                </div>
+                <div class="inline-number-input">
+                  <input type="number" class="guest-fee-field" id="autoReminderDays" [(ngModel)]="settings.system.autoReminderDays" (ngModelChange)="markAsChanged()" min="1" max="30" aria-label="Days before due date to send reminder">
+                  <span class="input-suffix" aria-hidden="true">days before</span>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <hr class="section-divider">
+
+          <!-- Academic session -->
+          <div class="settings-section">
+            <h3 class="section-title">Academic Session</h3>
+            <p class="section-desc">Used for reports, billing cycles, and residency period calculations.</p>
+            <form class="settings-form" style="max-width: 320px;">
+              <div class="form-group">
+                <label class="form-label" for="academicYear">Current Academic Year</label>
+                <input id="academicYear" type="text" class="form-input" [(ngModel)]="settings.system.academicYear" name="academicYear" (ngModelChange)="markAsChanged()" placeholder="e.g. 2025-26">
+                <span class="form-hint">Format: YYYY-YY (e.g. 2025-26)</span>
+              </div>
+            </form>
+          </div>
+
+          <hr class="section-divider">
+
+          <!-- Admin profile -->
+          <div class="settings-section">
+            <h3 class="section-title">Admin Profile</h3>
+            <p class="section-desc">Your account details and login credentials.</p>
+
+            <div class="profile-card">
+              <div class="profile-header">
+                <div class="profile-avatar" aria-hidden="true">{{ getInitials(settings.admin.name) }}</div>
+                <div class="profile-meta">
+                  <p class="profile-name">{{ settings.admin.name }}</p>
+                  <span class="profile-role-badge">{{ settings.admin.designation }}</span>
+                </div>
+              </div>
+
+              <form class="settings-form">
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" for="adminName">Full Name</label>
+                    <input id="adminName" type="text" class="form-input" [(ngModel)]="settings.admin.name" name="adminName" (ngModelChange)="markAsChanged()" placeholder="Your full name">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="adminPhone">Phone</label>
+                    <input id="adminPhone" type="tel" class="form-input" [(ngModel)]="settings.admin.phone" name="adminPhone" (ngModelChange)="markAsChanged()" placeholder="+91 XXXXX XXXXX">
+                  </div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group">
+                    <label class="form-label" for="adminEmail">Email</label>
+                    <input id="adminEmail" type="email" class="form-input" [(ngModel)]="settings.admin.email" name="adminEmail" (ngModelChange)="markAsChanged()" placeholder="admin@hostel.com">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="adminDesignation">Designation</label>
+                    <input id="adminDesignation" type="text" class="form-input" [(ngModel)]="settings.admin.designation" name="adminDesignation" (ngModelChange)="markAsChanged()" placeholder="e.g. Chief Warden">
+                  </div>
+                </div>
+              </form>
+
+              <!-- Change password -->
+              <div class="password-section">
+                <h4 class="password-title">Change Password</h4>
+                <form class="password-fields">
+                  <div class="form-group">
+                    <label class="form-label" for="pwdCurrent">Current Password</label>
+                    <input id="pwdCurrent" type="password" class="form-input" [(ngModel)]="passwordForm.current" name="pwdCurrent" placeholder="Enter current password" autocomplete="current-password">
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label" for="pwdNew">New Password</label>
+                      <input id="pwdNew" type="password" class="form-input" [(ngModel)]="passwordForm.newPass" name="pwdNew" placeholder="Min. 8 characters" autocomplete="new-password">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="pwdConfirm">Confirm Password</label>
+                      <input id="pwdConfirm" type="password" class="form-input" [(ngModel)]="passwordForm.confirm" name="pwdConfirm" placeholder="Repeat new password" autocomplete="new-password">
+                    </div>
+                  </div>
+                </form>
+                <div class="password-actions">
+                  <button class="change-pwd-btn" type="button" (click)="changePassword()">Update Password</button>
+                  @if (passwordError) {
+                    <span class="pwd-feedback pwd-feedback--error" role="alert">{{ passwordError }}</span>
+                  }
+                  @if (passwordSuccess) {
+                    <output class="pwd-feedback pwd-feedback--success">Password updated successfully.</output>
+                  }
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      }
+
+    </div><!-- /tab-content -->
+  </div><!-- /settings-content -->
+
+</div>

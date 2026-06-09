@@ -1,0 +1,85 @@
+<div class="dashboard">
+
+  <!-- Page header -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Welcome back, {{ userName }}</h1>
+      <p class="page-subtitle">Manage and onboard hostels across the platform.</p>
+    </div>
+    <a routerLink="/super-admin/hostels" class="btn-primary">
+      <svg width="15" height="15" viewBox="0 0 20 20" fill="none">
+        <path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+      Onboard Hostel
+    </a>
+  </div>
+
+  <!-- Stat cards -->
+  <div class="stat-grid">
+    <div class="stat-card">
+      <div class="stat-icon stat-icon--purple">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2L2 7v11h5v-5h6v5h5V7L10 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="stat-value">{{ loading ? '—' : totalHostels }}</div>
+      <div class="stat-label">Total Hostels</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon stat-icon--green">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="stat-value">{{ loading ? '—' : activeHostels }}</div>
+      <div class="stat-label">Active</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon stat-icon--red">
+        <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M7 7l6 6M13 7l-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </div>
+      <div class="stat-value">{{ loading ? '—' : inactiveHostels }}</div>
+      <div class="stat-label">Inactive</div>
+    </div>
+  </div>
+
+  <!-- Recent hostels -->
+  <div class="section-card">
+    <div class="section-head">
+      <h2 class="section-title">Onboarded Hostels</h2>
+      <a routerLink="/super-admin/hostels" class="section-link">
+        View all
+        <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M5 10h10M10 5l5 5-5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </a>
+    </div>
+
+    @if (loading) {
+      <div class="empty-state">
+        <div class="spinner"></div>
+        <p>Loading hostels…</p>
+      </div>
+    } @else if (recentHostels.length === 0) {
+      <div class="empty-state">
+        <svg width="40" height="40" viewBox="0 0 20 20" fill="none" opacity=".25">
+          <path d="M10 2L2 7v11h5v-5h6v5h5V7L10 2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+        </svg>
+        <p>No hostels onboarded yet. <a routerLink="/super-admin/hostels">Onboard the first one.</a></p>
+      </div>
+    } @else {
+      <div class="hostel-list">
+        @for (h of recentHostels; track h.id) {
+          <div class="hostel-row">
+            <div class="hostel-avatar">{{ initials(h.name) }}</div>
+            <div class="hostel-info">
+              <div class="hostel-name">{{ h.name }}</div>
+              <div class="hostel-meta">{{ h.location?.city ?? '' }}{{ h.location?.city && h.owners.at(0)?.email ? ' · ' : '' }}{{ h.owners.at(0)?.email ?? '' }}</div>
+            </div>
+            <span class="status-badge" [class.status-badge--inactive]="!h.isActive">
+              {{ h.isActive ? 'Active' : 'Inactive' }}
+            </span>
+            <span class="onboard-date">{{ formatDate(h.createdAt) }}</span>
+          </div>
+        }
+      </div>
+    }
+  </div>
+
+</div>

@@ -1,0 +1,10 @@
+<app-shell
+  [navItems]="navItems"
+  [bottomNav]="bottomNav"
+  [notifications]="notifications"
+  [unreadCount]="unreadCount"
+  searchPlaceholder="Search enrollments, rebates..."
+  settingsRoute="/manager/settings"
+  noticesRoute="/manager/notices"
+  (markReadEvent)="onMarkRead($event)">
+</app-shell>

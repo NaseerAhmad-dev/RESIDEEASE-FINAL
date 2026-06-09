@@ -1,0 +1,283 @@
+<div class="hostels-container">
+
+  <!-- Header -->
+  <div class="list-header">
+    <div>
+      <h2 class="list-title">Manage Hostels</h2>
+      <p class="list-subtitle">{{ loading ? '' : (hostels.length + ' hostel' + (hostels.length !== 1 ? 's' : '') + ' onboarded') }}</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-add" type="button" (click)="openCreate()">
+        <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        Onboard Hostel
+      </button>
+    </div>
+  </div>
+
+  <!-- Filter bar -->
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <svg class="search-icon" width="14" height="14" viewBox="0 0 20 20" fill="none">
+        <circle cx="9" cy="9" r="6" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M16 16l-3-3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      <input pInputText type="text" placeholder="Search hostel name, city…"
+             [(ngModel)]="searchValue" (input)="onSearch($event)" class="search-input"/>
+    </div>
+    <p-dropdown [options]="statusOptions"
+                [(ngModel)]="selectedStatus"
+                optionLabel="label" optionValue="value"
+                placeholder="All Status" [showClear]="true"
+                (ngModelChange)="onStatusFilter($event)"
+                (onClear)="onStatusFilter(null)"
+                styleClass="filter-dropdown">
+    </p-dropdown>
+    <button class="btn-clear" type="button" (click)="clearFilters()">
+      <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      Clear
+    </button>
+  </div>
+
+  <!-- Table -->
+  <p-table
+    #dt
+    [value]="hostels"
+    dataKey="id"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[5, 10, 25]"
+    [globalFilterFields]="['name','location.city','location.state','code']"
+    sortField="createdAt" [sortOrder]="-1"
+    [loading]="loading"
+    styleClass="p-datatable-sm hostels-table"
+    currentPageReportTemplate="Showing {first}–{last} of {totalRecords} hostels"
+    [showCurrentPageReport]="true"
+    paginatorPosition="bottom">
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th pSortableColumn="name" style="min-width:220px">Hostel <p-sortIcon field="name"/></th>
+        <th style="min-width:140px">City / State</th>
+        <th style="min-width:100px">Type</th>
+        <th style="min-width:190px">Admin Email</th>
+        <th style="min-width:130px">Phone</th>
+        <th pSortableColumn="isActive" style="min-width:100px">Status <p-sortIcon field="isActive"/></th>
+        <th pSortableColumn="createdAt" style="min-width:120px">Onboarded <p-sortIcon field="createdAt"/></th>
+        <th class="actions-th">Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-h>
+      <tr class="clickable-row" (click)="viewHostel(h)">
+        <td>
+          <div class="hostel-cell">
+            <div class="h-avatar">{{ initials(h.name) }}</div>
+            <div>
+              <div class="h-name">{{ h.name }}</div>
+              <div class="h-sub text-muted">{{ h.code }}</div>
+            </div>
+          </div>
+        </td>
+        <td class="text-sm">
+          {{ h.location?.city || '—' }}
+          @if (h.location?.state) { <span class="text-muted">, {{ h.location.state }}</span> }
+        </td>
+        <td class="text-sm text-muted" style="text-transform:capitalize">{{ h.hostelType }}</td>
+        <td>
+          @if (primaryOwner(h) !== '—') {
+            <span class="admin-email">{{ primaryOwner(h) }}</span>
+          } @else {
+            <span class="text-muted">—</span>
+          }
+        </td>
+        <td class="text-sm text-muted">{{ h.owners?.[0]?.phone || '—' }}</td>
+        <td>
+          <p-tag [value]="h.isActive ? 'Active' : 'Inactive'" [severity]="severity(h.isActive)"/>
+        </td>
+        <td class="text-sm text-muted">{{ formatDate(h.createdAt) }}</td>
+        <td class="actions-cell" (click)="$event.stopPropagation()">
+          <button type="button" class="action-btn edit-btn" title="Edit" (click)="openEdit(h)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+          </button>
+          <button type="button" class="action-btn delete-btn" title="Delete" (click)="confirmDelete(h)">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="8">
+          <div class="empty-state">
+            <svg width="40" height="40" viewBox="0 0 20 20" fill="none" class="empty-icon">
+              <path d="M10 2L2 7v11h5v-5h6v5h5V7L10 2z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
+            </svg>
+            <h3>No hostels found</h3>
+            <p>Onboard your first hostel to get started.</p>
+            <button class="btn-add" type="button" (click)="openCreate()">Onboard First Hostel</button>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+  </p-table>
+
+</div>
+
+<!-- ── Side panel ──────────────────────────────────────────────────────────── -->
+@if (panelOpen()) {
+  <div class="overlay" (click)="closePanel()" (keydown.escape)="closePanel()"></div>
+  <aside class="panel" role="dialog" [attr.aria-label]="panelMode() === 'create' ? 'Onboard hostel' : 'Edit hostel'">
+
+    <div class="panel-head">
+      <div>
+        <h2 class="panel-title">{{ panelMode() === 'create' ? 'Onboard Hostel' : 'Edit Hostel' }}</h2>
+        <p class="panel-subtitle">{{ panelMode() === 'create' ? 'Add a new hostel to the platform.' : 'Update hostel information.' }}</p>
+      </div>
+      <button class="panel-close" type="button" (click)="closePanel()" aria-label="Close">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <form class="panel-body" [formGroup]="hostelForm" (ngSubmit)="save()" novalidate>
+
+      <!-- Basic info -->
+      <div class="section-divider"><span>Hostel Details</span></div>
+
+      <div class="field-group">
+        <label for="h-name">Hostel Name <span class="req">*</span></label>
+        <input id="h-name" type="text" formControlName="name" placeholder="e.g. Green Valley Boys Hostel"/>
+      </div>
+
+      <app-dropdown label="Hostel Type"
+                    formControlName="hostelType"
+                    [options]="hostelTypeOptions">
+      </app-dropdown>
+
+      <!-- Location -->
+      <div class="section-divider"><span>Location</span></div>
+
+      <div class="field-group">
+        <label for="h-addr">Address</label>
+        <input id="h-addr" type="text" formControlName="addressLine1" placeholder="Street address"/>
+      </div>
+
+      <div class="field-row">
+        <div class="field-group">
+          <label for="h-city">City</label>
+          <input id="h-city" type="text" formControlName="city" placeholder="e.g. Srinagar"/>
+        </div>
+        <div class="field-group">
+          <label for="h-state">State</label>
+          <input id="h-state" type="text" formControlName="state" placeholder="e.g. J&K"/>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field-group">
+          <label for="h-pincode">Pincode</label>
+          <input id="h-pincode" type="text" formControlName="pincode" placeholder="e.g. 190001"/>
+        </div>
+        <div class="field-group">
+          <label for="h-lat">Latitude</label>
+          <input id="h-lat" type="number" step="any" formControlName="latitude" placeholder="34.0837"/>
+        </div>
+        <div class="field-group">
+          <label for="h-lng">Longitude</label>
+          <input id="h-lng" type="number" step="any" formControlName="longitude" placeholder="74.7973"/>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div class="section-divider"><span>Settings</span></div>
+
+      <div class="field-row">
+        <div class="field-group">
+          <label for="h-seats">Total Seats</label>
+          <input id="h-seats" type="number" formControlName="totalSeats" placeholder="e.g. 60"/>
+        </div>
+        <div class="field-group">
+          <label for="h-website">Website</label>
+          <input id="h-website" type="text" formControlName="website" placeholder="www.hostel.com"/>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field-group field-group--checkbox">
+          <label>
+            <input type="checkbox" formControlName="hasMess"/>
+            Has Mess
+          </label>
+        </div>
+        @if (hostelForm.get('hasMess')?.value) {
+          <app-dropdown label="Mess Type"
+                        formControlName="messType"
+                        placeholder="Select…"
+                        [options]="messTypeOptions">
+          </app-dropdown>
+        }
+      </div>
+
+      <div class="field-group">
+        <label for="h-desc">Description</label>
+        <textarea id="h-desc" formControlName="description" rows="2" placeholder="Brief description…"></textarea>
+      </div>
+
+      <!-- Admin credentials (create only) -->
+      @if (panelMode() === 'create') {
+        <div class="section-divider"><span>Admin Login Credentials</span></div>
+        <p class="section-hint">This account will manage this hostel's dashboard.</p>
+
+        <div class="field-group">
+          <label for="h-admin-name">Admin Name</label>
+          <input id="h-admin-name" type="text" formControlName="adminName" placeholder="e.g. Rajan Sharma"/>
+        </div>
+
+        <div class="field-group">
+          <label for="h-admin-email">Admin Email <span class="req">*</span></label>
+          <input id="h-admin-email" type="email" formControlName="adminEmail" placeholder="admin@hostel.com"/>
+        </div>
+
+        <div class="field-group">
+          <label for="h-admin-pass">Admin Password <span class="req">*</span></label>
+          <input id="h-admin-pass" type="password" formControlName="adminPassword"
+                 placeholder="Set a strong password" autocomplete="new-password"/>
+        </div>
+      }
+
+      @if (errorMsg) {
+        <div class="error-msg">
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v4M10 13v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+          {{ errorMsg }}
+        </div>
+      }
+
+      <div class="panel-footer">
+        <button class="btn-ghost" type="button" (click)="closePanel()">Cancel</button>
+        <button class="btn-submit" type="submit" [disabled]="saving || hostelForm.invalid">
+          {{ saving ? 'Saving…' : (panelMode() === 'create' ? 'Onboard Hostel' : 'Save Changes') }}
+        </button>
+      </div>
+
+    </form>
+  </aside>
+}
+
+<!-- ── Delete confirm ──────────────────────────────────────────────────────── -->
+@if (deleteTargetId) {
+  <div class="overlay" (click)="cancelDelete()" (keydown.escape)="cancelDelete()"></div>
+  <div class="confirm-dialog" role="alertdialog">
+    <div class="confirm-icon">
+      <svg width="32" height="32" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="9" fill="#fef2f2"/><path d="M10 6v4M10 13v1" stroke="#dc2626" stroke-width="2" stroke-linecap="round"/></svg>
+    </div>
+    <h3 class="confirm-title">Remove hostel?</h3>
+    <p class="confirm-desc"><strong>{{ deleteTargetName }}</strong> and its admin user will be permanently removed.</p>
+    <div class="confirm-actions">
+      <button class="btn-ghost" type="button" (click)="cancelDelete()">Cancel</button>
+      <button class="btn-danger" type="button" [disabled]="deleting" (click)="doDelete()">
+        {{ deleting ? 'Removing…' : 'Remove' }}
+      </button>
+    </div>
+  </div>
+}

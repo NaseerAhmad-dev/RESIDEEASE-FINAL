@@ -1,0 +1,226 @@
+<div class="rooms-page">
+
+  <!-- ── Header ── -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Rooms</h1>
+      <p class="page-subtitle">Manage hostel rooms and track occupancy</p>
+    </div>
+    <button class="btn-add" type="button">
+      <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+      </svg>
+      Add Room
+    </button>
+  </div>
+
+  <!-- ── Stats row ── -->
+  <div class="stats-row">
+
+    <div class="stat-card">
+      <div class="stat-icon stat-icon-total">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+          <rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/>
+        </svg>
+      </div>
+      <div class="stat-body">
+        <div class="stat-value">{{ totalRooms }}</div>
+        <div class="stat-label">Total Rooms</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon stat-icon-available">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+      </div>
+      <div class="stat-body">
+        <div class="stat-value">{{ availableRooms }}</div>
+        <div class="stat-label">Available</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon stat-icon-partial">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <path d="M12 8v4l3 3"/>
+        </svg>
+      </div>
+      <div class="stat-body">
+        <div class="stat-value">{{ partialRooms }}</div>
+        <div class="stat-label">Partial</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon stat-icon-full">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+          <circle cx="9" cy="7" r="4"/>
+          <path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+        </svg>
+      </div>
+      <div class="stat-body">
+        <div class="stat-value">{{ fullRooms }}</div>
+        <div class="stat-label">Full</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon stat-icon-maintenance">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+        </svg>
+      </div>
+      <div class="stat-body">
+        <div class="stat-value">{{ maintenanceRooms }}</div>
+        <div class="stat-label">Maintenance</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Filter bar ── -->
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text" class="search-input" placeholder="Search room number…"
+             [(ngModel)]="searchQuery" (input)="applyFilters()">
+    </div>
+
+    <select class="filter-select" [(ngModel)]="filterType" (change)="applyFilters()">
+      <option value="">All Types</option>
+      <option value="single">Single</option>
+      <option value="double">Double</option>
+      <option value="triple">Triple</option>
+    </select>
+
+    <select class="filter-select" [(ngModel)]="filterFloor" (change)="applyFilters()">
+      <option value="">All Floors</option>
+      @for (f of floors; track f) {
+        <option [value]="f">Floor {{ f }}</option>
+      }
+    </select>
+
+    <select class="filter-select" [(ngModel)]="filterStatus" (change)="applyFilters()">
+      <option value="">All Status</option>
+      <option value="available">Available</option>
+      <option value="partial">Partial</option>
+      <option value="full">Full</option>
+      <option value="maintenance">Maintenance</option>
+    </select>
+
+    @if (hasActiveFilters) {
+      <button class="btn-clear" type="button" (click)="clearFilters()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+        Clear
+      </button>
+    }
+
+    @if (hasActiveFilters) {
+      <span class="results-count">
+        {{ filteredRooms.length }} of {{ totalRooms }} rooms
+      </span>
+    }
+  </div>
+
+  <!-- ── Room grid ── -->
+  @if (filteredRooms.length > 0) {
+    <div class="rooms-grid">
+      @for (room of filteredRooms; track room.roomNumber) {
+        <div class="room-card"
+             [class.is-maintenance]="room.occupancyState === 'maintenance'">
+
+          <!-- Card top strip (colored by state) -->
+          <div class="card-strip" [class]="'strip-' + room.occupancyState"></div>
+
+          <!-- Header row: room number + floor chip -->
+          <div class="room-card-header">
+            <div class="room-number-group">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
+                   fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                   class="room-icon">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                <polyline points="9 22 9 12 15 12 15 22"/>
+              </svg>
+              <span class="room-number">Room {{ room.roomNumber }}</span>
+            </div>
+            <span class="floor-chip">Floor {{ room.floor }}</span>
+          </div>
+
+          <!-- Type row -->
+          <div class="room-type-row">
+            <span class="type-badge" [class]="'type-' + room.type">{{ getTypeLabel(room.type) }}</span>
+            <span class="capacity-label">{{ room.capacity }} {{ room.capacity === 1 ? 'bed' : 'beds' }}</span>
+          </div>
+
+          <!-- Occupancy dots -->
+          <div class="occupancy-row">
+            <div class="occ-dots">
+              @for (filled of getOccupancyDots(room); track $index) {
+                <span class="occ-dot"
+                      [class.occ-dot-filled]="filled"
+                      [class.occ-dot-empty]="!filled"></span>
+              }
+            </div>
+            <span class="occ-fraction">{{ room.occupancy }} / {{ room.capacity }}</span>
+          </div>
+
+          <!-- Price -->
+          <div class="room-price">
+            ₹{{ room.price | number }}<span class="per-mo">/mo</span>
+          </div>
+
+          <!-- Amenities -->
+          <div class="amenity-list">
+            @for (a of room.amenities; track a) {
+              <span class="amenity-pill">{{ a }}</span>
+            }
+          </div>
+
+          <!-- Footer: status badge -->
+          <div class="room-card-footer">
+            <span class="occ-badge" [class]="'occ-' + room.occupancyState">
+              {{ getOccupancyLabel(room.occupancyState) }}
+            </span>
+            @if (room.status === 'maintenance') {
+              <span class="room-status-chip">Under Repair</span>
+            }
+          </div>
+
+        </div>
+      }
+    </div>
+  }
+
+  <!-- ── Empty state ── -->
+  @if (filteredRooms.length === 0) {
+    <div class="empty-state">
+      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+        <polyline points="9 22 9 12 15 12 15 22"/>
+      </svg>
+      <h3>No rooms found</h3>
+      <p>Try adjusting your search or filters.</p>
+      <button class="btn-clear-empty" type="button" (click)="clearFilters()">Clear filters</button>
+    </div>
+  }
+
+</div>

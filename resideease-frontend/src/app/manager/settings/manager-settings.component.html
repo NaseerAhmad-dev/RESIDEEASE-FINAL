@@ -1,0 +1,192 @@
+<div class="settings-page">
+
+  <!-- Header -->
+  <div class="settings-header">
+    <p class="page-eyebrow">Settings</p>
+    <h1 class="page-title">Manager preferences</h1>
+  </div>
+
+  <div class="settings-layout">
+
+    <!-- Sidebar tabs -->
+    <nav class="settings-tabs" aria-label="Settings sections">
+      <button class="tab-item" [class.active]="activeTab === 'profile'" (click)="activeTab = 'profile'" type="button">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <circle cx="10" cy="7" r="3.5" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M3 18a7 7 0 0114 0" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Profile
+      </button>
+      <button class="tab-item" [class.active]="activeTab === 'security'" (click)="activeTab = 'security'" type="button">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <rect x="4" y="9" width="12" height="9" rx="2" stroke="currentColor" stroke-width="1.5"/>
+          <path d="M7 9V6a3 3 0 016 0v3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Security
+      </button>
+      <button class="tab-item" [class.active]="activeTab === 'notifications'" (click)="activeTab = 'notifications'" type="button">
+        <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+          <path d="M10 2a6 6 0 00-6 6v3l-2 2v1h16v-1l-2-2V8a6 6 0 00-6-6zm0 16a2 2 0 01-2-2h4a2 2 0 01-2 2z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+        </svg>
+        Notifications
+      </button>
+    </nav>
+
+    <!-- Content -->
+    <div class="settings-content">
+
+      <!-- ── Profile ── -->
+      @if (activeTab === 'profile') {
+        <div class="settings-panel">
+          <div class="panel-head">
+            <div>
+              <p class="panel-eyebrow">Profile</p>
+              <h2>Account information</h2>
+            </div>
+            <button class="btn-save" (click)="saveProfile()" [disabled]="saveStatus === 'saving'" type="button">
+              @if (saveStatus === 'saving') { Saving… }
+              @if (saveStatus === 'success') {
+                <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M6.5 10l2.5 2.5 4.5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                Saved
+              }
+              @if (saveStatus === 'error') { Failed }
+              @if (saveStatus === 'idle') { Save changes }
+            </button>
+          </div>
+
+          <div class="avatar-row">
+            <div class="settings-avatar">{{ getInitials(profile.name) }}</div>
+            <div>
+              <div class="avatar-name">{{ profile.name }}</div>
+              <div class="avatar-meta">{{ userRole }} &nbsp;·&nbsp; {{ profile.hostel }}</div>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group">
+              <label class="form-label" for="mgr-name">Full name</label>
+              <input id="mgr-name" type="text" class="form-input" [(ngModel)]="profile.name" placeholder="Manager name">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="mgr-hostel">Hostel name</label>
+              <input id="mgr-hostel" type="text" class="form-input" [(ngModel)]="profile.hostel" placeholder="e.g. Maple Residency">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="mgr-email">Email address</label>
+              <input id="mgr-email" type="email" class="form-input" [(ngModel)]="profile.email" placeholder="email@example.com">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="mgr-phone">Phone number</label>
+              <input id="mgr-phone" type="tel" class="form-input" [(ngModel)]="profile.phone" placeholder="+91 00000 00000">
+            </div>
+            <div class="form-group form-group--full">
+              <label class="form-label">Role</label>
+              <div class="role-badge">{{ userRole }}</div>
+              <p class="form-hint">Role is assigned by the admin and cannot be changed here.</p>
+            </div>
+          </div>
+        </div>
+      }
+
+      <!-- ── Security ── -->
+      @if (activeTab === 'security') {
+        <div class="settings-panel">
+          <div class="panel-head">
+            <div>
+              <p class="panel-eyebrow">Security</p>
+              <h2>Change password</h2>
+            </div>
+          </div>
+
+          <div class="security-card">
+            <p class="security-note">Choose a strong password with at least 8 characters. You will be signed out after changing it.</p>
+            <form class="security-form" (ngSubmit)="changePassword()">
+              <div class="form-group">
+                <label class="form-label" for="cur-pass">Current password</label>
+                <div class="input-wrap">
+                  <input id="cur-pass" [type]="showCurrent ? 'text' : 'password'" class="form-input" [(ngModel)]="passwordForm.current" name="cur-pass" placeholder="Enter current password" autocomplete="current-password">
+                  <button type="button" class="eye-btn" (click)="showCurrent = !showCurrent" [attr.aria-label]="showCurrent ? 'Hide password' : 'Show password'">
+                    @if (showCurrent) {
+                      <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M1 10s3.6-7 9-7 9 7 9 7-3.6 7-9 7-9-7-9-7z" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 3l14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    } @else {
+                      <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M1 10s3.6-7 9-7 9 7 9 7-3.6 7-9 7-9-7-9-7z" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg>
+                    }
+                  </button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="new-pass">New password</label>
+                <div class="input-wrap">
+                  <input id="new-pass" [type]="showNew ? 'text' : 'password'" class="form-input" [(ngModel)]="passwordForm.newPass" name="new-pass" placeholder="At least 8 characters" autocomplete="new-password">
+                  <button type="button" class="eye-btn" (click)="showNew = !showNew" [attr.aria-label]="showNew ? 'Hide password' : 'Show password'">
+                    @if (showNew) {
+                      <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M1 10s3.6-7 9-7 9 7 9 7-3.6 7-9 7-9-7-9-7z" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 3l14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    } @else {
+                      <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M1 10s3.6-7 9-7 9 7 9 7-3.6 7-9 7-9-7-9-7z" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg>
+                    }
+                  </button>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="conf-pass">Confirm new password</label>
+                <div class="input-wrap">
+                  <input id="conf-pass" [type]="showConfirm ? 'text' : 'password'" class="form-input" [(ngModel)]="passwordForm.confirm" name="conf-pass" placeholder="Repeat new password" autocomplete="new-password">
+                  <button type="button" class="eye-btn" (click)="showConfirm = !showConfirm" [attr.aria-label]="showConfirm ? 'Hide password' : 'Show password'">
+                    @if (showConfirm) {
+                      <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M1 10s3.6-7 9-7 9 7 9 7-3.6 7-9 7-9-7-9-7z" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/><path d="M3 3l14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                    } @else {
+                      <svg width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M1 10s3.6-7 9-7 9 7 9 7-3.6 7-9 7-9-7-9-7z" stroke="currentColor" stroke-width="1.5"/><circle cx="10" cy="10" r="2.5" stroke="currentColor" stroke-width="1.5"/></svg>
+                    }
+                  </button>
+                </div>
+              </div>
+
+              @if (passwordError) {
+                <div class="error-msg" role="alert">
+                  <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v4M10 13v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+                  {{ passwordError }}
+                </div>
+              }
+              @if (passwordSuccess) {
+                <output class="success-msg">
+                  <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M6.5 10l2.5 2.5 4.5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                  Password updated successfully.
+                </output>
+              }
+              <button type="submit" class="btn-save">Update password</button>
+            </form>
+          </div>
+        </div>
+      }
+
+      <!-- ── Notifications ── -->
+      @if (activeTab === 'notifications') {
+        <div class="settings-panel">
+          <div class="panel-head">
+            <div>
+              <p class="panel-eyebrow">Notifications</p>
+              <h2>Alert preferences</h2>
+            </div>
+          </div>
+
+          <div class="notif-pref-list">
+            @for (pref of notifPrefs; track pref.label) {
+              <div class="notif-pref-item">
+                <div class="notif-pref-info">
+                  <div class="notif-pref-label">{{ pref.label }}</div>
+                  <div class="notif-pref-desc">{{ pref.description }}</div>
+                </div>
+                <button class="toggle-btn" [class.on]="pref.enabled" (click)="togglePref(pref)"
+                  type="button" role="switch" [attr.aria-checked]="pref.enabled" [attr.aria-label]="pref.label">
+                  <span class="toggle-thumb"></span>
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      }
+
+    </div>
+  </div>
+
+</div>

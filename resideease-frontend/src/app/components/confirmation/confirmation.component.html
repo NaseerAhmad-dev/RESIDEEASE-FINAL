@@ -1,0 +1,146 @@
+<div class="onboarding-shell">
+  <app-progress-bar [steps]="steps" [currentStep]="4" />
+
+  <main class="onboarding-card" role="main">
+
+    @if (!submitted) {
+      <!-- REVIEW VIEW -->
+      <header class="screen-header centered">
+        <div class="confirm-icon" aria-hidden="true">✓</div>
+        <h2 class="screen-title">Review &amp; Confirm</h2>
+        <p class="screen-subtitle">Everything look good? Submit to complete your setup.</p>
+      </header>
+
+      <!-- Personal Info -->
+      <section class="confirm-section" aria-labelledby="sec-personal">
+        <div class="section-label" id="sec-personal">
+          <span class="dot dot--sky"></span> Personal Info
+        </div>
+        <div class="confirm-table" role="table" aria-label="Personal information summary">
+          <div class="confirm-row" role="row">
+            <span class="ck" role="cell">Name</span>
+            <span class="cv" role="cell">{{ fullName }}</span>
+          </div>
+          <div class="confirm-row" role="row">
+            <span class="ck" role="cell">Email</span>
+            <span class="cv" role="cell">{{ data().userDetails.email || '—' }}</span>
+          </div>
+          <div class="confirm-row" role="row">
+            <span class="ck" role="cell">Phone</span>
+            <span class="cv" role="cell">{{ data().userDetails.phone || '—' }}</span>
+          </div>
+          <div class="confirm-row" role="row">
+            <span class="ck" role="cell">Roll No.</span>
+            <span class="cv" role="cell">{{ data().userDetails.rollNumber || '—' }}</span>
+          </div>
+        </div>
+        <button class="edit-link" (click)="router.navigate(['/onboarding/user-details'])"
+                aria-label="Edit personal information">Edit</button>
+      </section>
+
+      <!-- Room Details -->
+      <section class="confirm-section" aria-labelledby="sec-room">
+        <div class="section-label" id="sec-room">
+          <span class="dot dot--indigo"></span> Room Details
+        </div>
+        <div class="confirm-table">
+          <div class="confirm-row">
+            <span class="ck">Room Type</span>
+            <span class="cv">{{ roomLabel }}</span>
+          </div>
+          <div class="confirm-row">
+            <span class="ck">Floor Pref.</span>
+            <span class="cv">{{ data().roomPreferences.floor || 'No preference' }}</span>
+          </div>
+          <div class="confirm-row">
+            <span class="ck">Check-in</span>
+            <span class="cv">{{ data().roomPreferences.checkInDate | date:'mediumDate' }}</span>
+          </div>
+          <div class="confirm-row">
+            <span class="ck">Monthly Rent</span>
+            <span class="cv accent-sky">₹{{ roomPrice() | number }}</span>
+          </div>
+        </div>
+        <button class="edit-link" (click)="router.navigate(['/onboarding/room-selection'])"
+                aria-label="Edit room selection">Edit</button>
+      </section>
+
+      <!-- Mess Plan -->
+      <section class="confirm-section" aria-labelledby="sec-mess">
+        <div class="section-label" id="sec-mess">
+          <span class="dot dot--green"></span> Mess Plan
+        </div>
+        <div class="confirm-table">
+          <div class="confirm-row">
+            <span class="ck">Meal Plan</span>
+            <span class="cv">{{ mealLabel }}</span>
+          </div>
+          <div class="confirm-row">
+            <span class="ck">Diet</span>
+            <span class="cv">
+              {{ data().messPreferences.dietaryPreferences?.join(', ') || 'None selected' }}
+            </span>
+          </div>
+          <div class="confirm-row">
+            <span class="ck">Mess Cost</span>
+            <span class="cv accent-green">
+              {{ mealPrice() > 0 ? ('₹' + (mealPrice() | number)) : 'Free' }}
+            </span>
+          </div>
+        </div>
+        <button class="edit-link" (click)="router.navigate(['/onboarding/mess-selection'])"
+                aria-label="Edit mess selection">Edit</button>
+      </section>
+
+      <!-- Total -->
+      <div class="total-bar" aria-label="Total monthly cost">
+        <div>
+          <div class="total-label">Total Monthly</div>
+          <div class="total-sub">Rent + Mess plan</div>
+        </div>
+        <div class="total-amount">₹{{ totalMonthly() | number }}</div>
+      </div>
+
+      <div class="btn-row">
+        <button type="button" class="btn-back" (click)="back()">← Back</button>
+        <button type="button" class="btn-submit" (click)="submit()">
+          Confirm &amp; Submit 🎉
+        </button>
+      </div>
+
+    } @else {
+      <!-- SUCCESS VIEW -->
+      <div class="success-view" role="status" aria-live="polite">
+        <div class="success-burst" aria-hidden="true">🎊</div>
+        <h2 class="success-title">You're all set!</h2>
+        <p class="success-sub">
+          Welcome to ResideEase, {{ data().userDetails.firstName }}!
+          Your room and mess plan are confirmed.
+        </p>
+
+        <div class="next-steps" aria-label="What happens next">
+          <div class="next-label">What's next</div>
+          <ul class="next-list">
+            <li>Confirmation email sent to <strong>{{ data().userDetails.email }}</strong></li>
+            <li>Room keys available from the Warden's office</li>
+            <li>Mess card issued on your check-in date</li>
+            <li>Download the ResideEase app for daily updates</li>
+          </ul>
+        </div>
+
+        <div class="summary-pill">
+          <span>{{ roomLabel }}</span>
+          <span class="pill-sep">·</span>
+          <span>{{ mealLabel }}</span>
+          <span class="pill-sep">·</span>
+          <span class="pill-total">₹{{ totalMonthly() | number }}/mo</span>
+        </div>
+
+        <button type="button" class="btn-full" (click)="startOver()">
+          Start over (demo)
+        </button>
+      </div>
+    }
+
+  </main>
+</div>

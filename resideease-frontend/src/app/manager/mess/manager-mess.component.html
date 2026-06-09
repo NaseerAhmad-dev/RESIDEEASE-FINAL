@@ -1,0 +1,205 @@
+<div class="mess-page">
+
+  <!-- Header -->
+  <div class="mess-header">
+    <div>
+      <p class="page-eyebrow">Mess Management</p>
+      <h1 class="page-title">Today's Meal Service</h1>
+    </div>
+    <span class="date-chip">
+      <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+        <rect x="3" y="4" width="14" height="13" rx="2" stroke="currentColor" stroke-width="1.5"/>
+        <path d="M3 8h14M7 2v4M13 2v4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+      {{ today | date:'EEE, d MMM yyyy' }}
+    </span>
+  </div>
+
+  <!-- Stats row -->
+  <div class="stats-row">
+    <div class="stat-card stat-card--brand">
+      <p class="stat-label">Enrolled Today</p>
+      <p class="stat-value">{{ stats.totalEnrolled }}</p>
+      <p class="stat-sub">Active meal coupons</p>
+    </div>
+    <div class="stat-card stat-card--green">
+      <p class="stat-label">Served</p>
+      <p class="stat-value">{{ stats.served }}</p>
+      <p class="stat-sub">Meals collected</p>
+    </div>
+    <div class="stat-card stat-card--amber">
+      <p class="stat-label">Pending</p>
+      <p class="stat-value">{{ stats.pending }}</p>
+      <p class="stat-sub">Yet to collect</p>
+    </div>
+    <div class="stat-card stat-card--sky">
+      <p class="stat-label">Completion</p>
+      <p class="stat-value">{{ completionRate }}%</p>
+      <p class="stat-sub">Service rate today</p>
+    </div>
+  </div>
+
+  <!-- Progress bar -->
+  @if (stats.totalEnrolled > 0) {
+    <div class="progress-wrap" aria-label="Meal service progress">
+      <div class="progress-track">
+        <div class="progress-fill" [style.width.%]="completionRate"></div>
+      </div>
+      <span class="progress-label">{{ stats.served }} of {{ stats.totalEnrolled }} meals served</span>
+    </div>
+  }
+
+  <!-- Content grid -->
+  <div class="mess-grid">
+
+    <!-- ── Coupon Validation ── -->
+    <section class="panel panel--wide">
+      <div class="panel-head">
+        <div>
+          <p class="panel-eyebrow">Coupon Validation</p>
+          <h2>Scan or enter coupon</h2>
+        </div>
+      </div>
+
+      <div class="validator-panel">
+        <div class="validator-icon" aria-hidden="true">
+          <svg width="26" height="26" viewBox="0 0 20 20" fill="none">
+            <rect x="2" y="6" width="16" height="10" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M2 10h16M6 14v-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+        </div>
+        <p class="validator-sub">Type the coupon number from the student's meal ticket to mark the meal as served.</p>
+        <div class="coupon-input-row">
+          <label class="sr-only" for="couponField">Coupon number</label>
+          <input id="couponField" type="text" class="coupon-input" [(ngModel)]="couponInput"
+            (keyup.enter)="validateCoupon()" placeholder="e.g. M202405181001" autocomplete="off" spellcheck="false">
+          <button class="validate-btn" (click)="validateCoupon()" type="button">Validate &amp; Serve</button>
+        </div>
+        @if (couponResult === 'success') {
+          <output class="coupon-feedback coupon-feedback--success">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M6.5 10l2.5 2.5 4.5-4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            {{ couponMessage }}
+          </output>
+        }
+        @if (couponResult === 'error') {
+          <div class="coupon-feedback coupon-feedback--error" role="alert">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M10 6v4M10 14h.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            {{ couponMessage }}
+          </div>
+        }
+        @if (couponResult === 'already-served') {
+          <div class="coupon-feedback coupon-feedback--warning" role="alert">
+            <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 3L2 17h16L10 3z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M10 9v3M10 14h.01" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+            {{ couponMessage }}
+          </div>
+        }
+      </div>
+
+      @if (pendingList.length > 0) {
+        <div class="quick-serve">
+          <h3 class="quick-serve-title">
+            Quick Serve
+            <span class="quick-serve-count">{{ pendingList.length }} pending</span>
+          </h3>
+          <p class="quick-serve-sub">Click a card to instantly mark the meal as served.</p>
+          <div class="pending-grid">
+            @for (e of pendingList; track e.couponNumber) {
+              <button class="pending-card" (click)="serveMeal(e.couponNumber)"
+                type="button" [attr.aria-label]="'Serve meal for ' + e.studentName">
+                <span class="pending-avatar" aria-hidden="true">{{ initials(e.studentName) }}</span>
+                <div class="pending-info">
+                  <p class="pending-name">{{ e.studentName }}</p>
+                  <p class="pending-meta">{{ e.rollNumber }} · {{ mealLabel(e.mealType) }}</p>
+                </div>
+                <code class="pending-coupon">{{ e.couponNumber }}</code>
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      @if (pendingList.length === 0) {
+        <output class="all-served-banner">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          All enrolled students have been served for today.
+        </output>
+      }
+    </section>
+
+    <!-- ── Enrollment List ── -->
+    <section class="panel panel--wide">
+      <div class="panel-head">
+        <div>
+          <p class="panel-eyebrow">Enrollment List</p>
+          <h2>Today's enrolled students</h2>
+        </div>
+        <fieldset class="filter-row">
+          <legend class="sr-only">Filter by status</legend>
+          <button class="filter-chip" [class.active]="statusFilter === 'all'"      (click)="setFilter('all')"      type="button">All <span class="chip-count">{{ allEnrollments.length }}</span></button>
+          <button class="filter-chip" [class.active]="statusFilter === 'enrolled'" (click)="setFilter('enrolled')" type="button">Pending <span class="chip-count">{{ stats.pending }}</span></button>
+          <button class="filter-chip" [class.active]="statusFilter === 'served'"   (click)="setFilter('served')"   type="button">Served <span class="chip-count">{{ stats.served }}</span></button>
+        </fieldset>
+      </div>
+
+      @if (filteredEnrollments.length === 0) {
+        <div class="empty-state">
+          <svg width="40" height="40" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M6 2v4a2 2 0 002 2h4a2 2 0 002-2V2M10 8v10M6 2v4M14 2v4" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/>
+          </svg>
+          <p>No enrollments match this filter.</p>
+        </div>
+      }
+
+      @if (filteredEnrollments.length > 0) {
+        <div class="table-wrap">
+          <table class="enrollment-table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Roll No.</th>
+                <th>Coupon</th>
+                <th>Meal</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (e of filteredEnrollments; track e.couponNumber) {
+                <tr [class.row--served]="e.status === 'served'">
+                  <td>
+                    <div class="student-cell">
+                      <span class="student-avatar" aria-hidden="true">{{ initials(e.studentName) }}</span>
+                      <span class="student-name">{{ e.studentName }}</span>
+                    </div>
+                  </td>
+                  <td class="cell-muted">{{ e.rollNumber }}</td>
+                  <td><code class="coupon-code">{{ e.couponNumber }}</code></td>
+                  <td><span class="meal-chip meal-chip--{{ e.mealType }}">{{ mealLabel(e.mealType) }}</span></td>
+                  <td>
+                    <span class="status-chip" [ngClass]="'status-chip--' + e.status">
+                      {{ e.status === 'enrolled' ? 'Pending' : 'Served' }}
+                    </span>
+                  </td>
+                  <td>
+                    @if (e.status === 'enrolled') {
+                      <button class="serve-btn" (click)="serveMeal(e.couponNumber)" type="button">Mark Served</button>
+                    }
+                    @if (e.status === 'served') {
+                      <span class="served-time">
+                        <svg width="12" height="12" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M6.5 10l2.5 2.5 4.5-4.5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                        {{ formatTime(e.servedAt) }}
+                      </span>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </section>
+
+
+  </div>
+
+</div>

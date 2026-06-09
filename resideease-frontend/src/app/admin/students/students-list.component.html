@@ -1,0 +1,204 @@
+<p-confirmDialog key="checkoutConfirm" [style]="{width:'38rem'}" styleClass="checkout-dialog">
+  <ng-template pTemplate="message" let-message>
+    <div class="confirm-body">
+      <div class="confirm-icon-wrap">
+        <i class="pi pi-sign-out"></i>
+      </div>
+      <div class="confirm-text" [innerHTML]="message.message"></div>
+    </div>
+  </ng-template>
+</p-confirmDialog>
+
+<div class="students-list-container">
+
+  <!-- Header -->
+  <div class="list-header">
+    <div>
+      <h2 class="list-title">All Students</h2>
+      <p class="list-subtitle">{{ students.length }} students enrolled</p>
+    </div>
+    <div class="header-actions">
+      <button class="btn-export" (click)="exportToCSV()" title="Export as CSV">
+        <i class="pi pi-file-export"></i> CSV
+      </button>
+      <button class="btn-export" (click)="exportToJSON()" title="Export as JSON">
+        <i class="pi pi-code"></i> JSON
+      </button>
+      <a routerLink="/admin/students/add" class="btn-add">
+        <i class="pi pi-plus"></i> Add Student
+      </a>
+    </div>
+  </div>
+
+  <!-- Filter Bar -->
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <i class="pi pi-search search-icon"></i>
+      <input pInputText type="text" placeholder="Search name, email, roll no…"
+             [(ngModel)]="searchValue" (input)="onGlobalFilter($event)"
+             class="search-input" />
+    </div>
+    <p-dropdown [options]="statusOptions"
+                [(ngModel)]="selectedStatus"
+                optionLabel="label" optionValue="value"
+                placeholder="All Status" [showClear]="true"
+                (ngModelChange)="onStatusChange($event)"
+                (onClear)="onStatusChange(null)"
+                styleClass="filter-dropdown"></p-dropdown>
+    <p-dropdown [options]="genderOptions"
+                [(ngModel)]="selectedGender"
+                optionLabel="label" optionValue="value"
+                placeholder="All Genders" [showClear]="true"
+                (ngModelChange)="onGenderChange($event)"
+                (onClear)="onGenderChange(null)"
+                styleClass="filter-dropdown"></p-dropdown>
+    <button class="btn-clear" (click)="clearFilters()">
+      <i class="pi pi-times"></i> Clear
+    </button>
+  </div>
+
+  <!-- Bulk Bar -->
+  @if (selectedStudents.length > 0) {
+    <div class="bulk-bar">
+      <span class="bulk-info">
+        <i class="pi pi-check-circle"></i>
+        {{ selectedStudents.length }} student{{ selectedStudents.length !== 1 ? 's' : '' }} selected
+      </span>
+      <button class="btn-danger-outline" (click)="deleteSelected()">
+        <i class="pi pi-trash"></i> Delete Selected
+      </button>
+    </div>
+  }
+
+  <!-- Table -->
+  <p-table
+    #dt
+    [value]="students"
+    [(selection)]="selectedStudents"
+    selectionMode="multiple"
+    dataKey="id"
+    [paginator]="true"
+    [rows]="10"
+    [rowsPerPageOptions]="[5, 10, 25, 50]"
+    [globalFilterFields]="['firstName','lastName','rollNumber','phone']"
+    sortField="createdAt"
+    [sortOrder]="-1"
+    [loading]="loading"
+    styleClass="p-datatable-sm students-table"
+    [tableStyle]="{ 'min-width': '56rem' }"
+    currentPageReportTemplate="Showing {first}–{last} of {totalRecords} students"
+    [showCurrentPageReport]="true"
+    [showFirstLastIcon]="true"
+    paginatorPosition="bottom">
+
+    <ng-template pTemplate="header">
+      <tr>
+        <th scope="col" style="width:3rem">
+          <p-tableHeaderCheckbox></p-tableHeaderCheckbox>
+        </th>
+        <th scope="col" pSortableColumn="firstName" style="min-width:180px">
+          Name <p-sortIcon field="firstName"></p-sortIcon>
+        </th>
+        <th scope="col" pSortableColumn="rollNumber" style="min-width:120px">
+          Roll No. <p-sortIcon field="rollNumber"></p-sortIcon>
+        </th>
+        <th scope="col" pSortableColumn="department" style="min-width:160px">
+          Department <p-sortIcon field="department"></p-sortIcon>
+        </th>
+        <th scope="col" pSortableColumn="selectedRoom" style="min-width:140px">
+          Room <p-sortIcon field="selectedRoom"></p-sortIcon>
+        </th>
+        <th scope="col" pSortableColumn="currentSemester" style="min-width:120px">
+          Semester <p-sortIcon field="currentSemester"></p-sortIcon>
+        </th>
+        <th scope="col" pSortableColumn="status" style="min-width:105px">
+          Status <p-sortIcon field="status"></p-sortIcon>
+        </th>
+        <th scope="col" pSortableColumn="createdAt" style="min-width:115px">
+          Joined <p-sortIcon field="createdAt"></p-sortIcon>
+        </th>
+        <th scope="col" class="actions-th">Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-student>
+      <tr [class.row-selected]="isRowSelected(student)">
+        <td><p-tableCheckbox [value]="student"></p-tableCheckbox></td>
+        <td>
+          <div class="student-cell">
+            <div class="s-avatar" [style.background-color]="getAvatarColor(student.firstName)">
+              {{ student.firstName.charAt(0) }}{{ student.lastName.charAt(0) }}
+            </div>
+            <div>
+              <div class="s-name">{{ student.firstName }} {{ student.lastName }}</div>
+              <div class="s-phone">{{ student.phone }}</div>
+            </div>
+          </div>
+        </td>
+        <td><span class="mono">{{ student.rollNumber }}</span></td>
+        <td>{{ student.department || '—' }}</td>
+        <td>
+          <span class="room-chip">{{ student.selectedRoom }}</span>
+          <div class="room-price">₹{{ student.roomPrice | number }}/mo</div>
+        </td>
+        <td class="text-sm">{{ student.currentSemester }}</td>
+        <td>
+          <p-tag [value]="student.status === 'checked_out' ? 'Checked Out' : (student.status | titlecase)"
+                 [severity]="getStatusSeverity(student.status)"></p-tag>
+        </td>
+        <td class="text-sm text-muted">{{ student.createdAt | date:'d MMM y' }}</td>
+        <td class="actions-cell">
+          <!-- View -->
+          <button type="button" class="action-btn view-btn"
+                  title="View" [attr.aria-label]="'View ' + student.firstName"
+                  (click)="navigateToView(student.id)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+          <!-- Edit -->
+          <button type="button" class="action-btn edit-btn"
+                  title="Edit" [attr.aria-label]="'Edit ' + student.firstName"
+                  (click)="navigateToEdit(student.id)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
+            </svg>
+          </button>
+          <!-- Delete -->
+          <button type="button" class="action-btn delete-btn"
+                  title="Delete" [attr.aria-label]="'Delete ' + student.firstName"
+                  (click)="deleteStudent(student, $event)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+                 fill="none" stroke="currentColor" stroke-width="2"
+                 stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="3 6 5 6 21 6"/>
+              <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/>
+            </svg>
+          </button>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="9">
+          <div class="empty-state">
+            <i class="pi pi-users empty-icon"></i>
+            <h3>No students found</h3>
+            <p>Try adjusting your filters or add a new student.</p>
+            <a routerLink="/admin/students/add" class="btn-add">
+              <i class="pi pi-plus"></i> Add First Student
+            </a>
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+  </p-table>
+
+</div>

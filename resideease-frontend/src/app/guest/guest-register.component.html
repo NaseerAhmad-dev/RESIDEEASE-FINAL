@@ -1,0 +1,267 @@
+<div class="guest-page">
+
+  <!-- Brand header -->
+  <div class="home-brand">
+    <div class="brand-logo" aria-label="ResideEase logo">
+      <svg width="32" height="32" viewBox="0 0 28 28" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <rect width="28" height="28" rx="8" fill="#0ab4a8"/>
+        <path d="M14 5L5 11v12h6v-7h6v7h6V11L14 5z" fill="white"/>
+      </svg>
+    </div>
+    <span class="brand-name">ResideEase</span>
+  </div>
+
+  <div class="guest-card">
+
+    <!-- Progress bar -->
+    <div class="progress-bar">
+      <div class="progress-step" [class.active]="step >= 1" [class.done]="step > 1">
+        <span class="step-num">
+          @if (step > 1) {
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          } @else {
+            1
+          }
+        </span>
+        <span class="step-label">Details</span>
+      </div>
+      <div class="progress-line" [class.done]="step > 1"></div>
+      <div class="progress-step" [class.active]="step >= 2" [class.done]="step > 2">
+        <span class="step-num">
+          @if (step > 2) {
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          } @else {
+            2
+          }
+        </span>
+        <span class="step-label">OTP</span>
+      </div>
+      <div class="progress-line" [class.done]="step > 2"></div>
+      <div class="progress-step" [class.active]="step >= 3" [class.done]="step > 3">
+        <span class="step-num">
+          @if (step > 3) {
+            <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M3 8l4 4 6-7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          } @else {
+            3
+          }
+        </span>
+        <span class="step-label">Payment</span>
+      </div>
+      <div class="progress-line" [class.done]="step > 3"></div>
+      <div class="progress-step" [class.active]="step >= 4">
+        <span class="step-num">4</span>
+        <span class="step-label">Done</span>
+      </div>
+    </div>
+
+    <!-- ── Step 1: Personal Details ── -->
+    @if (step === 1) {
+      <div class="step-panel">
+        <div class="step-header">
+          <h2>Guest Registration</h2>
+          <p>Enter your details to register as a visitor.</p>
+        </div>
+
+        <form [formGroup]="detailsForm" (ngSubmit)="submitDetails()" novalidate>
+          <div class="field-group">
+            <label for="fullName">Full Name</label>
+            <input id="fullName" type="text" formControlName="fullName"
+              placeholder="Enter your full name" autocomplete="name"
+              [class.input-error]="f['fullName'].invalid && f['fullName'].touched"/>
+            <app-field-error [control]="f['fullName']" />
+          </div>
+
+          <div class="field-group">
+            <label for="phone">Phone Number</label>
+            <input id="phone" type="tel" formControlName="phone"
+              placeholder="10-digit mobile number" autocomplete="tel" maxlength="10"
+              [class.input-error]="f['phone'].invalid && f['phone'].touched"/>
+            <app-field-error [control]="f['phone']" />
+          </div>
+
+          <div class="field-group">
+            <label for="aadhaar">Aadhaar Card Number</label>
+            <input id="aadhaar" type="text" formControlName="aadhaarNumber"
+              placeholder="12-digit Aadhaar number" maxlength="12" inputmode="numeric"
+              [class.input-error]="f['aadhaarNumber'].invalid && f['aadhaarNumber'].touched"/>
+            <app-field-error [control]="f['aadhaarNumber']" />
+          </div>
+
+          <button class="btn-primary" type="submit">
+            Send OTP
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M4 10h12M10 4l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </form>
+
+        <div class="back-link">
+          <button type="button" (click)="goHome()">← Back to home</button>
+        </div>
+      </div>
+    }
+
+    <!-- ── Step 2: OTP Verification ── -->
+    @if (step === 2) {
+      <div class="step-panel">
+        <div class="step-header">
+          <h2>Verify OTP</h2>
+          <p>A 6-digit OTP has been sent to <strong>+91&nbsp;{{ detailsForm.value.phone }}</strong></p>
+        </div>
+
+        <div class="demo-hint">
+          <svg width="13" height="13" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
+            <path d="M10 9v5M10 6v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+          </svg>
+          Demo mode — your OTP is: <strong>{{ generatedOtp }}</strong>
+        </div>
+
+        <form [formGroup]="otpForm" (ngSubmit)="verifyOtp()" novalidate>
+          <div class="field-group">
+            <label for="otp">Enter OTP</label>
+            <input id="otp" type="text" formControlName="otp"
+              placeholder="6-digit OTP" maxlength="6" inputmode="numeric"
+              class="otp-input"
+              [class.input-error]="otpF['otp'].invalid && otpF['otp'].touched"/>
+            <app-field-error [control]="otpF['otp']" />
+          </div>
+
+          @if (otpError) {
+            <div class="error-msg">
+              <svg width="13" height="13" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
+                <path d="M10 6v4M10 13v1" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              </svg>
+              {{ otpError }}
+            </div>
+          }
+
+          <button class="btn-primary" type="submit">
+            Verify &amp; Continue
+            <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M4 10h12M10 4l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </form>
+
+        <div class="resend-row">
+          @if (resendTimer > 0) {
+            <span class="resend-timer">Resend in {{ resendTimer }}s</span>
+          }
+          @if (resendTimer === 0) {
+            <button type="button" class="resend-btn" (click)="resendOtp()">
+              Resend OTP
+            </button>
+          }
+        </div>
+
+        <div class="back-link">
+          <button type="button" (click)="step = 1">← Back to details</button>
+        </div>
+      </div>
+    }
+
+    <!-- ── Step 3: Fee Payment ── -->
+    @if (step === 3) {
+      <div class="step-panel">
+        <div class="step-header">
+          <h2>Pay Guest Fee</h2>
+          <p>Complete your payment to finish guest registration.</p>
+        </div>
+
+        <div class="guest-summary">
+          <div class="summary-row">
+            <span>Name</span>
+            <span>{{ detailsForm.value.fullName }}</span>
+          </div>
+          <div class="summary-row">
+            <span>Phone</span>
+            <span>{{ detailsForm.value.phone }}</span>
+          </div>
+          <div class="summary-row">
+            <span>Aadhaar</span>
+            <span>{{ maskedAadhaar }}</span>
+          </div>
+        </div>
+
+        <div class="fee-card">
+          <div class="fee-row">
+            <span class="fee-label">Guest Visit Fee</span>
+            <span class="fee-amount">₹{{ guestFee }}</span>
+          </div>
+          <div class="fee-divider"></div>
+          <div class="fee-row fee-total">
+            <span>Total Payable</span>
+            <span>₹{{ guestFee }}</span>
+          </div>
+        </div>
+
+        <button class="btn-primary" type="button" (click)="payFee()">
+          Pay ₹{{ guestFee }} &amp; Register
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M4 10h12M10 4l6 6-6 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+
+        <div class="back-link">
+          <button type="button" (click)="step = 2">← Back to OTP</button>
+        </div>
+      </div>
+    }
+
+    <!-- ── Step 4: Success ── -->
+    @if (step === 4) {
+      <div class="step-panel step-success">
+        <div class="success-icon" aria-hidden="true">
+          <svg width="56" height="56" viewBox="0 0 56 56" fill="none">
+            <circle cx="28" cy="28" r="28" fill="#d1fae5"/>
+            <path d="M17 28l8 8 14-16" stroke="#059669" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+
+        <div class="step-header">
+          <h2>Registration Complete!</h2>
+          <p>Your guest registration and payment are confirmed.</p>
+        </div>
+
+        @if (registeredGuest) {
+          <div class="receipt-card">
+            <div class="receipt-title">Payment Receipt</div>
+            <div class="summary-row">
+              <span>Name</span>
+              <span>{{ registeredGuest.fullName }}</span>
+            </div>
+            <div class="summary-row">
+              <span>Phone</span>
+              <span>{{ registeredGuest.phone }}</span>
+            </div>
+            <div class="summary-row">
+              <span>Receipt No.</span>
+              <span class="receipt-num">{{ registeredGuest.receiptNumber }}</span>
+            </div>
+            <div class="summary-row">
+              <span>Amount Paid</span>
+              <span class="receipt-amount">₹{{ registeredGuest.feeAmount }}</span>
+            </div>
+            <div class="summary-row">
+              <span>Date &amp; Time</span>
+              <span>{{ registeredGuest.registeredAt | date:'dd MMM yyyy, hh:mm a' }}</span>
+            </div>
+          </div>
+        }
+
+        <button class="btn-primary btn-success" type="button" (click)="goHome()">
+          Return to Home
+          <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+            <path d="M10 3L3 10m0 0l7 7M3 10h14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </button>
+      </div>
+    }
+
+  </div>
+
+  <p class="home-footer">SA Hostel Zakura &mdash; Powered by ResideEase</p>
+
+</div>

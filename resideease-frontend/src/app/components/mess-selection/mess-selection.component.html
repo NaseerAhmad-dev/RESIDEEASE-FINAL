@@ -1,0 +1,97 @@
+<div class="onboarding-shell">
+  <app-progress-bar [steps]="steps" [currentStep]="3" />
+
+  <main class="onboarding-card" role="main">
+    <header class="screen-header">
+      <h2 class="screen-title">Mess &amp; Meal Plans</h2>
+      <p class="screen-subtitle">Choose what works for your lifestyle and dietary needs</p>
+    </header>
+
+    <form [formGroup]="form" (ngSubmit)="next()" novalidate aria-label="Mess selection form">
+
+      <!-- Meal Plan Selection -->
+      <fieldset class="fieldset-reset" aria-label="Meal plan selection">
+        <legend class="field-legend">Meal Plan</legend>
+        <div class="meal-grid" role="radiogroup">
+          @for (plan of mealPlans; track plan.id) {
+            <button
+              type="button"
+              class="meal-card"
+              [class.selected]="selectedPlan === plan.id"
+              (click)="selectPlan(plan.id)"
+              role="radio"
+              [attr.aria-checked]="selectedPlan === plan.id"
+              [attr.aria-label]="plan.label + ', ₹' + plan.price + ' per month'">
+
+              <div class="meal-card-top">
+                <span class="badge badge--{{ plan.badgeColor }}">{{ plan.badge }}</span>
+              </div>
+              <div class="meal-name">{{ plan.label }}</div>
+              <div class="meal-desc">{{ plan.description }}</div>
+              <div class="meal-timings">{{ plan.timings }}</div>
+              @if (plan.price > 0) {
+                <div class="meal-price">₹{{ plan.price | number }}<span>/mo</span></div>
+              } @else {
+                <div class="meal-price free">Included</div>
+              }
+            </button>
+          }
+        </div>
+      </fieldset>
+
+      <!-- Price callout -->
+      <div class="price-callout" aria-live="polite">
+        <span class="price-label">Mess plan cost</span>
+        @if (getSelectedPlanPrice() > 0) {
+          <span class="price-value">₹{{ getSelectedPlanPrice() | number }}<span class="per-mo">/mo</span></span>
+        } @else {
+          <span class="price-value free-tag">Free (self-catering)</span>
+        }
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Dietary Preferences -->
+      <fieldset class="fieldset-reset" aria-label="Dietary preferences">
+        <legend class="field-legend">Dietary Preferences <span class="optional">(optional)</span></legend>
+        <div class="diet-chips" role="group">
+          @for (opt of dietaryOptions; track opt) {
+            <button
+              type="button"
+              class="diet-chip"
+              [class.selected]="isDietSelected(opt)"
+              (click)="toggleDiet(opt)"
+              role="checkbox"
+              [attr.aria-checked]="isDietSelected(opt)"
+              [attr.aria-label]="opt + ' dietary option'">
+              {{ opt }}
+            </button>
+          }
+        </div>
+      </fieldset>
+
+      <div class="divider"></div>
+
+      <!-- Special requirements -->
+      <div class="form-field">
+        <label for="specialReq">Special Requirements <span class="optional">(optional)</span></label>
+        <textarea
+          id="specialReq"
+          formControlName="specialRequirements"
+          placeholder="Any allergies, intolerances, or specific dietary needs..."
+          rows="3"
+          style="resize:vertical; min-height: 72px; padding: 10px 14px; border-radius: 12px;
+                 background: rgba(255,255,255,0.055); border: 1px solid rgba(255,255,255,0.09);
+                 color: #fff; font-family: var(--font-sans); font-size: 14px; outline: none;
+                 width: 100%; transition: border-color 0.2s; color-scheme: dark;"
+        ></textarea>
+      </div>
+
+      <div class="btn-row">
+        <button type="button" class="btn-back" (click)="back()">← Back</button>
+        <button type="submit" class="btn-primary">Review →</button>
+      </div>
+
+    </form>
+  </main>
+</div>

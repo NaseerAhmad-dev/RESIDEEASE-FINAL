@@ -1,0 +1,120 @@
+<div class="onboarding-shell">
+  <app-progress-bar [steps]="steps" [currentStep]="1" />
+
+  <main class="onboarding-card" role="main">
+    <header class="screen-header">
+      <h2 class="screen-title">Your Profile</h2>
+      <p class="screen-subtitle">Tell us about yourself so we can set up your account</p>
+    </header>
+
+    <!-- Avatar Upload -->
+    <div class="avatar-row" role="group" aria-label="Profile photo upload">
+      <div class="avatar-preview" [attr.aria-label]="previewUrl ? 'Profile photo uploaded' : 'Default avatar'">
+        @if (previewUrl) {
+          <img [src]="previewUrl" alt="Profile preview" />
+        } @else {
+          <span class="avatar-initials" aria-hidden="true">👤</span>
+        }
+      </div>
+      <div class="avatar-info">
+        <div class="avatar-label">Profile photo <span class="optional">(optional)</span></div>
+        <label class="upload-btn" for="photo-upload" tabindex="0" role="button"
+               onkeydown="if(event.key==='Enter'||event.key===' ')this.click()">
+          Upload photo
+        </label>
+        <input id="photo-upload" type="file" accept="image/*" class="hidden-input"
+               (change)="onFileChange($event)" aria-label="Upload profile photo">
+        <p class="upload-hint">JPG, PNG or WEBP · Max 2 MB</p>
+      </div>
+    </div>
+
+    <div class="divider" role="separator"></div>
+
+    <form [formGroup]="form" (ngSubmit)="next()" novalidate aria-label="User details form">
+
+      <!-- Name row -->
+      <div class="form-row">
+        <div class="form-field">
+          <label for="firstName">First Name</label>
+          <input id="firstName" type="text" formControlName="firstName"
+                 placeholder="Arjun" autocomplete="given-name"
+                 [attr.aria-invalid]="form.get('firstName')?.touched && form.get('firstName')?.invalid" />
+          @if (getError('firstName')) {
+            <span class="error-msg" role="alert">{{ getError('firstName') }}</span>
+          }
+        </div>
+        <div class="form-field">
+          <label for="lastName">Last Name</label>
+          <input id="lastName" type="text" formControlName="lastName"
+                 placeholder="Sharma" autocomplete="family-name"
+                 [attr.aria-invalid]="form.get('lastName')?.touched && form.get('lastName')?.invalid" />
+          @if (getError('lastName')) {
+            <span class="error-msg" role="alert">{{ getError('lastName') }}</span>
+          }
+        </div>
+      </div>
+
+      <!-- Email -->
+      <div class="form-field">
+        <label for="email">Email Address</label>
+        <input id="email" type="email" formControlName="email"
+               placeholder="arjun@university.edu" autocomplete="email"
+               [attr.aria-invalid]="form.get('email')?.touched && form.get('email')?.invalid" />
+        @if (getError('email')) {
+          <span class="error-msg" role="alert">{{ getError('email') }}</span>
+        }
+      </div>
+
+      <!-- Phone + Roll -->
+      <div class="form-row">
+        <div class="form-field">
+          <label for="phone">Phone Number</label>
+          <input id="phone" type="tel" formControlName="phone"
+                 placeholder="+91 98765 43210" autocomplete="tel"
+                 [attr.aria-invalid]="form.get('phone')?.touched && form.get('phone')?.invalid" />
+          @if (getError('phone')) {
+            <span class="error-msg" role="alert">{{ getError('phone') }}</span>
+          }
+        </div>
+        <div class="form-field">
+          <label for="rollNumber">Roll / Student ID</label>
+          <input id="rollNumber" type="text" formControlName="rollNumber"
+                 placeholder="22CS001"
+                 [attr.aria-invalid]="form.get('rollNumber')?.touched && form.get('rollNumber')?.invalid" />
+          @if (getError('rollNumber')) {
+            <span class="error-msg" role="alert">{{ getError('rollNumber') }}</span>
+          }
+        </div>
+      </div>
+
+      <!-- Gender + Department -->
+      <div class="form-row">
+        <div class="form-field">
+          <label for="gender">Gender</label>
+          <select id="gender" formControlName="gender"
+                  [attr.aria-invalid]="form.get('gender')?.touched && form.get('gender')?.invalid">
+            <option value="" disabled hidden>Select gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+            <option value="other">Other</option>
+            <option value="prefer-not">Prefer not to say</option>
+          </select>
+          @if (getError('gender')) {
+            <span class="error-msg" role="alert">{{ getError('gender') }}</span>
+          }
+        </div>
+        <div class="form-field">
+          <label for="department">Department <span class="optional">(optional)</span></label>
+          <input id="department" type="text" formControlName="department"
+                 placeholder="Computer Science" />
+        </div>
+      </div>
+
+      <div class="btn-row">
+        <button type="button" class="btn-back" (click)="back()">← Back</button>
+        <button type="submit" class="btn-primary">Continue →</button>
+      </div>
+
+    </form>
+  </main>
+</div>

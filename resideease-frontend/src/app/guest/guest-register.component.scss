@@ -1,0 +1,425 @@
+.guest-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 16px;
+  background: var(--bg-page);
+  font-family: var(--font-sans);
+  gap: 20px;
+}
+
+/* ─── Brand ────────────────────────────── */
+.home-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.brand-logo { display: flex; align-items: center; }
+
+.brand-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+/* ─── Card ─────────────────────────────── */
+.guest-card {
+  width: min(520px, 100%);
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+/* ─── Progress bar ──────────────────────── */
+.progress-bar {
+  display: flex;
+  align-items: center;
+  padding: 18px 28px;
+  border-bottom: 1px solid var(--border-light);
+  background: var(--bg-page);
+}
+
+.progress-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 5px;
+
+  .step-num {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    background: var(--bg-card);
+    border: 2px solid var(--border-medium);
+    color: var(--text-muted);
+    transition: all 0.2s;
+  }
+
+  .step-label {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  &.active {
+    .step-num {
+      border-color: var(--brand);
+      color: var(--brand);
+      background: var(--brand-light);
+    }
+    .step-label {
+      color: var(--brand);
+      font-weight: 600;
+    }
+  }
+
+  &.done {
+    .step-num {
+      border-color: var(--brand);
+      background: var(--brand);
+      color: #fff;
+    }
+    .step-label { color: var(--text-secondary); }
+  }
+}
+
+.progress-line {
+  flex: 1;
+  height: 2px;
+  background: var(--border-medium);
+  margin: 0 6px;
+  margin-bottom: 17px;
+  transition: background 0.25s;
+
+  &.done { background: var(--brand); }
+}
+
+/* ─── Step panel ────────────────────────── */
+.step-panel {
+  padding: 24px 28px 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.step-header {
+  h2 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--text-primary);
+    letter-spacing: -0.02em;
+    margin: 0 0 6px;
+  }
+  p {
+    font-size: 13.5px;
+    color: var(--text-secondary);
+    margin: 0;
+    line-height: 1.5;
+  }
+}
+
+/* ─── Form ──────────────────────────────── */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.field-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+input {
+  border: 1px solid var(--border-medium);
+  border-radius: var(--radius-md);
+  padding: 11px 14px;
+  font-size: 14px;
+  color: var(--text-primary);
+  background: var(--bg-input);
+  font-family: var(--font-sans);
+  transition: border-color 0.15s, box-shadow 0.15s;
+
+  &::placeholder { color: var(--text-muted); }
+
+  &:focus {
+    outline: none;
+    border-color: var(--border-focus);
+    box-shadow: 0 0 0 3px rgba(10, 180, 168, 0.14);
+    background: var(--bg-card);
+  }
+
+  &.input-error {
+    border-color: var(--c-danger);
+
+    &:focus { box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.12); }
+  }
+}
+
+.otp-input {
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 8px;
+  text-align: center;
+  padding: 14px;
+}
+
+.field-error {
+  font-size: 12px;
+  color: var(--c-danger);
+  font-weight: 500;
+}
+
+.error-msg {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 14px;
+  background: var(--c-danger-bg);
+  border: 1px solid #fecaca;
+  border-radius: var(--radius-md);
+  color: var(--c-danger);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+/* ─── Buttons ───────────────────────────── */
+.btn-primary {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 12px 18px;
+  border: none;
+  border-radius: var(--radius-md);
+  background: var(--brand);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: var(--font-sans);
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  box-shadow: var(--shadow-brand);
+
+  &:hover { background: var(--brand-dark); transform: translateY(-1px); }
+  &:active { transform: translateY(0); }
+
+  &.btn-success {
+    background: var(--c-success);
+    box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+    &:hover { background: #059669; }
+  }
+}
+
+/* ─── Demo hint ─────────────────────────── */
+.demo-hint {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 10px 14px;
+  background: var(--bg-page);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  font-size: 12.5px;
+  color: var(--text-muted);
+  line-height: 1.5;
+
+  svg { flex-shrink: 0; }
+  strong {
+    color: var(--brand);
+    font-size: 15px;
+    letter-spacing: 3px;
+    font-family: monospace;
+  }
+}
+
+/* ─── Resend row ────────────────────────── */
+.resend-row {
+  display: flex;
+  justify-content: center;
+}
+
+.resend-timer {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.resend-btn {
+  font-size: 13px;
+  color: var(--brand);
+  font-weight: 600;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  font-family: var(--font-sans);
+
+  &:hover { text-decoration: underline; }
+}
+
+/* ─── Guest summary ─────────────────────── */
+.guest-summary {
+  background: var(--bg-page);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 14px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 13px;
+
+  span:first-child { color: var(--text-secondary); }
+  span:last-child { color: var(--text-primary); font-weight: 500; }
+}
+
+/* ─── Fee card ──────────────────────────── */
+.fee-card {
+  background: var(--brand-light);
+  border: 1px solid var(--brand-mid);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.fee-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.fee-label { color: var(--text-primary); font-weight: 500; }
+
+.fee-amount {
+  font-size: 26px;
+  font-weight: 800;
+  color: var(--brand-dark);
+  letter-spacing: -0.02em;
+}
+
+.fee-divider {
+  height: 1px;
+  background: var(--brand-mid);
+}
+
+.fee-total {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--text-primary);
+
+  span:last-child {
+    font-size: 20px;
+    color: var(--brand-dark);
+  }
+}
+
+/* ─── Receipt card ──────────────────────── */
+.receipt-card {
+  width: 100%;
+  background: var(--bg-page);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.receipt-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted);
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.receipt-num {
+  font-family: monospace;
+  font-weight: 700;
+  color: var(--brand);
+  font-size: 13px;
+}
+
+.receipt-amount {
+  font-weight: 700;
+  color: var(--c-success);
+}
+
+/* ─── Success step ──────────────────────── */
+.step-success {
+  align-items: center;
+  text-align: center;
+
+  .step-header {
+    h2, p { text-align: center; }
+  }
+
+  .receipt-card { text-align: left; }
+}
+
+.success-icon { margin-top: 4px; }
+
+/* ─── Back link ─────────────────────────── */
+.back-link {
+  display: flex;
+  justify-content: center;
+
+  button {
+    font-size: 13px;
+    color: var(--text-muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-family: var(--font-sans);
+    padding: 0;
+
+    &:hover { color: var(--text-secondary); text-decoration: underline; }
+  }
+}
+
+/* ─── Footer ────────────────────────────── */
+.home-footer {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-align: center;
+  margin: 0;
+}
+
+/* ─── Responsive ────────────────────────── */
+@media (max-width: 480px) {
+  .progress-bar { padding: 14px 16px; }
+  .step-panel { padding: 20px 20px 24px; }
+  .step-label { display: none; }
+  .fee-amount { font-size: 22px; }
+}

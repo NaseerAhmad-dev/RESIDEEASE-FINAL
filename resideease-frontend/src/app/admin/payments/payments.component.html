@@ -1,0 +1,207 @@
+<div class="payments-page">
+
+  <!-- ── Header ── -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Payments</h1>
+      <p class="page-subtitle">Track fee collection and outstanding balances</p>
+    </div>
+  </div>
+
+  <!-- ── Stats ── -->
+  <div class="stats-row">
+
+    <div class="stat-card">
+      <div class="stat-icon si-green">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="1" x2="12" y2="23"/>
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+      </div>
+      <div class="stat-body">
+        <div class="stat-value">₹{{ totalCollected | number }}</div>
+        <div class="stat-label">Collected</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon si-amber">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <polyline points="12 6 12 12 16 14"/>
+        </svg>
+      </div>
+      <div class="stat-body">
+        <div class="stat-value">₹{{ totalOutstanding | number }}</div>
+        <div class="stat-label">Outstanding</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon si-brand">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+          <polyline points="22 4 12 14.01 9 11.01"/>
+        </svg>
+      </div>
+      <div class="stat-body">
+        <div class="stat-value">{{ paidCount }}</div>
+        <div class="stat-label">Fully Paid</div>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-icon si-red">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <div class="stat-body">
+        <div class="stat-value">{{ overdueCount }}</div>
+        <div class="stat-label">Overdue</div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ── Filter bar ── -->
+  <div class="filter-bar">
+    <div class="search-wrap">
+      <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+           fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+      </svg>
+      <input type="text" class="search-input" placeholder="Search by name or roll number…"
+             [(ngModel)]="searchQuery" (input)="applyFilters()">
+    </div>
+
+    <select class="filter-select" [(ngModel)]="filterStatus" (change)="applyFilters()">
+      <option value="">All Payment Status</option>
+      <option value="paid">Paid</option>
+      <option value="partial">Partial</option>
+      <option value="overdue">Overdue</option>
+    </select>
+
+    <select class="filter-select" [(ngModel)]="filterStudentStatus" (change)="applyFilters()">
+      <option value="">All Students</option>
+      <option value="active">Active</option>
+      <option value="pending">Pending</option>
+      <option value="expired">Expired</option>
+      <option value="checked_out">Checked Out</option>
+    </select>
+
+    @if (hasActiveFilters) {
+      <button class="btn-clear" type="button" (click)="clearFilters()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+        </svg>
+        Clear
+      </button>
+    }
+
+    @if (hasActiveFilters) {
+      <span class="results-count">
+        {{ filteredStudents.length }} of {{ allStudents.length }} records
+      </span>
+    }
+  </div>
+
+  <!-- ── Table ── -->
+  <div class="table-card">
+    <table class="pay-table">
+      <thead>
+        <tr>
+          <th class="sortable" (click)="setSort('name')">
+            Student <span class="sort-icon">{{ getSortIcon('name') }}</span>
+          </th>
+          <th>Room</th>
+          <th class="sortable num-col" (click)="setSort('total')">
+            Total <span class="sort-icon">{{ getSortIcon('total') }}</span>
+          </th>
+          <th class="sortable num-col" (click)="setSort('paid')">
+            Paid <span class="sort-icon">{{ getSortIcon('paid') }}</span>
+          </th>
+          <th class="sortable num-col" (click)="setSort('balance')">
+            Balance <span class="sort-icon">{{ getSortIcon('balance') }}</span>
+          </th>
+          <th>Progress</th>
+          <th>Status</th>
+          <th>Last Payment</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (s of filteredStudents; track s.rollNumber) {
+          <tr [class.row-overdue]="s.paymentStatus === 'overdue'">
+
+            <td>
+              <div class="student-cell">
+                <div class="avatar-sm" [style.background-color]="getAvatarColor(s.firstName)">
+                  {{ s.firstName.charAt(0) }}{{ s.lastName.charAt(0) }}
+                </div>
+                <div>
+                  <div class="student-name">{{ s.firstName }} {{ s.lastName }}</div>
+                  <div class="student-roll">{{ s.rollNumber }}</div>
+                </div>
+              </div>
+            </td>
+
+            <td>
+              <span class="room-pill">{{ s.roomNumber || '—' }}</span>
+              <span class="room-type">{{ s.selectedRoom }}</span>
+            </td>
+
+            <td class="num-col fw6">₹{{ s.totalPayment | number }}</td>
+
+            <td class="num-col text-success">₹{{ s.paidAmount | number }}</td>
+
+            <td class="num-col" [class.text-danger]="getBalance(s) > 0" [class.text-success]="getBalance(s) === 0">
+              {{ getBalance(s) === 0 ? '—' : '₹' + (getBalance(s) | number) }}
+            </td>
+
+            <td class="progress-col">
+              <div class="progress-wrap">
+                <div class="progress-bar">
+                  <div class="progress-fill"
+                       [style.width.%]="getCollectionPct(s)"
+                       [class.fill-full]="getCollectionPct(s) === 100"
+                       [class.fill-partial]="getCollectionPct(s) > 0 && getCollectionPct(s) < 100"
+                       [class.fill-overdue]="s.paymentStatus === 'overdue'"></div>
+                </div>
+                <span class="progress-pct">{{ getCollectionPct(s) }}%</span>
+              </div>
+            </td>
+
+            <td>
+              <p-tag [value]="s.paymentStatus | titlecase"
+                     [severity]="getPaymentSeverity(s.paymentStatus)"></p-tag>
+            </td>
+
+            <td class="date-col">
+              {{ s.lastPaymentDate ? (s.lastPaymentDate | date:'d MMM yyyy') : '—' }}
+            </td>
+
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <!-- Empty state -->
+    @if (filteredStudents.length === 0) {
+      <div class="empty-state">
+        <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/>
+        </svg>
+        <p>No payment records match your filters.</p>
+        <button class="btn-clear-empty" type="button" (click)="clearFilters()">Clear filters</button>
+      </div>
+    }
+  </div>
+
+</div>

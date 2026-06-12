@@ -27,6 +27,14 @@ model Hostel {
   auditLogs     HostelAuditLog[]
   users         User[]
   employees     Employee[]
+  rooms         Room[]
+  students             Student[]
+  maintenanceRequests  MaintenanceRequest[]
+  notices              Notice[]
+  guests               Guest[]
+  supplierBills        SupplierBill[]
+  paymentTransactions  PaymentTransaction[]
+  adminNotifications   AdminNotification[]
 }
 
 model HostelLocation {
@@ -133,17 +141,18 @@ model Role {
 }
 
 model User {
-  id        String   @id @default(cuid())
-  username  String?  @unique
-  email     String?  @unique
-  password  String
-  roleId    String
-  role      Role     @relation(fields: [roleId], references: [id])
-  hostelId  String?
-  hostel    Hostel?  @relation(fields: [hostelId], references: [id])
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                  String   @id @default(cuid())
+  username            String?  @unique
+  email               String?  @unique
+  password            String
+  roleId              String
+  role                Role     @relation(fields: [roleId], references: [id])
+  hostelId            String?
+  hostel              Hostel?  @relation(fields: [hostelId], references: [id])
+  name                String?
+  onboardingCompleted Boolean  @default(false)
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 }
 
 model Student {
@@ -169,12 +178,17 @@ model Student {
   paidAmount        Float?
   paymentStatus     String   @default("unpaid")
   lastPaymentDate   String?
+  password          String?
   status            String   @default("active")
+  hostelId          String?
+  hostel            Hostel?  @relation(fields: [hostelId], references: [id])
   createdAt         DateTime @default(now())
   updatedAt         DateTime @updatedAt
 
-  messEnrollments MessEnrollment[]
-  rebateRequests  RebateRequest[]
+  messEnrollments      MessEnrollment[]
+  rebateRequests       RebateRequest[]
+  beds                 Bed[]
+  paymentTransactions  PaymentTransaction[]
 }
 
 model Guest {
@@ -186,6 +200,8 @@ model Guest {
   feeAmount     Float?
   receiptNumber String?
   status        String   @default("otp_verified")
+  hostelId      String?
+  hostel        Hostel?  @relation(fields: [hostelId], references: [id], onDelete: SetNull)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 }
@@ -274,15 +290,34 @@ model Settings {
 
 model Room {
   id         String   @id @default(cuid())
-  roomNumber String   @unique
+  roomNumber String
   floor      Int
   type       String
   capacity   Int
   price      Float
   status     String   @default("active")
   amenities  Json
+  hostelId   String?
+  hostel     Hostel?  @relation(fields: [hostelId], references: [id])
+  beds       Bed[]
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
+
+  @@unique([hostelId, roomNumber])
+}
+
+model Bed {
+  id        String   @id @default(cuid())
+  roomId    String
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  bedNumber String
+  status    String   @default("available")
+  studentId String?
+  student   Student? @relation(fields: [studentId], references: [id], onDelete: SetNull)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([roomId, bedNumber])
 }
 
 model Notice {
@@ -294,6 +329,8 @@ model Notice {
   postedBy  String   @default("Office Admin")
   isPinned  Boolean  @default(false)
   expiresAt String?
+  hostelId  String?
+  hostel    Hostel?  @relation(fields: [hostelId], references: [id], onDelete: SetNull)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -309,6 +346,8 @@ model MaintenanceRequest {
   description  String
   priority     String    @default("medium")
   status       String    @default("open")
+  hostelId     String?
+  hostel       Hostel?   @relation(fields: [hostelId], references: [id], onDelete: SetNull)
   raisedAt     DateTime  @default(now())
   resolvedAt   DateTime?
   createdAt    DateTime  @default(now())
@@ -326,6 +365,8 @@ model SupplierBill {
   photoData    String?
   registeredAt DateTime @default(now())
   status       String   @default("pending")
+  hostelId     String?
+  hostel       Hostel?  @relation(fields: [hostelId], references: [id], onDelete: SetNull)
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
 }
@@ -362,10 +403,27 @@ model AuditRecord {
 
 model AdminNotification {
   id        String   @id @default(cuid())
+  hostelId  String?
+  hostel    Hostel?  @relation(fields: [hostelId], references: [id], onDelete: SetNull)
   type      String   @default("info")
   title     String
   message   String
   isRead    Boolean  @default(false)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+
+model PaymentTransaction {
+  id        String   @id @default(cuid())
+  studentId String
+  hostelId  String
+  amount    Float
+  method    String   @default("cash")
+  notes     String?
+  paidAt    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  student Student @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  hostel  Hostel  @relation(fields: [hostelId],  references: [id], onDelete: Cascade)
 }

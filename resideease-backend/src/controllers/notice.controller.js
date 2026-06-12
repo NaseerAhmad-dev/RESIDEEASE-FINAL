@@ -2,7 +2,9 @@ const { prisma } = require('../config/db');
 const { ok, fail } = require('../utils/helpers');
 
 exports.getAll = async (req, res) => {
-  const notices = await prisma.notice.findMany({ orderBy: [{ isPinned: 'desc' }, { createdAt: 'desc' }] });
+  const where = {};
+  if (req.user.hostelId) where.hostelId = req.user.hostelId;
+  const notices = await prisma.notice.findMany({ where, orderBy: [{ isPinned: 'desc' }, { createdAt: 'desc' }] });
   return ok(res, notices);
 };
 
@@ -18,6 +20,7 @@ exports.create = async (req, res) => {
       postedBy:  req.body.postedBy  || 'Office Admin',
       isPinned:  req.body.isPinned  ?? false,
       expiresAt: req.body.expiresAt || null,
+      hostelId:  req.user.hostelId  ?? null,
     },
   });
   return ok(res, notice, 'Notice created', 201);

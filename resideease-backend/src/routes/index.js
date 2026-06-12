@@ -14,8 +14,10 @@ router.use('/rooms',                  require('./room.routes'));
 router.use('/notices',                require('./notice.routes'));
 router.use('/maintenance',            require('./maintenance.routes'));
 router.use('/supplier-bills',         require('./supplier-bill.routes'));
+router.use('/payments',              require('./payment.routes'));
 router.use('/notifications',           require('./notification.routes'));
 router.use('/student-notifications',  require('./student-notification.routes'));
 router.use('/audit',                  require('./audit.routes'));
+router.use('/admin/onboarding',       require('./onboarding.routes'));
 
 module.exports = router;

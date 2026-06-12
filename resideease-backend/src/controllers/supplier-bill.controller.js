@@ -4,6 +4,7 @@ const { ok, fail } = require('../utils/helpers');
 exports.getAll = async (req, res) => {
   const { status, category } = req.query;
   const where = {};
+  if (req.user?.hostelId) where.hostelId = req.user.hostelId;
   if (status)   where.status   = status;
   if (category) where.category = category;
   const bills = await prisma.supplierBill.findMany({ where, orderBy: { registeredAt: 'desc' } });
@@ -18,7 +19,12 @@ exports.create = async (req, res) => {
   const existing = await prisma.supplierBill.findUnique({ where: { billNumber } });
   if (existing) return fail(res, 'Bill number already exists');
   const bill = await prisma.supplierBill.create({
-    data: { billNumber, supplierName, category, amount: parseFloat(amount), billDate, description, photoData: req.body.photoData || null, status: 'pending' },
+    data: {
+      billNumber, supplierName, category, amount: parseFloat(amount), billDate, description,
+      photoData: req.body.photoData || null,
+      status: 'pending',
+      hostelId: req.user?.hostelId ?? null,
+    },
   });
   return ok(res, bill, 'Supplier bill registered', 201);
 };

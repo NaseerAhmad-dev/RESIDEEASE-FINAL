@@ -53,12 +53,15 @@ exports.register = async (req, res) => {
       feeAmount: feeAmount ?? defaultFee,
       receiptNumber: generateReceiptNumber(),
       status: feePaid ? 'paid' : 'otp_verified',
+      hostelId: req.user?.hostelId ?? null,
     },
   });
   return ok(res, guest, 'Guest registered successfully', 201);
 };
 
 exports.getAll = async (req, res) => {
-  const guests = await prisma.guest.findMany();
+  const where = {};
+  if (req.user?.hostelId) where.hostelId = req.user.hostelId;
+  const guests = await prisma.guest.findMany({ where });
   return ok(res, guests);
 };

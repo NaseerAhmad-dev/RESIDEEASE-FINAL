@@ -1,9 +1,19 @@
+const crypto = require('crypto');
+const bcrypt = require('bcryptjs');
 const { prisma } = require('../config/db');
 const { ok, fail } = require('../utils/helpers');
+const { createAdminNotif } = require('../utils/notif');
+
+function generateTempPassword() {
+  // Unambiguous chars — no 0/O, 1/I/l
+  const chars = 'ABCDEFGHJKMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789';
+  return Array.from(crypto.randomBytes(8)).map(b => chars[b % chars.length]).join('');
+}
 
 exports.getAll = async (req, res) => {
   const { status, gender, department, search } = req.query;
   const where = {};
+  if (req.user.hostelId) where.hostelId = req.user.hostelId;
   if (status) where.status = status;
   if (gender) where.gender = gender;
   if (department) where.department = department;
@@ -35,10 +45,26 @@ exports.create = async (req, res) => {
   });
   if (duplicate) return fail(res, 'A student with this email or roll number already exists');
 
+  const hostelId    = req.user.hostelId ?? null;
+  const tempPassword = generateTempPassword();
+  const hashedPw    = await bcrypt.hash(tempPassword, 10);
+
+  // Strip any password field that may have come in from the body
+  const { password: _pw, ...safeBody } = req.body;
+
   const student = await prisma.student.create({
-    data: { ...req.body, status: req.body.status || 'active' },
+    data: { ...safeBody, status: req.body.status || 'active', hostelId, password: hashedPw },
   });
-  return ok(res, student, 'Student created successfully', 201);
+
+  createAdminNotif(hostelId, {
+    type:    'success',
+    title:   'New boarder registered',
+    message: `${student.firstName} ${student.lastName} (${student.rollNumber}) has been onboarded for room ${student.roomNumber || '—'}.`,
+  });
+
+  // Return the student data + plain-text temp password (shown once on the credential card)
+  const { password: _hashed, ...safeStudent } = student;
+  return ok(res, { ...safeStudent, tempPassword }, 'Student created successfully', 201);
 };
 
 exports.update = async (req, res) => {

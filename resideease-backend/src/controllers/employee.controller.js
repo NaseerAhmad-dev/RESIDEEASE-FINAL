@@ -12,6 +12,7 @@ const SAFE_SELECT = {
 exports.getAll = async (req, res) => {
   const { status, department, search } = req.query;
   const where = {};
+  if (req.user.hostelId) where.hostelId = req.user.hostelId;
   if (status)     where.status = status;
   if (department) where.department = department;
   if (search) {
@@ -31,10 +32,9 @@ exports.getAll = async (req, res) => {
 };
 
 exports.getById = async (req, res) => {
-  const employee = await prisma.employee.findUnique({
-    where: { id: req.params.id },
-    select: SAFE_SELECT,
-  });
+  const where = { id: req.params.id };
+  if (req.user.hostelId) where.hostelId = req.user.hostelId;
+  const employee = await prisma.employee.findFirst({ where, select: SAFE_SELECT });
   if (!employee) return fail(res, 'Employee not found', 404);
   return ok(res, employee);
 };
@@ -76,7 +76,9 @@ exports.create = async (req, res) => {
 };
 
 exports.update = async (req, res) => {
-  const existing = await prisma.employee.findUnique({ where: { id: req.params.id } });
+  const lookupWhere = { id: req.params.id };
+  if (req.user.hostelId) lookupWhere.hostelId = req.user.hostelId;
+  const existing = await prisma.employee.findFirst({ where: lookupWhere });
   if (!existing) return fail(res, 'Employee not found', 404);
 
   const { name, email, phone, jobTitle, department, salary, joinDate, status, address, notes, role, hostelId } = req.body;
@@ -114,7 +116,9 @@ exports.update = async (req, res) => {
 };
 
 exports.remove = async (req, res) => {
-  const existing = await prisma.employee.findUnique({ where: { id: req.params.id } });
+  const lookupWhere = { id: req.params.id };
+  if (req.user.hostelId) lookupWhere.hostelId = req.user.hostelId;
+  const existing = await prisma.employee.findFirst({ where: lookupWhere });
   if (!existing) return fail(res, 'Employee not found', 404);
   await prisma.employee.delete({ where: { id: req.params.id } });
   return ok(res, null, 'Employee deleted');

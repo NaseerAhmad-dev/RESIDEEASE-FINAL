@@ -25,24 +25,39 @@ exports.login = async (req, res) => {
 
   const { password: _, role: roleObj, ...rest } = user;
   const safeUser = { ...rest, role: roleObj.name };
-  const token = signToken({ id: user.id, username: user.username, role: roleObj.name, name: user.name });
+  const token = signToken({
+    id: user.id,
+    username: user.username,
+    role: roleObj.name,
+    name: user.name,
+    hostelId: user.hostelId ?? null,
+    onboardingCompleted: user.onboardingCompleted,
+  });
   return ok(res, { token, user: safeUser });
 };
 
 exports.studentLogin = async (req, res) => {
-  const { rollNumber, phone } = req.body;
-  if (!rollNumber || !phone) return fail(res, 'Roll number and phone are required');
+  const { rollNumber, password, phone } = req.body;
+  if (!rollNumber) return fail(res, 'Roll number is required');
 
-  const student = await prisma.student.findFirst({
-    where: { rollNumber: rollNumber.trim(), phone: phone.trim() },
-  });
-  if (!student) return fail(res, 'Student not found. Check your roll number and phone.', 401);
+  const student = await prisma.student.findFirst({ where: { rollNumber: rollNumber.trim() } });
+  if (!student) return fail(res, 'Invalid credentials', 401);
+
+  // Students onboarded with the new flow have a hashed password.
+  // Legacy students (no password set) fall back to phone verification.
+  if (student.password) {
+    if (!password) return fail(res, 'Password is required');
+    if (!(await bcrypt.compare(password, student.password))) return fail(res, 'Invalid credentials', 401);
+  } else {
+    if (!phone || student.phone !== phone.trim()) return fail(res, 'Invalid credentials', 401);
+  }
 
   const token = signToken({
     id: student.id,
     role: 'student',
     name: `${student.firstName} ${student.lastName}`,
     rollNumber: student.rollNumber,
+    hostelId: student.hostelId ?? null,
   });
   return ok(res, {
     token,

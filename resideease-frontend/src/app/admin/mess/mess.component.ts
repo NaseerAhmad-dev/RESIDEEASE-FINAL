@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { DropdownComponent, DropdownOption } from '../../components/resuable/dropdown/dropdown.component';
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { TabViewModule } from 'primeng/tabview';
@@ -13,7 +14,7 @@ import { MessService } from '../../services/mess.service';
 @Component({
   selector: 'app-mess',
   standalone: true,
-  imports: [CommonModule, FormsModule, TabViewModule, TagModule],
+  imports: [CommonModule, FormsModule, TabViewModule, TagModule, DropdownComponent],
   templateUrl: './mess.component.html',
   styleUrl: './mess.component.scss'
 })
@@ -26,6 +27,19 @@ export class MessComponent implements OnInit, OnDestroy {
 
   searchQuery    = '';
   filterPayment  = '';
+
+  readonly paymentFilterOptions: DropdownOption[] = [
+    { label: 'All Payment Status', value: ''        },
+    { label: 'Paid',               value: 'paid'    },
+    { label: 'Partial',            value: 'partial' },
+    { label: 'Overdue',            value: 'overdue' },
+  ];
+
+  readonly announcementPriorityOptions: DropdownOption[] = [
+    { label: 'Low',    value: 'low'    },
+    { label: 'Medium', value: 'medium' },
+    { label: 'High',   value: 'high'   },
+  ];
 
   totalSubscribers = 0;
   monthlyRevenue   = 0;

@@ -5,15 +5,23 @@ import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angula
 import { ProgressBarComponent } from '../progress-bar/progress-bar.component';
 import { OnboardingService } from '../../services/onboarding.service';
 import { ROOM_OPTIONS } from '../../models/onboarding.model';
+import { DropdownComponent, DropdownOption } from '../resuable/dropdown/dropdown.component';
 
 @Component({
   selector: 'app-room-selection',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ProgressBarComponent],
+  imports: [CommonModule, ReactiveFormsModule, ProgressBarComponent, DropdownComponent],
   templateUrl: './room-selection.component.html',
   styleUrl: './room-selection.component.scss'
 })
 export class RoomSelectionComponent implements OnInit {
+  readonly floorOptions: DropdownOption[] = [
+    { label: 'No preference',      value: 'no-preference' },
+    { label: 'Lower floors (1–3)', value: 'low'           },
+    { label: 'Mid floors (4–6)',   value: 'mid'           },
+    { label: 'Higher floors (7+)', value: 'high'          },
+  ];
+
   steps = [
     { label: 'Welcome',  route: 'welcome' },
     { label: 'Profile',  route: 'user-details' },

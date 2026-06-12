@@ -1,6 +1,7 @@
 import { Component, OnInit, OnDestroy, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { DropdownComponent, DropdownOption } from '../../components/resuable/dropdown/dropdown.component';
 import { Subject, combineLatest } from 'rxjs';
 import { takeUntil, map } from 'rxjs/operators';
 import { Room, RoomType, AMENITY_POOL, ROOM_AMENITIES, ROOM_PRICE, ROOM_CAPACITY } from '../../models/room.model';
@@ -39,7 +40,7 @@ const CSV_TEMPLATE = [
 @Component({
   selector: 'app-rooms',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, DropdownComponent],
   templateUrl: './rooms.component.html',
   styleUrl: './rooms.component.scss'
 })
@@ -58,6 +59,28 @@ export class RoomsComponent implements OnInit, OnDestroy {
   filterType   = '';
   filterFloor  = '';
   filterStatus = '';
+
+  readonly roomTypeOptions: DropdownOption[] = [
+    { label: 'All Types',  value: '' },
+    { label: 'Single',     value: 'single' },
+    { label: 'Double',     value: 'double' },
+    { label: 'Triple',     value: 'triple' },
+  ];
+
+  readonly roomStatusOptions: DropdownOption[] = [
+    { label: 'All Status',   value: '' },
+    { label: 'Available',    value: 'available' },
+    { label: 'Partial',      value: 'partial' },
+    { label: 'Full',         value: 'full' },
+    { label: 'Maintenance',  value: 'maintenance' },
+  ];
+
+  get floorOptions(): DropdownOption[] {
+    return [
+      { label: 'All Floors', value: '' },
+      ...this.floors.map(f => ({ label: `Floor ${f}`, value: String(f) })),
+    ];
+  }
 
   totalRooms       = 0;
   availableRooms   = 0;

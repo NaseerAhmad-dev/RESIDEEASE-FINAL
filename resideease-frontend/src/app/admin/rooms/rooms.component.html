@@ -80,25 +80,15 @@
       <input type="text" class="search-input" placeholder="Search room number…"
              [(ngModel)]="searchQuery" (input)="applyFilters()">
     </div>
-    <select class="filter-select" [(ngModel)]="filterType" (change)="applyFilters()">
-      <option value="">All Types</option>
-      <option value="single">Single</option>
-      <option value="double">Double</option>
-      <option value="triple">Triple</option>
-    </select>
-    <select class="filter-select" [(ngModel)]="filterFloor" (change)="applyFilters()">
-      <option value="">All Floors</option>
-      @for (f of floors; track f) {
-        <option [value]="f">Floor {{ f }}</option>
-      }
-    </select>
-    <select class="filter-select" [(ngModel)]="filterStatus" (change)="applyFilters()">
-      <option value="">All Status</option>
-      <option value="available">Available</option>
-      <option value="partial">Partial</option>
-      <option value="full">Full</option>
-      <option value="maintenance">Maintenance</option>
-    </select>
+    <app-dropdown [(ngModel)]="filterType" (ngModelChange)="applyFilters()"
+      [options]="roomTypeOptions" placeholder="All Types">
+    </app-dropdown>
+    <app-dropdown [(ngModel)]="filterFloor" (ngModelChange)="applyFilters()"
+      [options]="floorOptions" placeholder="All Floors">
+    </app-dropdown>
+    <app-dropdown [(ngModel)]="filterStatus" (ngModelChange)="applyFilters()"
+      [options]="roomStatusOptions" placeholder="All Status">
+    </app-dropdown>
     @if (hasActiveFilters) {
       <button class="btn-clear" type="button" (click)="clearFilters()">
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">

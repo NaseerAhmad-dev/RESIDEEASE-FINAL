@@ -7,11 +7,12 @@ import { Student } from '../../models/student.model';
 import { PaymentTransaction, PAYMENT_METHODS } from '../../models/payment.model';
 import { StudentService } from '../../services/student.service';
 import { PaymentService } from '../../services/payment.service';
+import { DropdownComponent, DropdownOption } from '../../components/resuable/dropdown/dropdown.component';
 
 @Component({
   selector: 'app-payments',
   standalone: true,
-  imports: [CommonModule, FormsModule],  // TagModule removed — using own status-badge
+  imports: [CommonModule, FormsModule, DropdownComponent],
   templateUrl: './payments.component.html',
   styleUrl: './payments.component.scss'
 })
@@ -42,6 +43,23 @@ export class PaymentsComponent implements OnInit, OnDestroy {
   drawerNotes   = '';
   drawerDate    = '';
   readonly paymentMethods = PAYMENT_METHODS;
+
+  readonly paymentStatusOptions: DropdownOption[] = [
+    { label: 'All Payment Status', value: '' },
+    { label: 'Paid',               value: 'paid' },
+    { label: 'Partial',            value: 'partial' },
+    { label: 'Overdue',            value: 'overdue' },
+  ];
+
+  readonly boarderStatusOptions: DropdownOption[] = [
+    { label: 'All Boarders',  value: '' },
+    { label: 'Active',        value: 'active' },
+    { label: 'Pending',       value: 'pending' },
+    { label: 'Expired',       value: 'expired' },
+    { label: 'Checked Out',   value: 'checked_out' },
+  ];
+
+  readonly methodOptions: DropdownOption[] = PAYMENT_METHODS.map(m => ({ label: m.label, value: m.value }));
 
   // ── Payment History modal ──────────────────────────────
   historyOpen    = false;

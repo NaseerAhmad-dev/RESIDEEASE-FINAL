@@ -45,21 +45,13 @@
         <div class="form-row-3">
           <div class="form-field">
             <label>Category</label>
-            <select class="form-select" [(ngModel)]="form.category">
-              <option value="general">General</option>
-              <option value="academic">Academic</option>
-              <option value="hostel">Hostel</option>
-              <option value="maintenance">Maintenance</option>
-              <option value="emergency">Emergency</option>
-            </select>
+            <app-dropdown [(ngModel)]="form.category" [options]="categoryOptions" placeholder="Select category">
+            </app-dropdown>
           </div>
           <div class="form-field">
             <label>Priority</label>
-            <select class="form-select" [(ngModel)]="form.priority">
-              <option value="normal">Normal</option>
-              <option value="important">Important</option>
-              <option value="urgent">Urgent</option>
-            </select>
+            <app-dropdown [(ngModel)]="form.priority" [options]="priorityOptions" placeholder="Select priority">
+            </app-dropdown>
           </div>
           <div class="form-field">
             <label>Expires On (optional)</label>
@@ -118,21 +110,13 @@
              [(ngModel)]="searchQuery" (input)="applyFilters()">
     </div>
 
-    <select class="filter-select" [(ngModel)]="filterCategory" (change)="applyFilters()">
-      <option value="">All Categories</option>
-      <option value="general">General</option>
-      <option value="academic">Academic</option>
-      <option value="hostel">Hostel</option>
-      <option value="maintenance">Maintenance</option>
-      <option value="emergency">Emergency</option>
-    </select>
+    <app-dropdown [(ngModel)]="filterCategory" (ngModelChange)="applyFilters()"
+      [options]="filterCategoryOptions" placeholder="All Categories">
+    </app-dropdown>
 
-    <select class="filter-select" [(ngModel)]="filterPriority" (change)="applyFilters()">
-      <option value="">All Priorities</option>
-      <option value="urgent">Urgent</option>
-      <option value="important">Important</option>
-      <option value="normal">Normal</option>
-    </select>
+    <app-dropdown [(ngModel)]="filterPriority" (ngModelChange)="applyFilters()"
+      [options]="filterPriorityOptions" placeholder="All Priorities">
+    </app-dropdown>
 
     <button class="btn-pinned" type="button"
             [class.active]="showPinnedOnly" (click)="togglePinnedOnly()">

@@ -80,31 +80,17 @@
              [(ngModel)]="searchQuery" (input)="applyFilters()">
     </div>
 
-    <select class="filter-select" [(ngModel)]="filterStatus" (change)="applyFilters()">
-      <option value="">All Statuses</option>
-      <option value="open">Open</option>
-      <option value="in-progress">In Progress</option>
-      <option value="resolved">Resolved</option>
-      <option value="closed">Closed</option>
-    </select>
+    <app-dropdown [(ngModel)]="filterStatus" (ngModelChange)="applyFilters()"
+      [options]="statusOptions" placeholder="All Statuses">
+    </app-dropdown>
 
-    <select class="filter-select" [(ngModel)]="filterCategory" (change)="applyFilters()">
-      <option value="">All Categories</option>
-      <option value="plumbing">Plumbing</option>
-      <option value="electrical">Electrical</option>
-      <option value="carpentry">Carpentry</option>
-      <option value="cleaning">Cleaning</option>
-      <option value="appliance">Appliance</option>
-      <option value="other">Other</option>
-    </select>
+    <app-dropdown [(ngModel)]="filterCategory" (ngModelChange)="applyFilters()"
+      [options]="categoryOptions" placeholder="All Categories">
+    </app-dropdown>
 
-    <select class="filter-select" [(ngModel)]="filterPriority" (change)="applyFilters()">
-      <option value="">All Priorities</option>
-      <option value="urgent">Urgent</option>
-      <option value="high">High</option>
-      <option value="medium">Medium</option>
-      <option value="low">Low</option>
-    </select>
+    <app-dropdown [(ngModel)]="filterPriority" (ngModelChange)="applyFilters()"
+      [options]="priorityOptions" placeholder="All Priorities">
+    </app-dropdown>
 
     @if (hasActiveFilters) {
       <button class="btn-clear" type="button" (click)="clearFilters()">
@@ -179,14 +165,12 @@
             <td class="date-col">{{ r.raisedAt | date:'d MMM yyyy' }}</td>
 
             <td>
-              <select class="action-select" [value]="r.status"
-                      (change)="updateStatus(r.id, $any($event.target).value)"
-                      [disabled]="r.status === 'closed'">
-                <option value="open">Open</option>
-                <option value="in-progress">In Progress</option>
-                <option value="resolved">Resolved</option>
-                <option value="closed">Closed</option>
-              </select>
+              <app-dropdown
+                [ngModel]="r.status"
+                (ngModelChange)="updateStatus(r.id, $event)"
+                [options]="rowStatusOptions"
+                [disabled]="r.status === 'closed'">
+              </app-dropdown>
             </td>
 
           </tr>

@@ -5,11 +5,12 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { MaintenanceRequest, MaintenanceStatus } from '../../models/maintenance-request.model';
 import { MaintenanceRequestService } from '../../services/maintenance-request.service';
+import { DropdownComponent, DropdownOption } from '../../components/resuable/dropdown/dropdown.component';
 
 @Component({
   selector: 'app-maintenance-requests',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DropdownComponent],
   templateUrl: './maintenance-requests.component.html',
   styleUrl: './maintenance-requests.component.scss'
 })
@@ -24,6 +25,39 @@ export class MaintenanceRequestsComponent implements OnInit, OnDestroy {
   filterCategory = '';
   filterPriority = '';
   sortField: 'raisedAt' | 'priority' | 'status' = 'raisedAt';
+
+  readonly statusOptions: DropdownOption[] = [
+    { label: 'All Statuses',  value: ''            },
+    { label: 'Open',          value: 'open'        },
+    { label: 'In Progress',   value: 'in-progress' },
+    { label: 'Resolved',      value: 'resolved'    },
+    { label: 'Closed',        value: 'closed'      },
+  ];
+
+  readonly categoryOptions: DropdownOption[] = [
+    { label: 'All Categories', value: ''            },
+    { label: 'Plumbing',       value: 'plumbing'    },
+    { label: 'Electrical',     value: 'electrical'  },
+    { label: 'Carpentry',      value: 'carpentry'   },
+    { label: 'Cleaning',       value: 'cleaning'    },
+    { label: 'Appliance',      value: 'appliance'   },
+    { label: 'Other',          value: 'other'       },
+  ];
+
+  readonly priorityOptions: DropdownOption[] = [
+    { label: 'All Priorities', value: ''       },
+    { label: 'Urgent',         value: 'urgent' },
+    { label: 'High',           value: 'high'   },
+    { label: 'Medium',         value: 'medium' },
+    { label: 'Low',            value: 'low'    },
+  ];
+
+  readonly rowStatusOptions: DropdownOption[] = [
+    { label: 'Open',        value: 'open'        },
+    { label: 'In Progress', value: 'in-progress' },
+    { label: 'Resolved',    value: 'resolved'    },
+    { label: 'Closed',      value: 'closed'      },
+  ];
   sortDir: 'asc' | 'desc' = 'desc';
 
   totalCount    = 0;

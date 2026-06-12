@@ -6,6 +6,7 @@ import { skip, take } from 'rxjs/operators';
 import { StudentService } from '../../services/student.service';
 import { RoomService } from '../../services/room.service';
 import { Room } from '../../models/room.model';
+import { DropdownComponent, DropdownOption } from '../../components/resuable/dropdown/dropdown.component';
 
 export interface RoomTypeCard {
   type: string;
@@ -29,7 +30,7 @@ const TYPE_META: Record<string, { label: string; description: string; icon: stri
 @Component({
   selector: 'app-add-student',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, DropdownComponent],
   templateUrl: './add-student.component.html',
   styleUrl: './add-student.component.scss'
 })
@@ -58,6 +59,27 @@ export class AddStudentComponent implements OnInit {
   roomTypeCards: RoomTypeCard[] = [];
   selectedRoom    = '';           // type key: 'single' | 'double' | 'triple'
   selectedRoomObj: Room | null = null;  // specific room picked from dropdown
+
+  // ── Dropdown options ────────────────────────────────────────
+  readonly genderOptions: DropdownOption[] = [
+    { label: 'Male',              value: 'male'        },
+    { label: 'Female',            value: 'female'      },
+    { label: 'Other',             value: 'other'       },
+    { label: 'Prefer not to say', value: 'prefer-not'  },
+  ];
+
+  readonly residencyOptions: DropdownOption[] = [
+    { label: 'University', value: 'university' },
+    { label: 'Private',    value: 'private'    },
+    { label: 'Government', value: 'government' },
+  ];
+
+  get roomNumberOptions(): DropdownOption[] {
+    return this.roomsForType.map(r => ({
+      label: `${r.roomNumber} — ₹${r.price}/mo`,
+      value: r.roomNumber,
+    }));
+  }
 
   // ── Derived ────────────────────────────────────────────────
   get roomsForType(): Room[] {
@@ -100,6 +122,10 @@ export class AddStudentComponent implements OnInit {
       maintenanceCharge: [0, [Validators.min(0)]],
       securityDeposit:   [0, [Validators.min(0)]],
       messFee:           [0, [Validators.min(0)]],
+    });
+
+    this.detailsForm.get('roomNumber')!.valueChanges.subscribe(val => {
+      this.selectedRoomObj = this.roomsForType.find(r => r.roomNumber === val) ?? null;
     });
 
     const cached = this.roomService.getRoomsValue();
@@ -163,13 +189,6 @@ export class AddStudentComponent implements OnInit {
     this.selectedRoom    = type;
     this.selectedRoomObj = null;
     this.detailsForm.patchValue({ roomNumber: '' });
-  }
-
-  onRoomNumberChange(event: Event): void {
-    const roomNumber = (event.target as HTMLSelectElement).value;
-    this.selectedRoomObj = this.roomsForType.find(r => r.roomNumber === roomNumber) ?? null;
-    // Auto-fill price bar (read-only, shown below)
-    this.detailsForm.patchValue({ roomNumber });
   }
 
   // ── Form helpers ─────────────────────────────────────────────

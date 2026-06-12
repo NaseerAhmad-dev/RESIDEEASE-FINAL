@@ -109,14 +109,11 @@
             <div class="form-row">
               <div class="field">
                 <label for="gen">Gender</label>
-                <select id="gen" formControlName="gender">
-                  <option value="" disabled hidden>Select</option>
-                  <option value="male">Male</option>
-                  <option value="female">Female</option>
-                  <option value="other">Other</option>
-                  <option value="prefer-not">Prefer not to say</option>
-                </select>
-                @if (getError('gender')) { <span class="err" role="alert">{{ getError('gender') }}</span> }
+                <app-dropdown formControlName="gender"
+                  [options]="genderOptions"
+                  placeholder="Select gender"
+                  [errorMessage]="getError('gender')">
+                </app-dropdown>
               </div>
               <div class="field">
                 <label for="dept">Department <span class="opt">(optional)</span></label>
@@ -199,15 +196,10 @@
               <div class="field">
                 <label for="roomNo">Room number</label>
                 @if (roomsForType.length > 0) {
-                  <select id="roomNo" formControlName="roomNumber"
-                          (change)="onRoomNumberChange($event)">
-                    <option value="">— Select a room —</option>
-                    @for (r of roomsForType; track r.id) {
-                      <option [value]="r.roomNumber">
-                        {{ r.roomNumber }} — ₹{{ r.price | number }}/mo
-                      </option>
-                    }
-                  </select>
+                  <app-dropdown formControlName="roomNumber"
+                    [options]="roomNumberOptions"
+                    placeholder="— Select a room —">
+                  </app-dropdown>
                 } @else {
                   <div class="no-rooms-msg">No available rooms for this type</div>
                 }

@@ -88,12 +88,9 @@
                  [(ngModel)]="searchQuery" (input)="applyFilters()">
         </div>
 
-        <select class="filter-select" [(ngModel)]="filterPayment" (change)="applyFilters()">
-          <option value="">All Payment Status</option>
-          <option value="paid">Paid</option>
-          <option value="partial">Partial</option>
-          <option value="overdue">Overdue</option>
-        </select>
+        <app-dropdown [(ngModel)]="filterPayment" (ngModelChange)="applyFilters()"
+          [options]="paymentFilterOptions" placeholder="All Payment Status">
+        </app-dropdown>
 
         @if (hasActiveFilters) {
           <button class="btn-clear" type="button" (click)="clearFilters()">
@@ -205,11 +202,9 @@
             <div class="form-row">
               <div class="form-field" style="flex:1">
                 <label>Priority</label>
-                <select class="form-select" [(ngModel)]="announcementPriority">
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                </select>
+                <app-dropdown [(ngModel)]="announcementPriority"
+                  [options]="announcementPriorityOptions" placeholder="Select priority">
+                </app-dropdown>
               </div>
               <button class="btn-post" type="button" (click)="postAnnouncement()"
                       [disabled]="!announcementTitle.trim() || !announcementMessage.trim()">

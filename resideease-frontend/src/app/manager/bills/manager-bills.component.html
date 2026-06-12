@@ -56,15 +56,10 @@
         <!-- Category -->
         <div class="field-group">
           <label for="category">Category <span class="req">*</span></label>
-          <select id="category" [(ngModel)]="form.category" [class.field-error]="formErrors['category']">
-            <option value="">Select category</option>
-            @for (c of categories; track c.value) {
-              <option [value]="c.value">{{ c.label }}</option>
-            }
-          </select>
-          @if (formErrors['category']) {
-            <span class="field-err-msg">{{ formErrors['category'] }}</span>
-          }
+          <app-dropdown [(ngModel)]="form.category"
+            [options]="categories" placeholder="Select category"
+            [errorMessage]="formErrors['category'] || ''">
+          </app-dropdown>
         </div>
 
         <!-- Amount -->
@@ -283,12 +278,12 @@
             <div class="bill-amount">₹{{ b.amount | number }}</div>
             <span class="status-badge status-badge--{{ b.status }}">{{ b.status | titlecase }}</span>
             <div class="bill-actions">
-              <select class="status-select" [value]="b.status" (change)="updateStatus(b.id, $any($event.target).value)"
-                      [disabled]="b.status === 'paid'">
-                <option value="pending">Pending</option>
-                <option value="approved">Approved</option>
-                <option value="paid">Paid</option>
-              </select>
+              <app-dropdown
+                [ngModel]="b.status"
+                (ngModelChange)="updateStatus(b.id, $event)"
+                [options]="billStatusOptions"
+                [disabled]="b.status === 'paid'">
+              </app-dropdown>
               <button type="button" class="btn-delete" (click)="deleteBill(b.id)"
                       aria-label="Delete bill" title="Delete bill">
                 <svg width="14" height="14" viewBox="0 0 20 20" fill="none">

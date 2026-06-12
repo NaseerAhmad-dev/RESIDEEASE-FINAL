@@ -5,11 +5,12 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { SupplierBill, BillCategory, BillStatus } from '../../models/supplier-bill.model';
 import { SupplierBillService } from '../../services/supplier-bill.service';
+import { DropdownComponent, DropdownOption } from '../../components/resuable/dropdown/dropdown.component';
 
 @Component({
   selector: 'app-manager-bills',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DropdownComponent],
   templateUrl: './manager-bills.component.html',
   styleUrl: './manager-bills.component.scss'
 })
@@ -50,13 +51,20 @@ export class ManagerBillsComponent implements OnInit, OnDestroy {
   toastType: 'success' | 'error' = 'success';
   private toastTimer: ReturnType<typeof setTimeout> | null = null;
 
-  readonly categories: { value: BillCategory; label: string }[] = [
-    { value: 'food',        label: 'Food & Grocery'        },
-    { value: 'maintenance', label: 'Maintenance & Repair'  },
-    { value: 'utilities',   label: 'Utilities'             },
-    { value: 'cleaning',    label: 'Cleaning & Housekeeping'},
-    { value: 'furniture',   label: 'Furniture & Equipment' },
-    { value: 'other',       label: 'Other'                 }
+  readonly categories: DropdownOption[] = [
+    { value: '',            label: 'Select category'         },
+    { value: 'food',        label: 'Food & Grocery'          },
+    { value: 'maintenance', label: 'Maintenance & Repair'    },
+    { value: 'utilities',   label: 'Utilities'               },
+    { value: 'cleaning',    label: 'Cleaning & Housekeeping' },
+    { value: 'furniture',   label: 'Furniture & Equipment'   },
+    { value: 'other',       label: 'Other'                   },
+  ];
+
+  readonly billStatusOptions: DropdownOption[] = [
+    { label: 'Pending',  value: 'pending'  },
+    { label: 'Approved', value: 'approved' },
+    { label: 'Paid',     value: 'paid'     },
   ];
 
   constructor(private readonly billService: SupplierBillService) {}

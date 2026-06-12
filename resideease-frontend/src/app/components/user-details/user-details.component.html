@@ -91,17 +91,10 @@
       <div class="form-row">
         <div class="form-field">
           <label for="gender">Gender</label>
-          <select id="gender" formControlName="gender"
-                  [attr.aria-invalid]="form.get('gender')?.touched && form.get('gender')?.invalid">
-            <option value="" disabled hidden>Select gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
-            <option value="other">Other</option>
-            <option value="prefer-not">Prefer not to say</option>
-          </select>
-          @if (getError('gender')) {
-            <span class="error-msg" role="alert">{{ getError('gender') }}</span>
-          }
+          <app-dropdown formControlName="gender"
+            [options]="genderOptions" placeholder="Select gender"
+            [errorMessage]="getError('gender')">
+          </app-dropdown>
         </div>
         <div class="form-field">
           <label for="department">Department <span class="optional">(optional)</span></label>

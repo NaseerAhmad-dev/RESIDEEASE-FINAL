@@ -1,6 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule, DecimalPipe, TitleCasePipe } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { DropdownComponent, DropdownOption } from '../../components/resuable/dropdown/dropdown.component';
 import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { RoomService } from '../../services/room.service';
@@ -15,7 +16,7 @@ type Step = 'room' | 'beds' | 'student' | 'done';
 @Component({
   selector: 'app-admin-setup',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, DecimalPipe, TitleCasePipe],
+  imports: [CommonModule, ReactiveFormsModule, DecimalPipe, TitleCasePipe, DropdownComponent],
   templateUrl: './admin-setup.component.html',
   styleUrl: './admin-setup.component.scss',
 })
@@ -38,8 +39,14 @@ export class AdminSetupComponent implements OnInit {
   roomForm!: FormGroup;
   studentForm!: FormGroup;
 
-  readonly roomTypes  = ['single', 'double', 'triple'];
+  readonly roomTypes   = ['single', 'double', 'triple'];
   readonly bedStatuses = ['available', 'occupied', 'maintenance'];
+
+  readonly genderOptions: DropdownOption[] = [
+    { label: 'Male',                  value: 'male'   },
+    { label: 'Female',                value: 'female' },
+    { label: 'Other / Prefer not to say', value: 'other'  },
+  ];
 
   steps: { key: Step; label: string; index: number }[] = [
     { key: 'room',    label: 'Add Room',    index: 0 },

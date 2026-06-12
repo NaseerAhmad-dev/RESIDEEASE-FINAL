@@ -4,15 +4,23 @@ import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { ProgressBarComponent } from '../progress-bar/progress-bar.component';
 import { OnboardingService } from '../../services/onboarding.service';
+import { DropdownComponent, DropdownOption } from '../resuable/dropdown/dropdown.component';
 
 @Component({
   selector: 'app-user-details',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, ProgressBarComponent],
+  imports: [CommonModule, ReactiveFormsModule, ProgressBarComponent, DropdownComponent],
   templateUrl: './user-details.component.html',
   styleUrl: './user-details.component.scss'
 })
 export class UserDetailsComponent implements OnInit {
+  readonly genderOptions: DropdownOption[] = [
+    { label: 'Male',              value: 'male'       },
+    { label: 'Female',            value: 'female'     },
+    { label: 'Other',             value: 'other'      },
+    { label: 'Prefer not to say', value: 'prefer-not' },
+  ];
+
   steps = [
     { label: 'Welcome',  route: 'welcome' },
     { label: 'Profile',  route: 'user-details' },

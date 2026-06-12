@@ -66,19 +66,12 @@
       <input type="text" class="search-input" placeholder="Search by name or roll number…"
              [(ngModel)]="searchQuery" (input)="applyFilters()">
     </div>
-    <select class="filter-select" [(ngModel)]="filterStatus" (change)="applyFilters()">
-      <option value="">All Payment Status</option>
-      <option value="paid">Paid</option>
-      <option value="partial">Partial</option>
-      <option value="overdue">Overdue</option>
-    </select>
-    <select class="filter-select" [(ngModel)]="filterStudentStatus" (change)="applyFilters()">
-      <option value="">All Boarders</option>
-      <option value="active">Active</option>
-      <option value="pending">Pending</option>
-      <option value="expired">Expired</option>
-      <option value="checked_out">Checked Out</option>
-    </select>
+    <app-dropdown [(ngModel)]="filterStatus" (ngModelChange)="applyFilters()"
+      [options]="paymentStatusOptions" placeholder="All Payment Status">
+    </app-dropdown>
+    <app-dropdown [(ngModel)]="filterStudentStatus" (ngModelChange)="applyFilters()"
+      [options]="boarderStatusOptions" placeholder="All Boarders">
+    </app-dropdown>
     @if (hasActiveFilters) {
       <button class="btn-clear" type="button" (click)="clearFilters()">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -245,12 +238,9 @@
 
       <!-- Method -->
       <div class="df-field">
-        <label for="pay-method">Payment method</label>
-        <select id="pay-method" [(ngModel)]="drawerMethod" class="df-input">
-          @for (m of paymentMethods; track m.value) {
-            <option [value]="m.value">{{ m.label }}</option>
-          }
-        </select>
+        <label>Payment method</label>
+        <app-dropdown [(ngModel)]="drawerMethod" [options]="methodOptions" placeholder="Select method">
+        </app-dropdown>
       </div>
 
       <!-- Date -->

@@ -6,7 +6,7 @@ import { Subject, takeUntil } from 'rxjs';
 import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
-import { DropdownModule } from 'primeng/dropdown';
+import { DropdownComponent } from '../../components/resuable/dropdown/dropdown.component';
 import { TagModule } from 'primeng/tag';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ConfirmationService } from 'primeng/api';
@@ -18,7 +18,7 @@ import { StudentService } from '../../services/student.service';
   standalone: true,
   imports: [
     CommonModule, FormsModule, RouterLink,
-    TableModule, ButtonModule, InputTextModule, DropdownModule, TagModule, ConfirmDialogModule
+    TableModule, ButtonModule, InputTextModule, DropdownComponent, TagModule, ConfirmDialogModule
   ],
   providers: [ConfirmationService],
   templateUrl: './students-list.component.html',

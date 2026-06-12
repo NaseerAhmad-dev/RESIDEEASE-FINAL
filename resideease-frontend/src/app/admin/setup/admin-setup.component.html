@@ -235,13 +235,11 @@
             </div>
             <div class="field">
               <label>Gender <span class="req">*</span></label>
-              <select formControlName="gender">
-                <option value="" disabled>Select…</option>
-                <option value="male">Male</option>
-                <option value="female">Female</option>
-                <option value="other">Other / Prefer not to say</option>
-              </select>
-              <span class="field-err">{{ getError(studentForm, 'gender') }}</span>
+              <app-dropdown formControlName="gender"
+                [options]="genderOptions"
+                placeholder="Select…"
+                [errorMessage]="getError(studentForm, 'gender')">
+              </app-dropdown>
             </div>
           </div>
 

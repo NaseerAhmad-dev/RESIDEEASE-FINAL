@@ -38,20 +38,16 @@
              [(ngModel)]="searchValue" (input)="onGlobalFilter($event)"
              class="search-input" />
     </div>
-    <p-dropdown [options]="statusOptions"
-                [(ngModel)]="selectedStatus"
-                optionLabel="label" optionValue="value"
-                placeholder="All Status" [showClear]="true"
-                (ngModelChange)="onStatusChange($event)"
-                (onClear)="onStatusChange(null)"
-                styleClass="filter-dropdown"></p-dropdown>
-    <p-dropdown [options]="genderOptions"
-                [(ngModel)]="selectedGender"
-                optionLabel="label" optionValue="value"
-                placeholder="All Genders" [showClear]="true"
-                (ngModelChange)="onGenderChange($event)"
-                (onClear)="onGenderChange(null)"
-                styleClass="filter-dropdown"></p-dropdown>
+    <app-dropdown [options]="statusOptions"
+                  [(ngModel)]="selectedStatus"
+                  (ngModelChange)="onStatusChange($event)"
+                  placeholder="All Status">
+    </app-dropdown>
+    <app-dropdown [options]="genderOptions"
+                  [(ngModel)]="selectedGender"
+                  (ngModelChange)="onGenderChange($event)"
+                  placeholder="All Genders">
+    </app-dropdown>
     <button class="btn-clear" (click)="clearFilters()">
       <i class="pi pi-times"></i> Clear
     </button>

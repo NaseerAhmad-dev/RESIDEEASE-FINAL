@@ -5,11 +5,12 @@ import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 import { Notice, NoticeCategory, NoticePriority } from '../../models/notice.model';
 import { NoticeService } from '../../services/notice.service';
+import { DropdownComponent, DropdownOption } from '../../components/resuable/dropdown/dropdown.component';
 
 @Component({
   selector: 'app-notices',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, DropdownComponent],
   templateUrl: './notices.component.html',
   styleUrl: './notices.component.scss'
 })
@@ -23,6 +24,32 @@ export class NoticesComponent implements OnInit, OnDestroy {
   filterCategory = '';
   filterPriority = '';
   showPinnedOnly = false;
+
+  readonly categoryOptions: DropdownOption[] = [
+    { label: 'General',     value: 'general'     },
+    { label: 'Academic',    value: 'academic'     },
+    { label: 'Hostel',      value: 'hostel'       },
+    { label: 'Maintenance', value: 'maintenance'  },
+    { label: 'Emergency',   value: 'emergency'    },
+  ];
+
+  readonly priorityOptions: DropdownOption[] = [
+    { label: 'Normal',    value: 'normal'    },
+    { label: 'Important', value: 'important' },
+    { label: 'Urgent',    value: 'urgent'    },
+  ];
+
+  readonly filterCategoryOptions: DropdownOption[] = [
+    { label: 'All Categories', value: '' },
+    ...this.categoryOptions,
+  ];
+
+  readonly filterPriorityOptions: DropdownOption[] = [
+    { label: 'All Priorities', value: '' },
+    { label: 'Urgent',         value: 'urgent'    },
+    { label: 'Important',      value: 'important' },
+    { label: 'Normal',         value: 'normal'    },
+  ];
   showForm       = false;
 
   totalNotices = 0;

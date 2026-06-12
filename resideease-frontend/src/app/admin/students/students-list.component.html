@@ -14,8 +14,8 @@
   <!-- Header -->
   <div class="list-header">
     <div>
-      <h2 class="list-title">All Students</h2>
-      <p class="list-subtitle">{{ students.length }} students enrolled</p>
+      <h2 class="list-title">All Boarders</h2>
+      <p class="list-subtitle">{{ students.length }} boarders enrolled</p>
     </div>
     <div class="header-actions">
       <button class="btn-export" (click)="exportToCSV()" title="Export as CSV">
@@ -25,7 +25,7 @@
         <i class="pi pi-code"></i> JSON
       </button>
       <a routerLink="/admin/students/add" class="btn-add">
-        <i class="pi pi-plus"></i> Add Student
+        <i class="pi pi-plus"></i> Add Boarder
       </a>
     </div>
   </div>
@@ -62,7 +62,7 @@
     <div class="bulk-bar">
       <span class="bulk-info">
         <i class="pi pi-check-circle"></i>
-        {{ selectedStudents.length }} student{{ selectedStudents.length !== 1 ? 's' : '' }} selected
+        {{ selectedStudents.length }} boarder{{ selectedStudents.length !== 1 ? 's' : '' }} selected
       </span>
       <button class="btn-danger-outline" (click)="deleteSelected()">
         <i class="pi pi-trash"></i> Delete Selected
@@ -86,7 +86,7 @@
     [loading]="loading"
     styleClass="p-datatable-sm students-table"
     [tableStyle]="{ 'min-width': '56rem' }"
-    currentPageReportTemplate="Showing {first}–{last} of {totalRecords} students"
+    currentPageReportTemplate="Showing {first}–{last} of {totalRecords} boarders"
     [showCurrentPageReport]="true"
     [showFirstLastIcon]="true"
     paginatorPosition="bottom">
@@ -189,10 +189,10 @@
         <td colspan="9">
           <div class="empty-state">
             <i class="pi pi-users empty-icon"></i>
-            <h3>No students found</h3>
-            <p>Try adjusting your filters or add a new student.</p>
+            <h3>No boarders found</h3>
+            <p>Try adjusting your filters or add a new boarder.</p>
             <a routerLink="/admin/students/add" class="btn-add">
-              <i class="pi pi-plus"></i> Add First Student
+              <i class="pi pi-plus"></i> Add First Boarder
             </a>
           </div>
         </td>

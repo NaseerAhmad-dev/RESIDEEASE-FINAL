@@ -2,14 +2,14 @@
 
   <!-- Page header -->
   <div class="add-header">
-    <a routerLink="/admin/students" class="back-link" aria-label="Back to students">
+    <a routerLink="/admin/students" class="back-link" aria-label="Back to boarders">
       <svg width="16" height="16" viewBox="0 0 20 20" fill="none" aria-hidden="true">
         <path d="M12 4l-6 6 6 6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
       </svg>
-      Students
+      Boarders
     </a>
     <div class="add-title-row">
-      <h1 class="page-title">Add new student</h1>
+      <h1 class="page-title">Add new boarder</h1>
       <p class="page-sub">Fill in the details to onboard a new resident</p>
     </div>
   </div>
@@ -44,13 +44,13 @@
   <!-- Form card -->
   @if (!submitted) {
     <div class="form-card" role="main">
-      <form [formGroup]="detailsForm" novalidate aria-label="Student details form">
+      <form [formGroup]="detailsForm" novalidate aria-label="Boarder details form">
 
-      <!-- Step 0: Student info -->
+      <!-- Step 0: Boarder info -->
       @if (currentStep === 0) {
-        <div class="step-body" role="region" aria-label="Student information">
+        <div class="step-body" role="region" aria-label="Boarder information">
           <div class="step-head">
-            <h2 class="step-title">Student details</h2>
+            <h2 class="step-title">Boarder details</h2>
             <p class="step-sub">Basic information about the new resident</p>
           </div>
 
@@ -139,47 +139,100 @@
             <p class="step-sub">Assign room and capture semester/residence expiry</p>
           </div>
 
-          <div class="room-grid" role="radiogroup" aria-label="Room type">
-            @for (room of roomOptions; track room.id) {
-              <button class="room-card" type="button"
-                      [class.room-card--selected]="selectedRoom === room.id"
-                      (click)="selectRoom(room.id)"
-                      role="radio" [attr.aria-checked]="selectedRoom === room.id">
-                @if (room['badge']) {
-                  <span class="room-badge">{{ room['badge'] }}</span>
-                }
-                <div class="room-icon" aria-hidden="true">{{ room.icon }}</div>
-                <div class="room-name">{{ room.label }}</div>
-                <div class="room-desc">{{ room.description }}</div>
-                <div class="room-price">₹{{ room.price | number }}<span>/mo</span></div>
-                <div class="room-amenities">
-                  @for (a of room.amenities; track a) {
-                    <span class="amenity">{{ a }}</span>
+          <!-- Loading -->
+          @if (roomsLoading) {
+            <div class="rooms-loading">
+              <div class="rooms-spinner" aria-hidden="true"></div>
+              <span>Loading available rooms…</span>
+            </div>
+          }
+
+          <!-- No rooms configured -->
+          @if (!roomsLoading && roomTypeCards.length === 0) {
+            <div class="rooms-empty-state">
+              <svg width="32" height="32" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <rect x="2" y="5" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/>
+                <path d="M6 5V4a2 2 0 014 0v1M6 9h8M6 13h5" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+              </svg>
+              <p>No rooms are configured yet. Add rooms in the <strong>Rooms</strong> section first.</p>
+            </div>
+          }
+
+          <!-- Room type cards -->
+          @if (!roomsLoading && roomTypeCards.length > 0) {
+            <div class="room-grid" role="radiogroup" aria-label="Room type">
+              @for (card of roomTypeCards; track card.type) {
+                <button class="room-card" type="button"
+                        [class.room-card--selected]="selectedRoom === card.type"
+                        [class.room-card--unavailable]="card.availableCount === 0"
+                        (click)="selectType(card.type)"
+                        role="radio" [attr.aria-checked]="selectedRoom === card.type">
+                  @if (card.badge) {
+                    <span class="room-badge">{{ card.badge }}</span>
                   }
-                </div>
-              </button>
-            }
-          </div>
+                  <div class="room-icon" aria-hidden="true">{{ card.icon }}</div>
+                  <div class="room-name">{{ card.label }}</div>
+                  <div class="room-desc">{{ card.description }}</div>
+                  <div class="room-price">
+                    @if (card.minPrice !== card.maxPrice) {
+                      <span class="price-from">from </span>
+                    }
+                    ₹{{ card.minPrice | number }}<span>/mo</span>
+                  </div>
+                  <div class="room-amenities">
+                    @for (a of card.amenities.slice(0, 4); track a) {
+                      <span class="amenity">{{ a }}</span>
+                    }
+                  </div>
+                  <div class="room-avail" [class.room-avail--full]="card.availableCount === 0">
+                    @if (card.availableCount > 0) {
+                      {{ card.availableCount }} available
+                    } @else {
+                      Full
+                    }
+                  </div>
+                </button>
+              }
+            </div>
 
-          <div class="form-row form-row--compact">
-            <div class="field">
-              <label for="roomNo">Room number</label>
-              <input id="roomNo" type="text" formControlName="roomNumber" placeholder="e.g. A-102"/>
+            <div class="form-row form-row--compact">
+              <div class="field">
+                <label for="roomNo">Room number</label>
+                @if (roomsForType.length > 0) {
+                  <select id="roomNo" formControlName="roomNumber"
+                          (change)="onRoomNumberChange($event)">
+                    <option value="">— Select a room —</option>
+                    @for (r of roomsForType; track r.id) {
+                      <option [value]="r.roomNumber">
+                        {{ r.roomNumber }} — ₹{{ r.price | number }}/mo
+                      </option>
+                    }
+                  </select>
+                } @else {
+                  <div class="no-rooms-msg">No available rooms for this type</div>
+                }
+              </div>
+              <div class="field">
+                <label for="semester">Current semester</label>
+                <input id="semester" type="text" formControlName="currentSemester" placeholder="5th semester"/>
+                @if (getError('currentSemester')) { <span class="err" role="alert">{{ getError('currentSemester') }}</span> }
+              </div>
             </div>
             <div class="field">
-              <label for="semester">Current semester</label>
-              <input id="semester" type="text" formControlName="currentSemester" placeholder="5th semester"/>
+              <label for="expiry">Residence expiry</label>
+              <input id="expiry" type="date" formControlName="residenceExpiry"/>
+              @if (getError('residenceExpiry')) { <span class="err" role="alert">{{ getError('residenceExpiry') }}</span> }
             </div>
-          </div>
-          <div class="field">
-            <label for="expiry">Residence expiry</label>
-            <input id="expiry" type="date" formControlName="residenceExpiry"/>
-          </div>
 
-          <div class="price-bar" aria-live="polite">
-            <span>Monthly rent for {{ roomLabel }}</span>
-            <span class="price-val">₹{{ roomPrice | number }}</span>
-          </div>
+            <div class="price-bar" aria-live="polite">
+              @if (selectedRoomObj) {
+                <span>Monthly rent · Room {{ selectedRoomObj.roomNumber }}</span>
+              } @else {
+                <span>Monthly rent for {{ roomLabel }}</span>
+              }
+              <span class="price-val">₹{{ roomPrice | number }}</span>
+            </div>
+          }
         </div>
       }
 
@@ -238,7 +291,7 @@
               </svg>
             </div>
             <h2 class="step-title">Review &amp; confirm</h2>
-            <p class="step-sub">Double check before creating the student profile</p>
+            <p class="step-sub">Double check before creating the boarder profile</p>
           </div>
 
           <div class="confirm-sections">
@@ -303,7 +356,7 @@
           <button class="btn-next" type="button" (click)="next()">Continue →</button>
         } @else {
           <button class="btn-submit" type="button" (click)="submit()">
-            Create student profile
+            Create boarder profile
           </button>
         }
       </div>
@@ -318,19 +371,49 @@
           <path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
         </svg>
       </div>
-      <h2 class="success-title">Student added successfully!</h2>
+      <h2 class="success-title">Boarder added successfully!</h2>
       <p class="success-sub">
-        {{ detailsForm.value.firstName }} {{ detailsForm.value.lastName }} has been onboarded.
-        Room {{ roomLabel }} is confirmed.
+        {{ submittedName }} has been onboarded. Room {{ roomLabel }} is confirmed.
       </p>
       <div class="success-pills">
         <span class="spill spill--brand">{{ roomLabel }}</span>
         <span class="spill spill--green">₹{{ paymentTotal | number }}</span>
         <span class="spill spill--gray">₹{{ (roomPrice + paymentTotal) | number }}</span>
       </div>
+
+      <!-- Login credentials card -->
+      @if (tempPassword) {
+        <div class="cred-card" aria-label="Boarder login credentials">
+          <div class="cred-header">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <rect x="3" y="11" width="18" height="11" rx="2" stroke="currentColor" stroke-width="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            </svg>
+            <span>Login credentials</span>
+            <span class="cred-notice">Share with boarder — shown once only</span>
+          </div>
+          <div class="cred-body">
+            <div class="cred-row">
+              <span class="cred-label">Roll number</span>
+              <span class="cred-value">{{ submittedRoll }}</span>
+            </div>
+            <div class="cred-row">
+              <span class="cred-label">Temporary password</span>
+              <span class="cred-value cred-pw">{{ tempPassword }}</span>
+            </div>
+          </div>
+          <div class="cred-footer">
+            <span class="cred-hint">Boarder should change this password on first login</span>
+            <button class="btn-copy-cred" (click)="copyCredentials()" [class.copied]="credCopied" type="button">
+              @if (credCopied) { Copied! } @else { Copy credentials }
+            </button>
+          </div>
+        </div>
+      }
+
       <div class="success-actions">
-        <button class="btn-back" (click)="goToStudents()">View all students</button>
-        <button class="btn-next" (click)="submitted = false; currentStep = 0; detailsForm.reset()">Add another</button>
+        <button class="btn-back" (click)="goToStudents()">View all boarders</button>
+        <button class="btn-next" (click)="submitted = false; currentStep = 0; detailsForm.reset(); tempPassword = ''">Add another</button>
       </div>
     </div>
   }

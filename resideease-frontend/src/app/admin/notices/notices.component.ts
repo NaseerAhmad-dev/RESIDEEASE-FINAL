@@ -35,6 +35,7 @@ export class NoticesComponent implements OnInit, OnDestroy {
   constructor(private readonly noticeService: NoticeService) {}
 
   ngOnInit(): void {
+    this.noticeService.refresh();
     this.noticeService.getNotices()
       .pipe(takeUntil(this.destroy$))
       .subscribe(notices => {

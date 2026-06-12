@@ -102,6 +102,22 @@ input {
   }
 }
 
+/* ─── Password field wrapper ──────────── */
+.pw-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  input { flex: 1; padding-right: 42px; }
+}
+
+.btn-eye {
+  position: absolute; right: 12px;
+  background: none; border: none; cursor: pointer; padding: 4px;
+  color: var(--text-secondary); line-height: 0;
+  &:hover { color: var(--text-primary); }
+}
+
 /* ─── Error ──────────────────────────── */
 .error-message {
   display: flex;

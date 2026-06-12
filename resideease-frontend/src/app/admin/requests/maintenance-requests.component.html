@@ -4,7 +4,7 @@
   <div class="page-header">
     <div>
       <h1 class="page-title">Maintenance Requests</h1>
-      <p class="page-subtitle">Service tickets raised by students</p>
+      <p class="page-subtitle">Service tickets raised by boarders</p>
     </div>
   </div>
 
@@ -76,7 +76,7 @@
            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
       </svg>
-      <input type="text" class="search-input" placeholder="Search by student, room, ticket…"
+      <input type="text" class="search-input" placeholder="Search by boarder, room, ticket…"
              [(ngModel)]="searchQuery" (input)="applyFilters()">
     </div>
 
@@ -129,7 +129,7 @@
       <thead>
         <tr>
           <th>Ticket</th>
-          <th>Student</th>
+          <th>Boarder</th>
           <th>Room</th>
           <th>Category</th>
           <th>Issue</th>

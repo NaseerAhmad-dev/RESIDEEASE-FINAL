@@ -1,4 +1,5 @@
 import { Routes } from '@angular/router';
+import { adminOnboardingGuard, setupPageGuard } from './guards/admin-onboarding.guard';
 
 export const routes: Routes = [
   {
@@ -11,7 +12,13 @@ export const routes: Routes = [
     loadComponent: () => import('./home/home.component').then(m => m.HomeComponent)
   },
   {
+    path: 'admin/setup',
+    canActivate: [setupPageGuard],
+    loadComponent: () => import('./admin/setup/admin-setup.component').then(m => m.AdminSetupComponent),
+  },
+  {
     path: 'admin',
+    canActivate: [adminOnboardingGuard],
     loadComponent: () => import('./admin/admin-shell/admin-shell.component').then(m => m.AdminShellComponent),
     children: [
       { path: '', redirectTo: 'dashboard', pathMatch: 'full' },

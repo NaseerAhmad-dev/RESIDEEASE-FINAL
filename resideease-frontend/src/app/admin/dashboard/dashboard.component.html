@@ -33,7 +33,7 @@
           <svg width="15" height="15" viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
           </svg>
-          Add student
+          Add boarder
         </a>
       </div>
     </div>
@@ -238,7 +238,7 @@
       <!-- Recent students -->
       <div class="panel">
         <div class="panel-head">
-          <div class="panel-title">Recent students</div>
+          <div class="panel-title">Recent boarders</div>
           <a routerLink="/admin/students" class="panel-link">View all</a>
         </div>
         <div class="student-list">
@@ -253,14 +253,14 @@
                     [attr.aria-label]="'Status: ' + s.status"></span>
             </div>
           } @empty {
-            <div class="list-empty">No students yet</div>
+            <div class="list-empty">No boarders yet</div>
           }
         </div>
         <a routerLink="/admin/students/add" class="add-student-btn">
           <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
             <path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
           </svg>
-          Add new student
+          Add new boarder
         </a>
       </div>
 

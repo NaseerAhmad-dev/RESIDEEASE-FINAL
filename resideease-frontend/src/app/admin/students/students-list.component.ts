@@ -110,7 +110,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
     event.stopPropagation();
     this.confirmationService.confirm({
       key: 'checkoutConfirm',
-      message: `Check out <strong>${student.firstName} ${student.lastName}</strong>?<br>Their status will be updated to <em>Checked Out</em>.`,
+      message: `Check out <strong>${student.firstName} ${student.lastName}</strong>?<br>Their status will be updated to <em>Checked Out</em>.`, // boarder
       header: 'Confirm Check Out',
       acceptLabel: 'Yes, Check Out',
       rejectLabel: 'Cancel',
@@ -124,7 +124,7 @@ export class StudentsListComponent implements OnInit, OnDestroy {
     const count = this.selectedStudents.length;
     this.confirmationService.confirm({
       key: 'checkoutConfirm',
-      message: `Check out <strong>${count} student${count !== 1 ? 's' : ''}</strong>?<br>Their statuses will be updated to <em>Checked Out</em>.`,
+      message: `Check out <strong>${count} boarder${count !== 1 ? 's' : ''}</strong>?<br>Their statuses will be updated to <em>Checked Out</em>.`,
       header: 'Confirm Bulk Check Out',
       acceptLabel: 'Yes, Check Out All',
       rejectLabel: 'Cancel',

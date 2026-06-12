@@ -37,8 +37,8 @@ export class StudentService {
     return this.students.value.find(s => s.id === id);
   }
 
-  addStudent(data: Omit<Student, 'id' | 'createdAt'>): Observable<Student> {
-    return this.http.post<ApiResponse<Student>>(`${environment.apiUrl}/students`, data, { headers: this.headers }).pipe(
+  addStudent(data: Omit<Student, 'id' | 'createdAt'>): Observable<Student & { tempPassword?: string }> {
+    return this.http.post<ApiResponse<Student & { tempPassword?: string }>>(`${environment.apiUrl}/students`, data, { headers: this.headers }).pipe(
       map(res => res.data),
       tap(student => {
         this.students.next([...this.students.value, student]);

@@ -15,13 +15,15 @@ export class NoticeService {
 
   private readonly notices = new BehaviorSubject<Notice[]>([]);
 
-  constructor() { this.refresh(); }
+  constructor() {}
 
   private get headers(): HttpHeaders {
     return new HttpHeaders({ Authorization: `Bearer ${this.authService.getToken()}` });
   }
 
-  private refresh(): void {
+  refresh(): void {
+    const token = this.authService.getToken();
+    if (!token) return;
     this.http.get<ApiResponse<Notice[]>>(`${environment.apiUrl}/notices`, { headers: this.headers })
       .subscribe({ next: res => this.notices.next(res.data), error: () => {} });
   }

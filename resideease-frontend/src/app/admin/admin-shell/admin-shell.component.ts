@@ -22,7 +22,7 @@ export class AdminShellComponent implements OnInit {
 
   navItems: NavItem[] = [
     { label: 'Overview',  route: '/admin/dashboard', icon: 'grid'      },
-    { label: 'Students',  route: '/admin/students',  icon: 'users'     },
+    { label: 'Boarders',  route: '/admin/students',  icon: 'users'     },
     { label: 'Rooms',     route: '/admin/rooms',     icon: 'door'      },
     { label: 'Employees', route: '/admin/employees', icon: 'briefcase' },
     { label: 'Mess',      route: '/admin/mess',      icon: 'fork'      },

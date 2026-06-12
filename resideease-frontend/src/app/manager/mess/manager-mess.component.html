@@ -68,7 +68,7 @@
             <path d="M2 10h16M6 14v-2" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
           </svg>
         </div>
-        <p class="validator-sub">Type the coupon number from the student's meal ticket to mark the meal as served.</p>
+        <p class="validator-sub">Type the coupon number from the boarder's meal ticket to mark the meal as served.</p>
         <div class="coupon-input-row">
           <label class="sr-only" for="couponField">Coupon number</label>
           <input id="couponField" type="text" class="coupon-input" [(ngModel)]="couponInput"
@@ -121,7 +121,7 @@
       @if (pendingList.length === 0) {
         <output class="all-served-banner">
           <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true"><circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/><path d="M6 10l3 3 5-5" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          All enrolled students have been served for today.
+          All enrolled boarders have been served for today.
         </output>
       }
     </section>
@@ -131,7 +131,7 @@
       <div class="panel-head">
         <div>
           <p class="panel-eyebrow">Enrollment List</p>
-          <h2>Today's enrolled students</h2>
+          <h2>Today's enrolled boarders</h2>
         </div>
         <fieldset class="filter-row">
           <legend class="sr-only">Filter by status</legend>
@@ -155,7 +155,7 @@
           <table class="enrollment-table">
             <thead>
               <tr>
-                <th>Student</th>
+                <th>Boarder</th>
                 <th>Roll No.</th>
                 <th>Coupon</th>
                 <th>Meal</th>

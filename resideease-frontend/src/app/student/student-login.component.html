@@ -15,7 +15,7 @@
     <div class="login-head">
       <span class="login-eyebrow">Student Login</span>
       <h1>Access your dashboard</h1>
-      <p>Enter your roll number and phone number to view your details.</p>
+      <p>Enter your roll number and password to sign in.</p>
     </div>
 
     <form [formGroup]="loginForm" (ngSubmit)="login()" novalidate>
@@ -25,8 +25,23 @@
       </div>
 
       <div class="field-group">
-        <label for="phone">Phone number</label>
-        <input id="phone" type="tel" formControlName="phone" placeholder="e.g. 9876543210" autocomplete="tel" />
+        <label for="password">Password</label>
+        <div class="pw-wrap">
+          <input id="password" [type]="showPassword ? 'text' : 'password'" formControlName="password"
+                 placeholder="Your password" autocomplete="current-password" />
+          <button type="button" class="btn-eye" (click)="togglePassword()" [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'">
+            @if (showPassword) {
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19M1 1l22 22" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            } @else {
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" stroke-width="1.8"/>
+                <circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.8"/>
+              </svg>
+            }
+          </button>
+        </div>
       </div>
 
       @if (errorMessage) {
@@ -49,30 +64,7 @@
       </button>
     </form>
 
-    <p class="login-note">If your account does not exist yet, please ask your administrator to add your student profile.</p>
-
-    <!-- Demo credentials banner -->
-    <div class="demo-banner">
-      <div class="demo-banner-head">
-        <svg width="14" height="14" viewBox="0 0 20 20" fill="none" aria-hidden="true">
-          <circle cx="10" cy="10" r="8" stroke="currentColor" stroke-width="1.5"/>
-          <path d="M10 9v5M10 6v.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
-        </svg>
-        <span>Demo account</span>
-      </div>
-      <div class="demo-fields">
-        <div class="demo-field">
-          <span class="demo-field-label">Roll number</span>
-          <span class="demo-field-value">CS2021001</span>
-        </div>
-        <div class="demo-divider"></div>
-        <div class="demo-field">
-          <span class="demo-field-label">Phone</span>
-          <span class="demo-field-value">9419001234</span>
-        </div>
-      </div>
-      <button type="button" class="btn-demo" (click)="fillDemo()">Use demo credentials</button>
-    </div>
+    <p class="login-note">Your temporary password was provided when you were registered. Contact your administrator if you need a reset.</p>
 
   </div>
 </div>

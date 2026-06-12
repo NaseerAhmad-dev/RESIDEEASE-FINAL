@@ -232,7 +232,7 @@ export class ManagerAuditComponent implements OnInit, OnDestroy {
       `"Billing Audit — ${this.monthLabel} ${year}"`,
       `"Generated: ${new Date().toLocaleString()}"`,
       '',
-      ['Student Name', 'Roll Number', 'Days in Month', 'Rebate Days',
+      ['Boarder Name', 'Roll Number', 'Days in Month', 'Rebate Days',
        'Billable Days', 'Per Day Rate (INR)', 'Bill Amount (INR)']
         .map(escape).join(','),
       ...rows.map(r =>
@@ -242,7 +242,7 @@ export class ManagerAuditComponent implements OnInit, OnDestroy {
       ),
       '',
       `"","","","","Total Supplier Bill","",${escape(totalSupplierBill.toFixed(2))}`,
-      `"","","","","Total Student Bills","",${escape(totalStudentBill.toFixed(2))}`,
+      `"","","","","Total Boarder Bills","",${escape(totalStudentBill.toFixed(2))}`,
     ];
 
     const blob = new Blob([lines.join('\n')], { type: 'text/csv;charset=utf-8;' });

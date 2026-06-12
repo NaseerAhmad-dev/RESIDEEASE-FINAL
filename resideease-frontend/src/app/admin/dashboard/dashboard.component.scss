@@ -101,7 +101,7 @@
 /* ─── KPI grid ────────────────────────── */
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 12px;
 
   @media (max-width: 900px) { grid-template-columns: repeat(2, 1fr); }
@@ -121,6 +121,8 @@
   &--green  { border-top-color: var(--c-success); }
   &--amber  { border-top-color: var(--c-warning); }
   &--danger { border-top-color: var(--c-danger); }
+  &--purple { border-top-color: #8b5cf6; }
+  &--sky    { border-top-color: #0ea5e9; }
 
   &:hover { box-shadow: var(--shadow-md); }
 }

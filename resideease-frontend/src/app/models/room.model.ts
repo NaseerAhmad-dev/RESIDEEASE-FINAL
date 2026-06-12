@@ -10,13 +10,21 @@ export interface Room {
   price: number;
   status: RoomStatus;
   amenities: string[];
+  hostelId?: string;
+  beds?: { id: string; bedNumber: string; status: string; studentId: string | null }[];
   createdAt: string;
 }
 
+export const AMENITY_POOL = [
+  'Private Bathroom', 'Shared Bathroom', 'Study Desk', 'Wardrobe',
+  'Locker', 'AC', 'Fan', 'WiFi', 'Hot Water', 'Balcony',
+  'TV', 'Laundry Access', 'Refrigerator', 'Parking',
+] as const;
+
 export const ROOM_AMENITIES: Record<RoomType, string[]> = {
   single: ['Private Bathroom', 'Study Desk', 'Wardrobe', 'AC'],
-  double: ['Shared Bathroom', 'Study Desks ×2', 'Wardrobes ×2', 'AC'],
-  triple: ['Shared Bathroom', 'Study Desks ×3', 'Lockers ×3', 'Fan']
+  double: ['Shared Bathroom', 'Study Desk', 'Wardrobe', 'AC'],
+  triple: ['Shared Bathroom', 'Study Desk', 'Locker', 'Fan'],
 };
 
 export const ROOM_PRICE: Record<RoomType, number> = {

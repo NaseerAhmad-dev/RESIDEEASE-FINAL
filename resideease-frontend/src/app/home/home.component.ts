@@ -40,10 +40,19 @@ export class HomeComponent {
       next: res => {
         this.loading = false;
         const role = res.data?.user?.role;
-        if      (role === 'super_admin')               this.router.navigate(['/super-admin/dashboard']);
-        else if (role === 'admin' || role === 'office') this.router.navigate(['/admin/dashboard']);
-        else if (role === 'manager')                   this.router.navigate(['/manager/dashboard']);
-        else { this.authService.clearSession(); this.tryStudentLogin(identifier!, secret!); }
+        if (role === 'super_admin') {
+          this.router.navigate(['/super-admin/dashboard']);
+        } else if (role === 'admin') {
+          const onboarded = res.data?.user?.onboardingCompleted;
+          this.router.navigate([onboarded ? '/admin/dashboard' : '/admin/setup']);
+        } else if (role === 'office') {
+          this.router.navigate(['/admin/dashboard']);
+        } else if (role === 'manager') {
+          this.router.navigate(['/manager/dashboard']);
+        } else {
+          this.authService.clearSession();
+          this.tryStudentLogin(identifier!, secret!);
+        }
       },
       error: () => this.tryEmployeeLogin(identifier!, secret!),
     });

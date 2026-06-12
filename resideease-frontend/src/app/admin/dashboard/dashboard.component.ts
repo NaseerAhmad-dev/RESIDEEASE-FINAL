@@ -71,10 +71,12 @@ export class DashboardComponent implements OnInit {
         const vacPct    = 100 - occPct;
 
         this.kpis = [
-          { label: 'Total beds',    value: totalBeds.toLocaleString(), sub: 'Total capacity',                         color: 'brand'  },
-          { label: 'Occupied',      value: occupied.toLocaleString(),  sub: `${occPct}% occupancy rate`,              color: 'green'  },
-          { label: 'Vacant',        value: s.kpis.vacant.toLocaleString(), sub: `${vacPct}% available now`,          color: 'amber'  },
-          { label: 'Pending dues',  value: this.fmtMoney(s.kpis.pendingDuesAmount), sub: `${s.kpis.pendingDuesCount} students overdue`, color: 'danger' },
+          { label: 'Total beds',    value: totalBeds.toLocaleString(),          sub: 'Total bed capacity',                              color: 'brand'  },
+          { label: 'Occupied beds', value: occupied.toLocaleString(),            sub: `${occPct}% occupancy rate`,                       color: 'green'  },
+          { label: 'Vacant beds',   value: s.kpis.vacant.toLocaleString(),      sub: `${vacPct}% beds available`,                       color: 'amber'  },
+          { label: 'Total rooms',   value: s.kpis.totalRooms.toLocaleString(),  sub: 'Across all floors',                               color: 'purple' },
+          { label: 'Vacant rooms',  value: s.kpis.vacantRooms.toLocaleString(), sub: `${s.kpis.vacantRoomsPct}% available now`,         color: 'sky'    },
+          { label: 'Pending dues',  value: this.fmtMoney(s.kpis.pendingDuesAmount), sub: `${s.kpis.pendingDuesCount} boarders overdue`, color: 'danger' },
         ];
 
         this.quickStats          = s.quickStats;

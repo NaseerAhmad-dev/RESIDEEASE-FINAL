@@ -15,11 +15,12 @@ import { StudentService } from '../services/student.service';
 export class StudentLoginComponent {
   loginForm = this.fb.group({
     rollNumber: ['', [Validators.required]],
-    phone: ['', [Validators.required]]
+    password:   ['', [Validators.required]],
   });
 
   errorMessage = '';
-  loading = false;
+  loading      = false;
+  showPassword = false;
 
   constructor(
     private readonly fb: FormBuilder,
@@ -28,38 +29,33 @@ export class StudentLoginComponent {
     private readonly studentService: StudentService,
   ) {}
 
-  fillDemo(): void {
-    this.loginForm.setValue({ rollNumber: 'CS2021001', phone: '9419001234' });
-  }
-
+  togglePassword(): void { this.showPassword = !this.showPassword; }
   login(): void {
     this.errorMessage = '';
 
     if (this.loginForm.invalid) {
-      this.errorMessage = 'Please enter your roll number and phone number.';
+      this.errorMessage = 'Please enter your roll number and password.';
       return;
     }
 
-    const { rollNumber, phone } = this.loginForm.value;
+    const { rollNumber, password } = this.loginForm.value;
     this.loading = true;
 
-    this.authService.loginStudent(rollNumber!.trim(), phone!.trim()).subscribe({
+    this.authService.loginStudent(rollNumber!.trim(), password!.trim()).subscribe({
       next: (res) => {
         this.loading = false;
-        // Find the matching localStorage record so the profile page still works
         const localStudent = this.studentService.getStudentsValue().find(
           s => s.rollNumber.toLowerCase() === res.data.user.rollNumber.toLowerCase()
         );
         if (localStudent) {
           this.router.navigate(['/student/profile', localStudent.id]);
         } else {
-          // Fallback: navigate using the API rollNumber directly
           this.router.navigate(['/student/profile', res.data.user.rollNumber]);
         }
       },
       error: (err) => {
         this.loading = false;
-        this.errorMessage = err.error?.message ?? 'Student not found. Check your roll number and phone.';
+        this.errorMessage = err.error?.message ?? 'Invalid roll number or password.';
       },
     });
   }

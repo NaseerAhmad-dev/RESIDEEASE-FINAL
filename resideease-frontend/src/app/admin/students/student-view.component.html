@@ -6,9 +6,9 @@
       <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/>
       <line x1="12" y1="16" x2="12.01" y2="16"/>
     </svg>
-    <h3>Student not found</h3>
-    <p>The student record you're looking for doesn't exist.</p>
-    <button class="btn-back" (click)="goBack()">Back to Students</button>
+    <h3>Boarder not found</h3>
+    <p>The boarder record you're looking for doesn't exist.</p>
+    <button class="btn-back" (click)="goBack()">Back to Boarders</button>
   </div>
 }
 
@@ -21,14 +21,14 @@
            fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
       </svg>
-      Back to Students
+      Back to Boarders
     </button>
     <a [routerLink]="['/admin/students/edit', student.id]" class="btn-edit">
       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
            fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>
       </svg>
-      Edit Student
+      Edit Boarder
     </a>
   </div>
 
@@ -84,7 +84,7 @@
             <dd>{{ student.residencyAccount | titlecase }}</dd>
           </div>
           <div class="info-row">
-            <dt>Student Status</dt>
+            <dt>Boarder Status</dt>
             <dd>
               <p-tag [value]="getStatusLabel(student.status)"
                      [severity]="getStatusSeverity(student.status)"></p-tag>

@@ -8,6 +8,9 @@ export interface DashboardKpis {
   totalBeds: number;
   occupied: number;
   vacant: number;
+  totalRooms: number;
+  vacantRooms: number;
+  vacantRoomsPct: number;
   pendingDuesCount: number;
   pendingDuesAmount: number;
 }

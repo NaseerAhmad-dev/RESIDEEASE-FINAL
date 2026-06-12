@@ -1,31 +1,71 @@
 <div class="re-field">
   @if (label) {
-    <label class="re-field__label">{{ label }}</label>
+    <label class="re-label">{{ label }}</label>
   }
 
   <div
-    class="re-dd-wrap"
-    [class.re-dd-wrap--invalid]="hasError"
-    [class.re-dd-wrap--disabled]="isDisabled"
-  >
-    <p-dropdown
-        styleClass="re-dropdown"
-        panelStyleClass="re-dropdown-panel"
-        [options]="options"
-        [placeholder]="placeholder"
-        [disabled]="isDisabled"
-        [filter]="showFilter"
-        [filterPlaceholder]="filterPlaceholder"
-        [optionLabel]="optionLabel"
-        [optionValue]="optionValue"
-        [(ngModel)]="value"
-        (onChange)="onSelectionChange($event.value)"
-        (onBlur)="onDropdownBlur()"
-        appendTo="body"
-      ></p-dropdown>
-    </div>
+    class="re-dd"
+    [class.re-dd--open]="isOpen"
+    [class.re-dd--invalid]="hasError"
+    [class.re-dd--disabled]="isDisabled">
 
-    @if (hasError) {
-      <span class="re-field__error">{{ errorMessage }}</span>
+    <!-- Trigger -->
+    <button
+      type="button"
+      class="re-dd__trigger"
+      [disabled]="isDisabled"
+      (click)="toggle()"
+      aria-haspopup="listbox"
+      [attr.aria-expanded]="isOpen">
+      <span class="re-dd__val" [class.re-dd__val--placeholder]="!displayLabel">
+        {{ displayLabel || placeholder }}
+      </span>
+      <svg class="re-dd__chevron" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+        <path d="M4 6l4 4 4-4" stroke="currentColor" stroke-width="1.6"
+              stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+
+    <!-- Panel -->
+    @if (isOpen) {
+      <div class="re-dd__panel" role="listbox">
+
+        @if (showFilter) {
+          <div class="re-dd__filter">
+            <svg class="re-dd__search-icon" viewBox="0 0 16 16" fill="none" aria-hidden="true">
+              <circle cx="6.5" cy="6.5" r="4" stroke="currentColor" stroke-width="1.4"/>
+              <path d="M10 10l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+            </svg>
+            <input
+              type="text"
+              class="re-dd__filter-input"
+              [(ngModel)]="filterText"
+              [placeholder]="filterPlaceholder"
+              (click)="$event.stopPropagation()"
+              autofocus />
+          </div>
+        }
+
+        <ul class="re-dd__list" role="presentation">
+          @for (opt of filteredOptions; track opt[optionValue]) {
+            <li
+              class="re-dd__item"
+              role="option"
+              [class.re-dd__item--selected]="opt[optionValue] === value"
+              (click)="select(opt)">
+              {{ opt[optionLabel] }}
+            </li>
+          }
+          @if (!filteredOptions.length) {
+            <li class="re-dd__empty">No options found</li>
+          }
+        </ul>
+
+      </div>
     }
+  </div>
+
+  @if (hasError) {
+    <span class="re-error">{{ errorMessage }}</span>
+  }
 </div>

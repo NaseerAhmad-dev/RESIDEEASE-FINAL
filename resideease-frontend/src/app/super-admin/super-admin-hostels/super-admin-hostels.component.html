@@ -24,14 +24,12 @@
       <input pInputText type="text" placeholder="Search hostel name, city…"
              [(ngModel)]="searchValue" (input)="onSearch($event)" class="search-input"/>
     </div>
-    <p-dropdown [options]="statusOptions"
-                [(ngModel)]="selectedStatus"
-                optionLabel="label" optionValue="value"
-                placeholder="All Status" [showClear]="true"
-                (ngModelChange)="onStatusFilter($event)"
-                (onClear)="onStatusFilter(null)"
-                styleClass="filter-dropdown">
-    </p-dropdown>
+    <app-dropdown
+      [(ngModel)]="selectedStatus"
+      (ngModelChange)="onStatusFilter($event)"
+      placeholder="All Status"
+      [options]="statusOptions">
+    </app-dropdown>
     <button class="btn-clear" type="button" (click)="clearFilters()">
       <svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
       Clear

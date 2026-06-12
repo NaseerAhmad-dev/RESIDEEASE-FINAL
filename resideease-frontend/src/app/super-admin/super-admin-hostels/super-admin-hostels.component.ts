@@ -4,7 +4,6 @@ import { FormsModule, ReactiveFormsModule, FormBuilder, Validators } from '@angu
 import { Router } from '@angular/router';
 import { TableModule, Table } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
-import { DropdownModule } from 'primeng/dropdown';
 import { InputTextModule } from 'primeng/inputtext';
 import { HostelService, Hostel } from '../../services/hostel.service';
 import { DropdownComponent } from '../../components/resuable/dropdown/dropdown.component';
@@ -14,7 +13,7 @@ type PanelMode = 'create' | 'edit';
 @Component({
   selector: 'app-super-admin-hostels',
   standalone: true,
-  imports: [CommonModule, FormsModule, ReactiveFormsModule, TableModule, TagModule, DropdownModule, InputTextModule, DropdownComponent],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, TableModule, TagModule, InputTextModule, DropdownComponent],
   templateUrl: './super-admin-hostels.component.html',
   styleUrl: './super-admin-hostels.component.scss'
 })

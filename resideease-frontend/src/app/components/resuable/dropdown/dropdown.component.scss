@@ -1,92 +1,202 @@
-:host {
-  display: block;
-}
+:host { display: block; }
 
+/* ── Field wrapper ── */
 .re-field {
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  margin-bottom: 1rem;
+}
 
-  &__label {
-    font-size: 12px;
-    font-weight: 600;
-    color: var(--text-secondary);
-    letter-spacing: 0.04em;
-  }
+.re-label {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  letter-spacing: 0.04em;
+}
 
-  &__error {
-    font-size: 12px;
-    color: var(--c-danger);
-    margin-top: 1px;
+.re-error {
+  font-family: var(--font-sans);
+  font-size: 12px;
+  color: var(--c-danger);
+}
+
+/* ── Container ── */
+.re-dd {
+  position: relative;
+  width: 100%;
+
+  &--disabled {
+    opacity: 0.55;
+    pointer-events: none;
   }
 }
 
-.re-dd-wrap {
+/* ── Trigger button ── */
+.re-dd__trigger {
   width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 13px;
+  background: var(--bg-input);
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--text-primary);
+  line-height: 1.4;
+  cursor: pointer;
+  text-align: left;
+  transition: border-color 0.15s, box-shadow 0.15s, background 0.15s;
+
+  &:hover:not(:disabled) {
+    border-color: var(--border-medium);
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--brand);
+    box-shadow: 0 0 0 3px rgba(10, 180, 168, 0.12);
+  }
+}
+
+.re-dd--open .re-dd__trigger {
+  border-color: var(--brand);
+  background: var(--bg-card);
+  box-shadow: 0 0 0 3px rgba(10, 180, 168, 0.12);
+}
+
+.re-dd--invalid .re-dd__trigger {
+  border-color: var(--c-danger);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.10);
+}
+
+/* Selected value / placeholder */
+.re-dd__val {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+
+  &--placeholder { color: var(--text-muted); }
+}
+
+/* Chevron SVG */
+.re-dd__chevron {
+  width: 14px;
+  height: 14px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  transition: transform 0.15s;
+}
+
+.re-dd--open .re-dd__chevron {
+  transform: rotate(180deg);
+}
+
+/* ── Panel ── */
+.re-dd__panel {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  right: 0;
+  z-index: 1050;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-md);
+  padding: 4px;
+  animation: dd-slide-in 0.13s ease both;
+  overflow: hidden;
+}
+
+@keyframes dd-slide-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ── Filter input ── */
+.re-dd__filter {
   position: relative;
+  padding: 4px 4px 6px;
+}
 
-  /* ── Trigger (the visible pill before the panel opens) ── */
-  ::ng-deep {
-    .re-dropdown {
-      &.p-dropdown {
-        width: 100%;
-        background: var(--bg-input);
-        border: 1.5px solid var(--border-light);
-        border-radius: var(--radius-md);
-        font-family: var(--font-sans);
-        transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
-        box-shadow: none;
+.re-dd__search-icon {
+  position: absolute;
+  left: 14px;
+  top: 50%;
+  transform: translateY(-60%);
+  width: 13px;
+  height: 13px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
 
-        &:not(.p-disabled):hover {
-          border-color: var(--border-medium);
-        }
+.re-dd__filter-input {
+  width: 100%;
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--text-primary);
+  background: var(--bg-input);
+  border: 1.5px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  padding: 8px 10px 8px 30px;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
 
-        &.p-focus {
-          border-color: var(--border-focus);
-          background: #fff;
-          box-shadow: 0 0 0 3px rgba(10, 180, 168, 0.12);
-          outline: none;
-        }
-
-        .p-dropdown-label {
-          color: var(--text-primary);
-          font-size: 14px;
-          font-family: var(--font-sans);
-          padding: 10px 13px;
-          line-height: 1.4;
-
-          &.p-placeholder {
-            color: var(--text-muted);
-          }
-        }
-
-        .p-dropdown-trigger {
-          color: var(--text-secondary);
-          width: 2.6rem;
-          background: transparent;
-          border-radius: 0 var(--radius-md) var(--radius-md) 0;
-        }
-
-        &.p-disabled {
-          opacity: 0.55;
-          cursor: not-allowed;
-          pointer-events: none;
-        }
-      }
-    }
+  &:focus {
+    border-color: var(--brand);
+    box-shadow: 0 0 0 2px rgba(10, 180, 168, 0.10);
   }
 
-  /* ── Error state ── */
-  &--invalid {
-    ::ng-deep .re-dropdown.p-dropdown {
-      border-color: var(--c-danger);
-      box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+  &::placeholder { color: var(--text-muted); }
+}
 
-      &.p-focus {
-        border-color: var(--c-danger);
-        box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
-      }
-    }
+/* ── Items list ── */
+.re-dd__list {
+  list-style: none;
+  max-height: 240px;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0;
+
+  &::-webkit-scrollbar { width: 4px; }
+  &::-webkit-scrollbar-thumb {
+    background: var(--border-medium);
+    border-radius: 2px;
   }
+}
+
+/* ── Individual item ── */
+.re-dd__item {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  color: var(--text-primary);
+  padding: 9px 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  line-height: 1.4;
+  transition: background 0.10s, color 0.10s;
+  list-style: none;
+
+  &:hover { background: var(--bg-hover); color: var(--brand-dark); }
+
+  &--selected {
+    background: var(--brand-light);
+    color: var(--brand);
+    font-weight: 600;
+  }
+}
+
+/* ── Empty state ── */
+.re-dd__empty {
+  font-family: var(--font-sans);
+  font-size: 13px;
+  color: var(--text-muted);
+  font-style: italic;
+  padding: 10px 12px;
+  text-align: center;
+  list-style: none;
 }
